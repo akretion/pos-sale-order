@@ -145,22 +145,22 @@ class PosOrder(models.Model):
                 session.refresh()
 
             if not float_is_zero(ui_order['amount_return'], self.env['decimal.precision'].precision_get('Account')):
-                cash_journal = session.cash_journal_id.id
+                cash_journal = session.cash_journal_id
                 if not cash_journal:
                     # Select for change one of the cash journals used in this payment
-                    cash_journal_ids = self.env['account.journal'].search([
+                    cash_journals = self.env['account.journal'].search([
                         ('type', '=', 'cash'),
                         ('id', 'in', list(journal_ids)),
                     ], limit=1)
-                    if not cash_journal_ids:
+                    if not cash_journals:
                         # If none, select for change one of the cash journals of the POS
                         # This is used for example when a customer pays by credit card
                         # an amount higher than total amount of the order and gets cash back
-                        cash_journal_ids = [statement.journal_id.id for statement in session.statement_ids
+                        cash_journals = [statement.journal_id for statement in session.statement_ids
                                             if statement.journal_id.type == 'cash']
-                        if not cash_journal_ids:
+                        if not cash_journals:
                             raise Warning(_("No cash statement found for this session. Unable to record returned cash."))
-                    cash_journal = cash_journal_ids[0]
+                    cash_journal = cash_journals[0]
                 self.add_payment(order.id, {
                     'amount': -ui_order['amount_return'],
                     'payment_date': time.strftime('%Y-%m-%d %H:%M:%S'),
