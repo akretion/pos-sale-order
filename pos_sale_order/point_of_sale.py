@@ -4,7 +4,7 @@
 
 import time
 
-from openerp import fields, models, api, _
+from openerp import fields, models, api, osv, _
 from openerp.exceptions import Warning
 from openerp.tools import float_is_zero
 
@@ -26,12 +26,37 @@ class SaleOrder(models.Model):
                                  states={'draft': [('readonly', False)]},
                                  readonly=True)
     payment_ids = fields.Many2many(readonly=True)
+    statement_ids = fields.One2many(
+        'account.bank.statement.line',
+        'pos_so_statement_id', string='Payments',
+        states={'draft': [('readonly', False)]}, readonly=True)
+    account_move = fields.Many2one(
+        'account.move', string='Journal Entry', readonly=True, copy=False)
+    amount_paid = fields.Float(
+        compute='_compute_amount_paid', string='Paid',
+        states={'draft': [('readonly', False)]}, readonly=True, digits=0)
+    amount_return = fields.Float(
+        compute='_compute_amount_paid', string='Returned', digits=0)
 
-    @api.multi
-    def confirm_sale_from_pos(self):
-        " Make sale confirmation optional "
-        self.ensure_one()
-        return True
+    @api.depends('statement_ids',)
+    def _compute_amount_paid(self):
+        for order in self:
+            order.amount_paid = order.amount_return = 0.0
+            order.amount_paid =\
+                sum(payment.amount for payment in order.statement_ids)
+            order.amount_return =\
+                sum(payment.amount < 0 and payment.amount or 0 for
+                    payment in order.statement_ids)
+
+    @api.model
+    def _prepare_invoice(self, order, lines):
+        res = super(SaleOrder, self)._prepare_invoice(order, lines)
+        import pdb; pdb.set_trace()
+        pos_anonym_journal = self.env.context.get(
+            'pos_anonym_journal', False)
+        if pos_anonym_journal:
+            res['journal_id'] = pos_anonym_journal.id
+        return res
 
 
 class PosOrder(models.Model):
@@ -218,7 +243,7 @@ class PosOrder(models.Model):
         assert journal_id or statement_id, 'No statement_id '
         'or journal_id passed to the method!'
 
-        for statement in order.session_id.statement_ids:
+        for statement in order.statement_ids:
             if statement.id == statement_id:
                 journal_id = statement.journal_id.id
                 break
@@ -233,6 +258,7 @@ class PosOrder(models.Model):
         args.update({
             'statement_id': statement_id,
             'journal_id': journal_id,
+            'pos_so_statement_id': order_id,
             'ref': order.session_id.name,
             'sale_ids': [(6, 0, [order_id])]
         })
@@ -244,9 +270,9 @@ class PosOrder(models.Model):
         """Create a new payment for the order"""
         statement_line_obj = self.env['account.bank.statement.line']
         args = self._prepare_payment_vals(order_id, data)
-        statement_line_obj.create(args)
+        statement = statement_line_obj.create(args)
 
-        return args['statement_id']
+        return statement
 
 
 class PosSession(models.Model):
@@ -268,10 +294,18 @@ class PosSession(models.Model):
             domains = {}
             domains = self._get_domains(domains, partner_id, session)
             orders = sale_obj.search(domains)
-            orders.action_invoice_create(grouped=True)
+            invoice_id = orders.with_context(
+                pos_anonym_journal=session.config_id.journal_id
+            ).action_invoice_create(grouped=True)
+            import pdb; pdb.set_trace()
+            invoice = self.env['account.invoice'].browse(invoice_id)
+            invoice.pos_anonyme_invoice = True
+            orders.signal_workflow('manual_invoice')
+            # invoice.signal_workflow('invoice_open')
+            # invoice.write({'sale_ids': [(6, 0, orders.ids)]})
+            return invoice_id
             # Dummy call to workflow, will not create another invoice
             # but bind the new invoice to the subflow
-            orders.signal_workflow('manual_invoice')
         return True
 
 
@@ -291,3 +325,18 @@ class PosConfig(models.Model):
         related='warehouse_id.lot_stock_id',
         readonly=True,
         required=False)
+
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    tax_ids_after_fiscal_position = fields.Many2many(
+        'account.tax',
+        compute='_get_tax_ids_after_fiscal_position', string='Taxes')
+
+    @api.multi
+    def _get_tax_ids_after_fiscal_position(self):
+        for line in self:
+            line.tax_ids_after_fiscal_position =\
+                line.order_id.fiscal_position_id.map_tax(
+                    line.tax_ids, line.product_id, line.order_id.partner_id)
