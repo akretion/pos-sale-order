@@ -301,8 +301,8 @@ class PosSession(models.Model):
             invoice = self.env['account.invoice'].browse(invoice_id)
             invoice.pos_anonyme_invoice = True
             orders.signal_workflow('manual_invoice')
-            # invoice.signal_workflow('invoice_open')
-            # invoice.write({'sale_ids': [(6, 0, orders.ids)]})
+            invoice.signal_workflow('invoice_open')
+            invoice.write({'sale_ids': [(6, 0, orders.ids)]})
             return invoice_id
             # Dummy call to workflow, will not create another invoice
             # but bind the new invoice to the subflow
