@@ -143,7 +143,7 @@ class PosOrder(models.Model):
         prec_acc = self.env['decimal.precision'].precision_get('Account')
 
         for tmp_order in orders_to_save:
-            to_invoice = tmp_order['to_invoice']
+            to_invoice = tmp_order.get('to_invoice', False)
             ui_order = tmp_order['data']
 
             session = self.env['pos.session'].browse(
