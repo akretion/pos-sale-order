@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-# Copyright (C) 2004-2008 PC Solutions (<http://pcsol.be>). All Rights Reserved
+#  © 2018 Akretion 
+# @author Mourad EL HADJ MIMOUNE <mourad.elhadj.mimoune@akretion.com>
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+
 from openerp import fields, models
 
 
