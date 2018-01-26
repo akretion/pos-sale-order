@@ -4,7 +4,7 @@
 
 import time
 
-from openerp import fields, models, api, osv, _
+from openerp import fields, models, api, _
 from openerp.exceptions import Warning
 from openerp.tools import float_is_zero
 
@@ -30,8 +30,6 @@ class SaleOrder(models.Model):
         'account.bank.statement.line',
         'pos_so_statement_id', string='Payments',
         states={'draft': [('readonly', False)]}, readonly=True)
-    account_move = fields.Many2one(
-        'account.move', string='Journal Entry', readonly=True, copy=False)
     amount_paid = fields.Float(
         compute='_compute_amount_paid', string='Paid',
         states={'draft': [('readonly', False)]}, readonly=True, digits=0)
@@ -51,7 +49,6 @@ class SaleOrder(models.Model):
     @api.model
     def _prepare_invoice(self, order, lines):
         res = super(SaleOrder, self)._prepare_invoice(order, lines)
-        import pdb; pdb.set_trace()
         pos_anonym_journal = self.env.context.get(
             'pos_anonym_journal', False)
         if pos_anonym_journal:
@@ -168,22 +165,30 @@ class PosOrder(models.Model):
                     {'sequence_number': ui_order['sequence_number'] + 1})
                 session.refresh()
 
-            if not float_is_zero(ui_order['amount_return'], self.env['decimal.precision'].precision_get('Account')):
+            if not float_is_zero(ui_order['amount_return'], prec_acc):
                 cash_journal = session.cash_journal_id
                 if not cash_journal:
-                    # Select for change one of the cash journals used in this payment
+                    # Select for change one of the cash
+                    # journals used in this payment
                     cash_journals = self.env['account.journal'].search([
                         ('type', '=', 'cash'),
                         ('id', 'in', list(journal_ids)),
                     ], limit=1)
                     if not cash_journals:
-                        # If none, select for change one of the cash journals of the POS
-                        # This is used for example when a customer pays by credit card
-                        # an amount higher than total amount of the order and gets cash back
-                        cash_journals = [statement.journal_id for statement in session.statement_ids
-                                            if statement.journal_id.type == 'cash']
+                        # If none, select for change one of
+                        # the cash journals of the POS
+                        # This is used for example when
+                        # a customer pays by credit card
+                        # an amount higher than total amount
+                        # of the order and gets cash back
+                        cash_journals = [
+                            statement.journal_id for statement
+                            in session.statement_ids
+                            if statement.journal_id.type == 'cash']
                         if not cash_journals:
-                            raise Warning(_("No cash statement found for this session. Unable to record returned cash."))
+                            raise Warning(
+                                _("No cash statement found for this session."
+                                    " Unable to record returned cash."))
                     cash_journal = cash_journals[0]
                 self.add_payment(order.id, {
                     'amount': -ui_order['amount_return'],
@@ -386,18 +391,3 @@ class PosConfig(models.Model):
         related='warehouse_id.lot_stock_id',
         readonly=True,
         required=False)
-
-
-class SaleOrderLine(models.Model):
-    _inherit = 'sale.order.line'
-
-    tax_ids_after_fiscal_position = fields.Many2many(
-        'account.tax',
-        compute='_get_tax_ids_after_fiscal_position', string='Taxes')
-
-    @api.multi
-    def _get_tax_ids_after_fiscal_position(self):
-        for line in self:
-            line.tax_ids_after_fiscal_position =\
-                line.order_id.fiscal_position_id.map_tax(
-                    line.tax_ids, line.product_id, line.order_id.partner_id)
