@@ -128,7 +128,6 @@ class PosOrder(models.Model):
     @api.model
     def create_from_ui(self, orders):
 
-
         # Keep only new orders
         sale_obj = self.env['sale.order']
         submitted_references = [o['data']['name'] for o in orders]
@@ -143,7 +142,7 @@ class PosOrder(models.Model):
         prec_acc = self.env['decimal.precision'].precision_get('Account')
 
         for tmp_order in orders_to_save:
-            to_invoice = tmp_order['to_invoice']
+            to_invoice = tmp_order.get('to_invoice', False)
             ui_order = tmp_order['data']
 
             session = self.env['pos.session'].browse(
@@ -248,7 +247,7 @@ class PosOrder(models.Model):
                 journal_id = statement.journal_id.id
                 break
             elif statement.journal_id.id == journal_id:
-                statement_id = statement.id
+                statement_id = statement.statement_id.id
                 break
 
         if not statement_id:
@@ -278,34 +277,96 @@ class PosOrder(models.Model):
 class PosSession(models.Model):
     _inherit = 'pos.session'
 
-    def _get_domains(self, vals, partner_id, session):
+    @api.multi
+    def _get_so_domains(
+            self, vals, anonym_partner_id, anonym_order=True):
+        self.ensure_one()
         vals = [
-            ('session_id', '=', session.id),
+            ('session_id', '=', self.id),
             ('state', '=', 'manual'),
-            ('partner_id', '=', partner_id),
         ]
+        if anonym_order:
+            vals.append(('partner_id', '=', anonym_partner_id),)
+        else:
+            vals.append(('partner_id', '!=', anonym_partner_id),)
         return vals
 
     @api.multi
     def _confirm_orders(self):
-        sale_obj = self.env['sale.order']
         for session in self:
             partner_id = session.config_id.anonymous_partner_id.id
-            domains = {}
-            domains = self._get_domains(domains, partner_id, session)
-            orders = sale_obj.search(domains)
-            invoice_id = orders.with_context(
-                pos_anonym_journal=session.config_id.journal_id
-            ).action_invoice_create(grouped=True)
-            import pdb; pdb.set_trace()
-            invoice = self.env['account.invoice'].browse(invoice_id)
-            invoice.pos_anonyme_invoice = True
-            orders.signal_workflow('manual_invoice')
-            invoice.signal_workflow('invoice_open')
-            invoice.write({'sale_ids': [(6, 0, orders.ids)]})
-            return invoice_id
-            # Dummy call to workflow, will not create another invoice
-            # but bind the new invoice to the subflow
+            invoices = self.env['account.invoice'].browse(False)
+            # invoiced order : get generated invoice
+            # and reconcile it with pos payment
+            generated_invoices = self._get_generated_invoice()
+            generated_invoices.signal_workflow('invoice_open')
+
+            self._reconcile_invoice_with_pos_payment(generated_invoices)
+            invoices |= generated_invoices
+            # anonym orders : generate grouped invoice for anonym patner
+            # and reconcile it with pos payment
+            grouped_anonym_invoice = self._generate_invoice(
+                partner_id=partner_id,
+                grouped=True, anonym_order=True, anonym_journal=True)
+            self._reconcile_invoice_with_pos_payment(grouped_anonym_invoice)
+            invoices |= grouped_anonym_invoice
+            # not anonym orders : generate invoices for not anonym patner
+            # and reconcile their with pos payment
+            invoice_not_anonym = self._generate_invoice(
+                partner_id=partner_id,
+                grouped=True, anonym_order=False, anonym_journal=True)
+            self._reconcile_invoice_with_pos_payment(invoice_not_anonym)
+            invoices |= invoice_not_anonym
+            return invoices
+        return True
+
+    def _get_generated_invoice(self):
+        sale_obj = self.env['sale.order']
+        domains = [
+            ('session_id', '=', self.id),
+        ]
+        orders = sale_obj.search(domains)
+        invoices = self.env['account.invoice'].browse(False)
+
+        for order in orders:
+            if order.invoice_ids:
+                invoices |= order.invoice_ids
+        return invoices
+
+    def _generate_invoice(
+            self, partner_id=False, grouped=False,
+            anonym_order=True, anonym_journal=True):
+        sale_obj = self.env['sale.order']
+        domains = {}
+        domains = self._get_so_domains(domains, partner_id, anonym_order=True)
+        orders = sale_obj.search(domains)
+        orders = orders.filtered(lambda so: not so.invoice_exists)
+        pos_anonym_journal = False
+        if anonym_journal:
+            pos_anonym_journal = self.config_id.journal_id
+        invoice_id = orders.with_context(
+            pos_anonym_journal=pos_anonym_journal
+        ).action_invoice_create(grouped=grouped)
+        invoice = self.env['account.invoice'].browse(invoice_id)
+        if anonym_order:
+            invoice.write({'pos_anonyme_invoice': True})
+        orders.signal_workflow('manual_invoice')
+        invoice.signal_workflow('invoice_open')
+        invoice.write({'sale_ids': [(6, 0, orders.ids)]})
+        return invoice
+
+    def _reconcile_invoice_with_pos_payment(
+            self, invoices):
+        if not invoices:
+            return False
+        payment_move_ids = self.env['account.move.line'].browse(False)
+        for invoice in invoices:
+            if invoice.state == 'open':
+                for order in invoice.sale_ids:
+                    for statement in order.statement_ids:
+                        payment_move_ids |= statement.journal_entry_id.line_id
+                    if payment_move_ids:
+                        invoice.reconcile(payment_move_ids)
         return True
 
 
