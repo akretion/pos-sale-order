@@ -46,6 +46,12 @@ class SaleOrder(models.Model):
                 sum(payment.amount < 0 and payment.amount or 0 for
                     payment in order.statement_ids)
 
+    @api.multi
+    def confirm_sale_from_pos(self):
+        " Make sale confirmation optional "
+        self.ensure_one()
+        return True
+
     @api.model
     def _prepare_invoice(self, order, lines):
         res = super(SaleOrder, self)._prepare_invoice(order, lines)
