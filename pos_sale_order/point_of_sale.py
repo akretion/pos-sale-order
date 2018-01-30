@@ -355,14 +355,14 @@ class PosSession(models.Model):
             self, invoices):
         if not invoices:
             return False
-        payment_move_ids = self.env['account.move.line'].browse(False)
         for invoice in invoices:
             if invoice.state == 'open':
+                payment_move_ids = self.env['account.move.line'].browse(False)
                 for order in invoice.sale_ids:
                     for statement in order.statement_ids:
                         payment_move_ids |= statement.journal_entry_id.line_id
-                    if payment_move_ids:
-                        invoice.reconcile(payment_move_ids)
+                if payment_move_ids:
+                    invoice.reconcile(payment_move_ids)
         return True
 
 
