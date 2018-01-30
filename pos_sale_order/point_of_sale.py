@@ -147,16 +147,19 @@ class PosOrder(models.Model):
             order = sale_obj.create(vals)
 
             journal_ids = set()
-            for payments in ui_order['statement_ids']:
-                self.add_payment(order.id, self._payment_fields(payments[2]))
-                journal_ids.add(payments[2]['journal_id'])
+
+            payments = ui_order.get('statement_ids', []) or []
+            for payment in payments:
+                if payment:
+                    self.add_payment(order.id, self._payment_fields(payment[2]))
+                    journal_ids.add(payment[2]['journal_id'])
 
             if session.sequence_number <= ui_order['sequence_number']:
                 session.write(
                     {'sequence_number': ui_order['sequence_number'] + 1})
                 session.refresh()
 
-            if not float_is_zero(ui_order['amount_return'], prec_acc):
+            if payments and not float_is_zero(ui_order['amount_return'], prec_acc):
                 cash_journal = session.cash_journal_id
                 if not cash_journal:
                     # Select for change one of the cash
