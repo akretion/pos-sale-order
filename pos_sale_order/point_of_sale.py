@@ -30,21 +30,6 @@ class SaleOrder(models.Model):
         'account.bank.statement.line',
         'pos_so_statement_id', string='Payments',
         states={'draft': [('readonly', False)]}, readonly=True)
-    amount_paid = fields.Float(
-        compute='_compute_amount_paid', string='Paid',
-        states={'draft': [('readonly', False)]}, readonly=True, digits=0)
-    amount_return = fields.Float(
-        compute='_compute_amount_paid', string='Returned', digits=0)
-
-    @api.depends('statement_ids',)
-    def _compute_amount_paid(self):
-        for order in self:
-            order.amount_paid = order.amount_return = 0.0
-            order.amount_paid =\
-                sum(payment.amount for payment in order.statement_ids)
-            order.amount_return =\
-                sum(payment.amount < 0 and payment.amount or 0 for
-                    payment in order.statement_ids)
 
     @api.multi
     def confirm_sale_from_pos(self):
