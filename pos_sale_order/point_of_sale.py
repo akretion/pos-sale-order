@@ -338,7 +338,8 @@ class PosSession(models.Model):
             anonym_order=True, anonym_journal=True):
         sale_obj = self.env['sale.order']
         domains = {}
-        domains = self._get_so_domains(domains, partner_id, anonym_order=True)
+        domains = self._get_so_domains(
+            domains, partner_id, anonym_order=anonym_order)
         orders = sale_obj.search(domains)
         orders = orders.filtered(lambda so: not so.invoice_exists)
         pos_anonym_journal = False
