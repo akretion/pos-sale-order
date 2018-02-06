@@ -5,7 +5,7 @@
 import time
 
 from openerp import fields, models, api, _
-from openerp.exceptions import Warning
+from openerp.exceptions import Warning as UserError
 from openerp.tools import float_is_zero
 
 
@@ -151,7 +151,8 @@ class PosOrder(models.Model):
             payments = ui_order.get('statement_ids', []) or []
             for payment in payments:
                 if payment:
-                    self.add_payment(order.id, self._payment_fields(payment[2]))
+                    self.add_payment(
+                        order.id, self._payment_fields(payment[2]))
                     journal_ids.add(payment[2]['journal_id'])
 
             if session.sequence_number <= ui_order['sequence_number']:
@@ -159,7 +160,8 @@ class PosOrder(models.Model):
                     {'sequence_number': ui_order['sequence_number'] + 1})
                 session.refresh()
 
-            if payments and not float_is_zero(ui_order['amount_return'], prec_acc):
+            if payments and not float_is_zero(
+                    ui_order['amount_return'], prec_acc):
                 cash_journal = session.cash_journal_id
                 if not cash_journal:
                     # Select for change one of the cash
@@ -180,7 +182,7 @@ class PosOrder(models.Model):
                             in session.statement_ids
                             if statement.journal_id.type == 'cash']
                         if not cash_journals:
-                            raise Warning(
+                            raise UserError(
                                 _("No cash statement found for this session."
                                     " Unable to record returned cash."))
                     cash_journal = cash_journals[0]
@@ -232,14 +234,15 @@ class PosOrder(models.Model):
                 msg = _('There is no receivable account defined '
                         'to make payment for the partner: "%s" (id:%d).') % (
                             order.partner_id.name, order.partner_id.id,)
-            raise Warning(_('Configuration Error!'), msg)
+            raise UserError(_('Configuration Error!'), msg)
 
         context.pop('pos_session_id', False)
 
         journal_id = data.get('journal', False)
         statement_id = data.get('statement_id', False)
-        assert journal_id or statement_id, 'No statement_id '
-        'or journal_id passed to the method!'
+        if not(journal_id or statement_id):
+            raise UserError(
+                "No statement_id or journal_id passed to the method!")
 
         for statement in order.statement_ids:
             if statement.id == statement_id:
@@ -250,8 +253,8 @@ class PosOrder(models.Model):
                 break
 
         if not statement_id:
-            raise Warning(_('Error!'),
-                          _('You have to open at least one cashbox.'))
+            raise UserError(_('Error!'),
+                            _('You have to open at least one cashbox.'))
 
         args.update({
             'statement_id': statement_id,
@@ -268,9 +271,7 @@ class PosOrder(models.Model):
         """Create a new payment for the order"""
         statement_line_obj = self.env['account.bank.statement.line']
         args = self._prepare_payment_vals(order_id, data)
-        statement = statement_line_obj.create(args)
-
-        return statement
+        return statement_line_obj.create(args)
 
 
 class PosSession(models.Model):
@@ -337,7 +338,8 @@ class PosSession(models.Model):
             anonym_order=True, anonym_journal=True):
         sale_obj = self.env['sale.order']
         domains = {}
-        domains = self._get_so_domains(domains, partner_id, anonym_order=True)
+        domains = self._get_so_domains(
+            domains, partner_id, anonym_order=anonym_order)
         orders = sale_obj.search(domains)
         orders = orders.filtered(lambda so: not so.invoice_exists)
         pos_anonym_journal = False
