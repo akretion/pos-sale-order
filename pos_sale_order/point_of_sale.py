@@ -197,8 +197,8 @@ class PosOrder(models.Model):
                 order.signal_workflow('order_confirm')
                 if to_invoice:
                     invoice_obj = self.env['account.invoice']
-                    invoice = invoice_obj.browse(order.invoice_ids.id)
                     order.signal_workflow('manual_invoice')
+                    invoice = invoice_obj.browse(order.invoice_ids.ids)
                     invoice.signal_workflow('invoice_open')
                     invoice.write({'sale_ids': [(6, 0, [order.id])]})
                 order_ids.append(order.id)
