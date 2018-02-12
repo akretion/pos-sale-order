@@ -115,7 +115,6 @@ class PosOrder(models.Model):
 
     @api.model
     def create_from_ui(self, orders):
-
         # Keep only new orders
         sale_obj = self.env['sale.order']
         submitted_references = [o['data']['name'] for o in orders]
@@ -135,11 +134,11 @@ class PosOrder(models.Model):
 
             session = self.env['pos.session'].browse(
                 ui_order['pos_session_id'])
-
             if session.state == 'closing_control' or session.state == 'closed':
-                session_id = self._get_valid_session(ui_order)
-                session = self.env['pos.session'].browse(session_id)
-                ui_order['pos_session_id'] = session_id
+                raise UserError(
+                    u"La session '%s' du PdV est close.\nVeullez fermer ce "
+                    u"dernier et le relancer\nsi vous souhaitez faire "
+                    u"une autre vente" % session.name)
 
             vals = self._prepare_sale_order_vals(ui_order)
             for line in vals['order_line']:
@@ -184,7 +183,7 @@ class PosOrder(models.Model):
                         if not cash_journals:
                             raise UserError(
                                 _("No cash statement found for this session."
-                                    " Unable to record returned cash."))
+                                  " Unable to record returned cash."))
                     cash_journal = cash_journals[0]
                 self.add_payment(order.id, {
                     'amount': -ui_order['amount_return'],
