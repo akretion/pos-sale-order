@@ -313,7 +313,7 @@ class PosSession(models.Model):
             # and reconcile their with pos payment
             invoice_not_anonym = self._generate_invoice(
                 partner_id=partner_id,
-                grouped=True, anonym_order=False, anonym_journal=True)
+                grouped=True, anonym_order=False, anonym_journal=False)
             self._reconcile_invoice_with_pos_payment(invoice_not_anonym)
             invoices |= invoice_not_anonym
             return invoices
