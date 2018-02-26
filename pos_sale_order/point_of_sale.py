@@ -313,7 +313,7 @@ class PosSession(models.Model):
             # and reconcile their with pos payment
             invoice_not_anonym = self._generate_invoice(
                 partner_id=partner_id,
-                grouped=True, anonym_order=False, anonym_journal=False)
+                grouped=False, anonym_order=False, anonym_journal=False)
             self._reconcile_invoice_with_pos_payment(invoice_not_anonym)
             invoices |= invoice_not_anonym
             return invoices
@@ -344,15 +344,26 @@ class PosSession(models.Model):
         pos_anonym_journal = False
         if anonym_journal:
             pos_anonym_journal = self.config_id.journal_id
-        invoice_id = orders.with_context(
+        invoices = self.env['account.invoice'].browse(False)
+        if grouped:
+            return self._generate_partner_invoice(
+                orders, pos_anonym_journal, grouped, anonym_order)
+        for sale in orders:
+            invoices |= self._generate_partner_invoice(
+                sale, pos_anonym_journal, grouped, anonym_order)
+        return invoices
+
+    def _generate_partner_invoice(
+            self, sale, pos_anonym_journal, grouped, anonym_order):
+        invoice_id = sale.with_context(
             pos_anonym_journal=pos_anonym_journal
         ).action_invoice_create(grouped=grouped)
         invoice = self.env['account.invoice'].browse(invoice_id)
         if anonym_order:
             invoice.write({'pos_anonyme_invoice': True})
-        orders.signal_workflow('manual_invoice')
+        sale.signal_workflow('manual_invoice')
         invoice.signal_workflow('invoice_open')
-        invoice.write({'sale_ids': [(6, 0, orders.ids)]})
+        invoice.write({'sale_ids': [(6, 0, sale.ids)]})
         return invoice
 
     def _reconcile_invoice_with_pos_payment(
