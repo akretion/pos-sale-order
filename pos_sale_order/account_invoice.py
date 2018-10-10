@@ -51,7 +51,7 @@ class AccountInvoice(models.Model):
         # In order not to have inconsistency on the partners when the reconcile
         for invoice in self:
             for order in invoice.sale_ids:
-                if (order.session_id and
+                if (invoice.pos_anonyme_invoice and order.session_id and
                         order.partner_invoice_id != invoice.partner_id):
                     order.write({'partner_invoice_id': invoice.partner_id.id})
                     order.statement_ids.write(

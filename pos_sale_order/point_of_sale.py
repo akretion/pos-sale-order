@@ -44,6 +44,9 @@ class SaleOrder(models.Model):
             'pos_anonym_journal', False)
         if pos_anonym_journal:
             res['journal_id'] = pos_anonym_journal.id
+        if order.session_id and order.partner_id == self.env.ref(
+                'pos_sale_order.res_partner_anonymous'):
+            res['pos_anonyme_invoice'] = True
         return res
 
 
