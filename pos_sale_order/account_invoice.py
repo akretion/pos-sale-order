@@ -10,6 +10,8 @@ class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
     pos_anonyme_invoice = fields.Boolean()
+    session_id = fields.Many2one(
+        comodel_name='pos.session', string="PoS Session", readonly=True)
 
     @api.multi
     def reconcile(
@@ -51,7 +53,8 @@ class AccountInvoice(models.Model):
         # In order not to have inconsistency on the partners when the reconcile
         for invoice in self:
             for order in invoice.sale_ids:
-                if (invoice.pos_anonyme_invoice and order.session_id and
+                if (invoice.pos_anonyme_invoice and
+                    invoice.session_id == order.session_id and
                         order.partner_invoice_id != invoice.partner_id):
                     order.write({'partner_invoice_id': invoice.partner_id.id})
                     order.statement_ids.write(
