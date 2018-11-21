@@ -53,11 +53,11 @@ class SaleOrder(models.Model):
     @api.multi
     def manual_invoice(self):
         # Put session_id on invoice created from POS sale order on BackOffice
-        self.ensure_one()
         res = super(SaleOrder, self).manual_invoice()
-        invoice = self.env['account.invoice'].browse(res['res_id'])
-        if not invoice.session_id and self.session_id:
-            invoice.write({'session_id': self.session_id.id})
+        for order in self:
+            invoice = self.env['account.invoice'].browse(res['res_id'])
+            if not invoice.session_id and order.session_id:
+                invoice.write({'session_id': order.session_id.id})
         return res
 
 
