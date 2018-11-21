@@ -56,7 +56,8 @@ class AccountInvoice(models.Model):
                 if (invoice.pos_anonyme_invoice and
                     invoice.session_id == order.session_id and
                         order.partner_invoice_id != invoice.partner_id):
-                    order.write({'partner_invoice_id': invoice.partner_id.id})
+                    order.write({'partner_id': invoice.partner_id.id,
+                                 'partner_invoice_id': invoice.partner_id.id})
                     order.statement_ids.write(
                         {'partner_id': invoice.partner_id.id})
         return super(AccountInvoice, self).invoice_validate()

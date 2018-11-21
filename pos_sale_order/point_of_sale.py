@@ -50,6 +50,16 @@ class SaleOrder(models.Model):
             res['pos_anonyme_invoice'] = True
         return res
 
+    @api.multi
+    def manual_invoice(self):
+        # Put session_id on invoice created from POS sale order on BackOffice
+        self.ensure_one()
+        res = super(SaleOrder, self).manual_invoice()
+        invoice = self.env['account.invoice'].browse(res['res_id'])
+        if not invoice.session_id and self.session_id:
+            invoice.write({'session_id': self.session_id.id})
+        return res
+
 
 class PosOrder(models.Model):
     _inherit = 'pos.order'
