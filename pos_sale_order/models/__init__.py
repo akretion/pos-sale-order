@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 ##############################################################################
 #
 #    POS To Sale Order module for Odoo
@@ -19,22 +18,7 @@
 #
 ##############################################################################
 
-{
-    'name': 'POS To Sale Order',
-    'version': '1.0',
-    'category': 'Point Of Sale',
-    'author': 'Akretion, Odoo Community Association (OCA)',
-    'website': 'http://www.akretion.com',
-    'license': 'AGPL-3',
-    'depends': ['point_of_sale',
-                'sale_quick_payment',
-                'account_bank_statement_sale_order',
-                ],
-    'data': ['sale_view.xml',
-             'point_of_sale_view.xml',
-             'data/res_partner_data.xml',
-             'data/pos_config_data.xml',
-             ],
-    'demo': [],
-    'installable': True,
-}
+from . import account_bank_statement
+from . import point_of_sale
+from . import pos_invoice
+from . import account_invoice
