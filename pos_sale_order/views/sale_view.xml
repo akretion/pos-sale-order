@@ -6,7 +6,7 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//notebook/page[@string='Other Information']/group" position="inside">
+                <xpath expr="//notebook/page[@name='other_information']/group" position="inside">
                     <group name="pos">
                         <field name="session_id"/>
                         <field name="pos_reference"/>

@@ -10,11 +10,7 @@
     "author": "Akretion",
     "website": "http://www.akretion.com",
     "license": "AGPL-3",
-    "depends": [
-        "point_of_sale",
-        "sale_quick_payment",
-        "account_bank_statement_sale_order",
-    ],
+    "depends": ["point_of_sale", "sale"],
     "data": [
         "views/sale_view.xml",
         "views/point_of_sale_view.xml",

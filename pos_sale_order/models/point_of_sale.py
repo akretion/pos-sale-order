@@ -30,7 +30,6 @@ class SaleOrder(models.Model):
         states={"draft": [("readonly", False)]},
         readonly=True,
     )
-    payment_ids = fields.Many2many(readonly=True)
     statement_ids = fields.One2many(
         "account.bank.statement.line",
         "pos_so_statement_id",
