@@ -2,7 +2,7 @@
 # @author Mourad EL HADJ MIMOUNE <mourad.elhadj.mimoune@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from odoo import _, api, fields, models
+from odoo import fields, models
 
 
 class AccountInvoice(models.Model):
@@ -13,67 +13,31 @@ class AccountInvoice(models.Model):
         comodel_name="pos.session", string="PoS Session", readonly=True
     )
 
-    @api.multi
-    def reconcile(
-        self,
-        payment_move_ids,
-        writeoff_acc_id=False,
-        writeoff_period_id=False,
-        writeoff_journal_id=False,
-    ):
-        # TODO check if we can use different period for
-        # payment and the writeoff line
-        self.ensure_one()
-        move_ids = payment_move_ids | self.move_id.line_id
-        lines2rec = move_ids.browse()
-        total = 0.0
-        for line in move_ids:
-            if line.account_id == self.account_id:
-                lines2rec += line
-                total += (line.debit or 0.0) - (line.credit or 0.0)
-
-        if (
-            not round(total, self.env["decimal.precision"].precision_get("Account"))
-            or writeoff_acc_id
-        ):
-            lines2rec.reconcile(
-                "manual", writeoff_acc_id, writeoff_period_id, writeoff_journal_id
-            )
-        else:
-            code = self.currency_id.symbol
-            # TODO: use currency's formatting function
-            msg = _("Invoice partially paid: %s%s of %s%s (%s%s remaining).") % (
-                0,
-                code,
-                self.amount_total,
-                code,
-                total,
-                code,
-            )
-            self.message_post(body=msg)
-            lines2rec.reconcile_partial("manual")
-
-        # Update the stored value (fields.function),
-        # so we write to trigger recompute
-        return self.write({})
-
-    @api.multi
-    def invoice_validate(self):
-        # Update invoice partner on sale order and update partner on
-        # sale order statement if different on the invoice.
-        # In order not to have inconsistency on the partners when the reconcile
-        for invoice in self:
-            for order in invoice.sale_ids:
-                if (
-                    invoice.pos_anonyme_invoice
-                    and invoice.session_id == order.session_id
-                    and order.partner_invoice_id != invoice.partner_id
-                ):
-                    order.write(
-                        {
-                            "partner_id": invoice.partner_id.id,
-                            "partner_invoice_id": invoice.partner_id.id,
-                        }
+    def _reconcile_with_pos_payment(self):
+        for record in self:
+            if record.state == "open":
+                payment_lines = record.mapped(
+                    "invoice_line_ids.sale_line_ids.order_id"
+                    ".statement_ids.journal_entry_ids"
+                ).filtered(lambda s: s.account_id == record.account_id)
+                if payment_lines:
+                    lines = record.move_id.line_ids.filtered(
+                        lambda s: s.account_id == record.account_id
                     )
-                    order.statement_ids.write({"partner_id": invoice.partner_id.id})
-        return super(AccountInvoice, self).invoice_validate()
+                    lines |= payment_lines
+                    lines.reconcile()
+        return True
+
+    def _sync_partner_invoice_on_sale(self):
+        for record in self:
+            if record.session_id:
+                orders = record.mapped(
+                    "invoice_line_ids.sale_line_ids.order_id"
+                ).filtered(lambda s: s.partner_invoice_id != record.partner_id)
+                orders.write({"partner_invoice_id": record.partner_id.id})
+
+    def write(self, vals):
+        super().write(vals)
+        if "partner_id" in vals:
+            self._sync_partner_invoice_on_sale()
+        return True

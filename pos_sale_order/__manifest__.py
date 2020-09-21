@@ -10,7 +10,7 @@
     "author": "Akretion",
     "website": "http://www.akretion.com",
     "license": "AGPL-3",
-    "depends": ["point_of_sale", "sale"],
+    "depends": ["point_of_sale", "sale", "account_reconcile_restrict_partner_mismatch"],
     "data": [
         "views/sale_view.xml",
         "views/point_of_sale_view.xml",
