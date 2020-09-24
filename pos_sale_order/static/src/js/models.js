@@ -20,16 +20,12 @@ odoo.define('pos_sale_order.models', function (require) {
                 result.resolve([]);
                 return result;
             }
+            var deferred = $.Deferred();
 
             options = options || {};
 
             var self = this;
             var timeout = typeof options.timeout === 'number' ? options.timeout : 7500 * orders.length;
-
-            // Keep the order ids that are about to be sent to the
-            // backend. In between create_from_ui and the success callback
-            // new orders may have been added to it.
-            var order_ids_to_sync = _.pluck(orders, 'id');
 
             // We try to send the order. shadow prevents a spinner if it takes too long. (unless we are sending an invoice,
             // then we want to notify the user that we are waiting on something )
@@ -46,13 +42,26 @@ odoo.define('pos_sale_order.models', function (require) {
                     timeout: timeout,
                     shadow: !options.to_invoice
                 })
-                .then(function (server_ids) {
-                    _.each(order_ids_to_sync, function (order_id) {
+                .then(function (res) {
+                    // Only remove from local storage order that have been sync sucessfully
+                    var order_server_ids = res[0]
+                    var order_uuid = res[1];
+                    var error_message = res[2];
+                    _.each(order_uuid, function (order_id) {
                         self.db.remove_order(order_id);
                     });
-                    self.set('failed',false);
-                    return server_ids;
+
+                    if (error_message) {
+                        deferred.reject("error", {"code": 200, "data": {
+                            "message": "Error",
+                            "debug": error_message,
+                        }});
+                        return deferred;
+                        };
+                    self.set('failed', false);
+                    return order_server_ids;
                 }).fail(function (type, error){
+                    console.log(type);
                     // Business Logic Error, not a connection problem
                     if(error.code === 200 ){
                         // If warning do not need to display traceback!!
@@ -67,7 +76,7 @@ odoo.define('pos_sale_order.models', function (require) {
                                 'body':  error.data.debug
                             });
                         }
-                        self.set('failed',error);
+                        self.set('failed', error);
                     }
                     console.error('Failed to send orders:', orders);
                 });

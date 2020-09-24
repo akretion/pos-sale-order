@@ -2,10 +2,14 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+import logging
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.point_of_sale.models.pos_order import PosOrder
+
+_logger = logging.getLogger(__name__)
 
 # We propagate some PosOrder method to the SaleOrder object
 # using monkey-patching to reduce at the maximun the duplicated code
@@ -122,6 +126,30 @@ class SaleOrder(models.Model):
         res = super()._prepare_invoice()
         res["session_id"] = self.session_id.id
         return res
+
+    @api.model
+    def create_from_ui(self, orders):
+        ids = []
+        order_uuid_done = []
+        order_uuid_failed = []
+        error_message = ""
+        for order in orders:
+            try:
+                with self.env.cr.savepoint():
+                    ids += super().create_from_ui([order])
+                    order_uuid_done.append(order["id"])
+            except Exception as e:
+                order_uuid_failed.append(order["id"])
+                _logger.error(
+                    "Sync POS Order failed order id {} data: {} error: {}".format(
+                        order["id"], order, e
+                    )
+                )
+        if order_uuid_failed:
+            error_message = _("Fail to sync the following order\n - {}").format(
+                "\n - ".join(order_uuid_failed)
+            )
+        return ids, order_uuid_done, error_message
 
     def write(self, vals):
         super().write(vals)
