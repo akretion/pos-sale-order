@@ -7,6 +7,7 @@ odoo.define('pos_sale_order.models', function (require) {
 
     models.Order = models.Order.extend({
         generate_unique_id: function() {
+            // eslint-disable-next-line no-undef
             return uuidv4();
         },
     },
@@ -22,6 +23,7 @@ odoo.define('pos_sale_order.models', function (require) {
             }
             var deferred = $.Deferred();
 
+            // eslint-disable-next-line no-param-reassign
             options = options || {};
 
             var self = this;
@@ -44,22 +46,21 @@ odoo.define('pos_sale_order.models', function (require) {
                 })
                 .then(function (res) {
                     // Only remove from local storage order that have been sync sucessfully
-                    var order_server_ids = res[0]
-                    var order_uuid = res[1];
-                    var error_message = res[2];
-                    _.each(order_uuid, function (order_id) {
+                    _.each(res.uuids, function (order_id) {
                         self.db.remove_order(order_id);
                     });
-
-                    if (error_message) {
+                    _.each(res.receipts, function (receipt) {
+                        self.proxy.print_receipt(receipt);
+                    });
+                    if (res.error) {
                         deferred.reject("error", {"code": 200, "data": {
                             "message": "Error",
-                            "debug": error_message,
+                            "debug": res.error,
                         }});
                         return deferred;
                         };
                     self.set('failed', false);
-                    return order_server_ids;
+                    return res.ids;
                 }).fail(function (type, error){
                     console.log(type);
                     // Business Logic Error, not a connection problem

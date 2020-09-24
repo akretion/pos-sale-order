@@ -127,29 +127,40 @@ class SaleOrder(models.Model):
         res["session_id"] = self.session_id.id
         return res
 
+    def _build_pos_error_message(self, failed):
+        return _("Fail to sync the following order\n - {}").format(
+            "\n - ".join([order["uuids"] for order in failed])
+        )
+
+    def _get_receipt(self):
+        """Inherit to generate your own ticket"""
+        return []
+
     @api.model
     def create_from_ui(self, orders):
-        ids = []
-        order_uuid_done = []
-        order_uuid_failed = []
-        error_message = ""
+        result = {"ids": [], "uuids": [], "receipts": [], "error": False}
+        failed = []
         for order in orders:
             try:
                 with self.env.cr.savepoint():
-                    ids += super().create_from_ui([order])
-                    order_uuid_done.append(order["id"])
+                    ids = super().create_from_ui([order])
+                    if ids:
+                        sale = self.browse(ids)
+                    else:
+                        sale = self.search([("pos_reference", "=", order["id"])])
+                    result["ids"] += sale.ids
+                    result["receipts"] += sale._get_receipt()
+                    result["uuids"].append(order["id"])
             except Exception as e:
-                order_uuid_failed.append(order["id"])
+                failed.append(order)
                 _logger.error(
                     "Sync POS Order failed order id {} data: {} error: {}".format(
                         order["id"], order, e
                     )
                 )
-        if order_uuid_failed:
-            error_message = _("Fail to sync the following order\n - {}").format(
-                "\n - ".join(order_uuid_failed)
-            )
-        return ids, order_uuid_done, error_message
+        if failed:
+            result["error"] = self._build_pos_error_message(failed)
+        return result
 
     def write(self, vals):
         super().write(vals)

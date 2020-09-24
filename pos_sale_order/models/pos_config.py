@@ -17,3 +17,12 @@ class PosConfig(models.Model):
         required=False,
         store=True,
     )
+    iface_print_auto = fields.Boolean(compute="_compute_print_option")
+    iface_print_via_proxy = fields.Boolean(compute="_compute_print_option")
+    iface_print_skip_screen = fields.Boolean(compute="_compute_print_option")
+
+    def _compute_print_option(self):
+        for record in self:
+            record.iface_print_auto = True
+            record.iface_print_via_proxy = True
+            record.iface_print_skip_screen = True

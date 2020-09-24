@@ -10,6 +10,9 @@
             <script
                 type="text/javascript"
                 src="/pos_sale_order/static/src/js/models.js"/>
+            <script
+                type="text/javascript"
+                src="/pos_sale_order/static/src/js/screens.js"/>
         </xpath>
     </template>
 
