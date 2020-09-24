@@ -89,7 +89,6 @@ class SaleOrder(models.Model):
             ui_order["partner_id"] = partner_id
         lines = [(0, 0, self._prepare_pos_line(line[2])) for line in ui_order["lines"]]
         return {
-            "name": ui_order["name"],
             "user_id": ui_order["user_id"] or False,
             "session_id": ui_order["pos_session_id"],
             "order_line": lines,

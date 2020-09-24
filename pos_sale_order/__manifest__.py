@@ -16,6 +16,7 @@
         "views/point_of_sale_view.xml",
         "data/res_partner_data.xml",
         "data/pos_config_data.xml",
+        "templates/assets.xml",
     ],
     "demo": [],
     "installable": True,
