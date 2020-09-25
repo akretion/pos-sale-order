@@ -71,14 +71,15 @@ class CommonCase(SavepointCase):
 
         # commented key are send by the pos but ignored by this module
         # so I comment them to track what we ignore
+        sale_uuid = str(uuid.uuid4())
         return {
             "to_invoice": to_invoice,
             "data": {
                 "sequence_number": 2,
                 "amount_tax": 0,  # not used
                 # "name": "Order 00001-001-0002",
-                "name": str(uuid.uuid4()),
-                # "uid": "00001-001-0002",
+                "name": sale_uuid,
+                "uid": sale_uuid,
                 "amount_paid": amount_paid,
                 "statement_ids": payments,
                 "fiscal_position_id": False,
@@ -92,13 +93,13 @@ class CommonCase(SavepointCase):
                 "pos_session_id": cls.session.id,
                 "user_id": cls.session.user_id.id,
             },
-            # "id": "00001-001-0002"
+            "id": sale_uuid,
         }
 
     @classmethod
     def _create_sale(cls, data):
-        sale_ids = cls.env["sale.order"].create_from_ui(data)
-        return cls.env["sale.order"].browse(sale_ids)
+        res = cls.env["sale.order"].create_from_ui(data)
+        return cls.env["sale.order"].browse(res["ids"])
 
     @classmethod
     def setUpClass(cls):
