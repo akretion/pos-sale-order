@@ -27,9 +27,12 @@ class TestCreateOrder(CommonCase):
 
     def test_create_existing_sale(self):
         data = self._get_pos_data()
-        self._create_sale([data])
         sales = self._create_sale([data])
-        self.assertEqual(len(sales), 0)
+        self.assertEqual(len(sales), 1)
+
+        # trying to push the same data should return the sale previously created
+        new_sales = self._create_sale([data])
+        self.assertEqual(new_sales, sales)
 
     def test_create_sale_with_return_amount(self):
         data = self._get_pos_data(amount_return=5)
