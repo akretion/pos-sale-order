@@ -12,8 +12,11 @@
     "license": "AGPL-3",
     "depends": ["point_of_sale", "sale", "account_reconcile_restrict_partner_mismatch"],
     "data": [
+        "security/res_groups.xml",
         "views/sale_view.xml",
         "views/point_of_sale_view.xml",
+        "views/stock_picking_view.xml",
+        "views/menu.xml",
         "data/res_partner_data.xml",
         "data/pos_config_data.xml",
         "templates/assets.xml",

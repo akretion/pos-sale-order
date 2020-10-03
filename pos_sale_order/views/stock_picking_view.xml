@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+<record id="view_pos_delivery_search" model="ir.ui.view">
+    <field name="model">stock.picking</field>
+    <field name="arch" type="xml">
+        <search string="Picking Lists">
+            <field
+                name="name"
+                string="Picking List"
+                filter_domain="['|',
+                    ('name','ilike', self),
+                    ('origin','ilike',self),
+                    ('partner_id.ref', 'ilike', self),
+                    ('partner_id.name', 'ilike', self),
+                ]"/>
+             <separator/>
+             <filter name="todo" string="ToDo" domain="[('state','not in', ('done', 'cancel'))]" help="Delivery todo"/>
+        </search>
+    </field>
+</record>
+
+<record id="action_pos_delivery" model="ir.actions.act_window">
+     <field name="name">Delivery</field>
+     <field name="res_model">stock.picking</field>
+     <field name="type">ir.actions.act_window</field>
+     <field name="view_type">form</field>
+     <field name="view_mode">tree,form</field>
+     <field name="domain">[("picking_type_id.code", "=", "outgoing")]</field>
+     <field name="context">{'search_default_todo': True}</field>
+     <field name="search_view_id" ref="view_pos_delivery_search"/>
+      <field name="help" type="html">
+       <p class="o_view_nocontent_smiling_face">
+         Define a new transfer
+       </p>
+     </field>
+</record>
+
+
+</odoo>
