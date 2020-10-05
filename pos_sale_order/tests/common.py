@@ -109,6 +109,11 @@ class CommonCase(SavepointCase):
         # Open a session and extract cashregirster
         cls.pos = cls.env.ref("point_of_sale.pos_config_main")
         cls.pos.warehouse_id = cls.env.ref("stock.warehouse0")
+        journal_obj = cls.env["account.journal"]
+        cls.check_journal = journal_obj.create({"name": "Check", "type": "bank"})
+        cls.card_journal = journal_obj.create({"name": "Card", "type": "bank"})
+        cls.cash_journal = journal_obj.search([("code", "=", "CSH1")])
+        cls.pos.journal_ids = cls.check_journal + cls.card_journal + cls.cash_journal
         cls.pos.open_session_cb()
         cls.session = cls.pos.current_session_id
         cls.cash_statement = cls.session.statement_ids.filtered(

@@ -55,7 +55,7 @@ class SaleOrder(models.Model):
     )
     statement_ids = fields.One2many(
         "account.bank.statement.line",
-        "pos_so_statement_id",
+        "pos_sale_order_id",
         string="Payments",
         states={"draft": [("readonly", False)]},
         readonly=True,
@@ -105,7 +105,7 @@ class SaleOrder(models.Model):
 
     def _prepare_bank_statement_line_payment_values(self, data):
         res = super()._prepare_bank_statement_line_payment_values(data)
-        res["pos_so_statement_id"] = res.pop("pos_statement_id")
+        res["pos_sale_order_id"] = res.pop("pos_statement_id")
         return res
 
     def action_pos_order_paid(self):

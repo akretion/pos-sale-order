@@ -6,6 +6,10 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
+                <button name="action_unlock" position="after">
+                    <button string="Pay" type="action" name="%(pos_payment_wizard_action)d"/>
+                        <!--invisible="not context.get('pay_with_pos')"/>-->
+                </button>
                 <xpath expr="//notebook/page[@name='other_information']/group" position="inside">
                     <group name="pos">
                         <field name="session_id"/>

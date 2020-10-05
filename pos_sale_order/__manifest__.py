@@ -13,6 +13,7 @@
     "depends": ["point_of_sale", "sale", "account_reconcile_restrict_partner_mismatch"],
     "data": [
         "security/res_groups.xml",
+        "wizards/pos_payment_wizard_view.xml",
         "views/sale_view.xml",
         "views/point_of_sale_view.xml",
         "views/stock_picking_view.xml",

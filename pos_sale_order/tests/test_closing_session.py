@@ -159,5 +159,57 @@ class TestClosingSession(CommonCase):
 
         self.assertEqual(set(invoices.mapped("state")), {"paid"})
 
-    def test_backoffice_sale_payment_and_close(self):
-        pass
+    def test_backoffice_payment_sale_order(self):
+        # create an order without payment
+        data = self._get_pos_data()
+        data["data"]["statement_ids"] = []
+        sale = self._create_sale([data])
+        self.session.action_pos_session_validate()
+
+        # Open a new session
+        self.pos.open_session_cb()
+        self._create_session_sale()
+
+        # Register a backoffice payment on sale order
+        wizard = (
+            self.env["pos.payment.wizard"]
+            .with_context(active_id=sale.id, active_model="sale.order")
+            .create({})
+        )
+        self.assertEqual(wizard.available_journal_ids, self.pos.journal_ids)
+        wizard.journal_id = self.cash_journal
+
+        wizard.pay()
+        self.assertEqual(len(sale.statement_ids), 1)
+
+        # Close the session and check the invoice linked to the sale order
+        self.pos.current_session_id.action_pos_session_validate()
+        self.assertEqual(sale.invoice_ids.state, "paid")
+
+    def test_pay_invoice(self):
+        # create an order without payment but request an invoice
+        data = self._get_pos_data(partner_id=self.partner_2.id)
+        data["data"]["statement_ids"] = []
+        data["to_invoice"] = True
+        data["data"]["to_invoice"] = True
+        sale = self._create_sale([data])
+        invoice = sale.invoice_ids
+        self.session.action_pos_session_validate()
+
+        # Open a new session
+        self.pos.open_session_cb()
+        self._create_session_sale()
+
+        # Register a backoffice payment on sale order
+        wizard = (
+            self.env["pos.payment.wizard"]
+            .with_context(active_id=invoice.id, active_model="account.invoice")
+            .create({})
+        )
+        self.assertEqual(wizard.available_journal_ids, self.pos.journal_ids)
+        wizard.journal_id = self.cash_journal
+        wizard.pay()
+
+        # Close the session and check the invoice linked to the sale order
+        self.pos.current_session_id.action_pos_session_validate()
+        self.assertEqual(sale.invoice_ids.state, "paid")

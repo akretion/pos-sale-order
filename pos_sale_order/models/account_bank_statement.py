@@ -17,6 +17,9 @@ class AccountBankStatement(models.Model):
 class AccountBankStatementLine(models.Model):
     _inherit = "account.bank.statement.line"
 
-    pos_so_statement_id = fields.Many2one(
-        "sale.order", string="POS SO statement", ondelete="cascade"
+    pos_sale_order_id = fields.Many2one(
+        "sale.order", string="Sale Order", ondelete="cascade"
+    )
+    pos_invoice_id = fields.Many2one(
+        "account.invoice", string="POS invoice", ondelete="cascade"
     )
