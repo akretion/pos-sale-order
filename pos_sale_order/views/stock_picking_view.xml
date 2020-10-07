@@ -39,18 +39,18 @@
 <record id="stock_picking_pos_view_tree" model="ir.ui.view">
     <field name="model">stock.picking</field>
     <field name="arch" type="xml">
-        <form string="Label" create="0">
+        <tree string="Delivery" create="0">
             <field name="name"/>
             <field name="partner_id"/>
             <field name="scheduled_date"/>
             <field name="origin"/>
             <field name="state"/>
             <button name="open_pos_delivery_wizard" type="object" string="Delivery" class="btn-primary"/>
-        </form>
+        </tree>
     </field>
 </record>
 
-<record model="ir.actions.act_window.view" id="stock_picking_pos_view_tree">
+<record model="ir.actions.act_window.view" id="action_stock_picking_pos_view_tree">
     <field name="act_window_id" ref="action_pos_delivery"/>
     <field name="sequence" eval="10"/>
     <field name="view_mode">tree</field>

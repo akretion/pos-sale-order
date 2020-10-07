@@ -31,6 +31,9 @@
                 <field name="currency_id" position="after">
                     <field name="anonymous_partner_id"/>
                 </field>
+                <field name="picking_type_id" position="attributes">
+                    <attribute name="required">False</attribute>
+                </field>
             </field>
         </record>
 
