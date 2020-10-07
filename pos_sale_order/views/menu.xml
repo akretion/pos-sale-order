@@ -25,7 +25,7 @@
 
     <menuitem id="menu_sale_order"
         name="Orders"
-        action="sale.action_orders"
+        action="action_sale_order_pos"
         parent="menu_pos_sale_order_root"
         sequence="30"/>
 
