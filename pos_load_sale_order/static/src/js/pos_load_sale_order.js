@@ -55,7 +55,7 @@ odoo.define('pos_load_sale_order.pos_load_sale_order', function (require) {
         },
         build_widgets: function() {
             this._super();
-            this.loadSaleOrderWidget.insertAfter(this.$('.order-selector'));            
+            this.loadSaleOrderWidget.insertBefore(this.$('.order-selector'));
         },
     });
 
