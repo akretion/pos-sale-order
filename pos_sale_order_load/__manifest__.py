@@ -4,7 +4,7 @@
 
 
 {
-    "name": "POS Load Sale Order",
+    "name": "POS Sale Order Load",
     "version": "12.0.0.1.0",
     "category": "Point Of Sale",
     "author": "Akretion",
@@ -15,11 +15,11 @@
         "pos_backend_communication",
     ],
     "data": [
-        "views/pos_load_sale_order.xml",
+        "views/pos_sale_order_load.xml",
         "views/sale_order.xml",
     ],
     "qweb": [
-        "static/src/xml/pos_load_sale_order.xml",
+        "static/src/xml/pos_sale_order_load.xml",
     ],
     "demo": [],
     "installable": True,

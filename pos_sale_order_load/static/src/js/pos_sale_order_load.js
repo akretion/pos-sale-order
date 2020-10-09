@@ -1,6 +1,6 @@
 'use strict';
 
-odoo.define('pos_load_sale_order.pos_load_sale_order', function (require) {
+odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
     var tools = require('pos_backend_communication.tools');
     var screens = require('point_of_sale.screens');
     var chrome = require('point_of_sale.chrome');
@@ -11,7 +11,7 @@ odoo.define('pos_load_sale_order.pos_load_sale_order', function (require) {
     var action_url;
     function open_backend(message) {
         action_url = action_url || session.rpc(
-            '/web/action/load', { "action_id":"pos_load_sale_order.action_select_sale_order_pos"})
+            '/web/action/load', { "action_id":"pos_sale_order_load.action_select_sale_order_pos"})
             .then(function (e) { return e.id; });
 
         action_url.then(function (action_id) {
