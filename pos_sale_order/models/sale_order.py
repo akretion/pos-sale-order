@@ -28,6 +28,7 @@ SaleOrderPatched._prepare_bank_statement_line_payment_values = (
     PosOrder._prepare_bank_statement_line_payment_values
 )
 SaleOrderPatched._match_payment_to_invoice = PosOrder._match_payment_to_invoice
+SaleOrderPatched._get_valid_session = PosOrder._get_valid_session
 
 
 class SaleOrder(models.Model):
