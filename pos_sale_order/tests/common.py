@@ -89,8 +89,8 @@ class CommonCase(SavepointCase):
                 "amount_return": amount_return,
                 "amount_total": amount,
                 "creation_date": fields.Datetime.to_string(fields.Datetime.now()),
-                "pos_session_id": cls.session.id,
-                "user_id": cls.session.user_id.id,
+                "pos_session_id": cls.pos.current_session_id.id,
+                "user_id": cls.pos.current_session_id.user_id.id,
             },
             "id": sale_uuid,
         }

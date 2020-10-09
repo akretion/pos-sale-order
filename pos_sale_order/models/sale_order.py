@@ -41,7 +41,6 @@ class SaleOrder(models.Model):
             "The pos_reference must be uniq per session",
         )
     ]
-
     pos_reference = fields.Char(
         string="Receipt Ref", readonly=True, copy=False, default=""
     )
@@ -68,6 +67,17 @@ class SaleOrder(models.Model):
     picking_id = fields.Many2one(
         "stock.picking", "Picking", compute="_compute_picking_id"
     )
+    unit_to_deliver = fields.Integer(compute="_compute_unit_to_deliver")
+    pos_amount_to_pay = fields.Monetary(
+        string="POS amount to pay", compute="_compute_pos_amount_to_pay", store=True
+    )
+
+    @api.depends("amount_total", "statement_ids.amount")
+    def _compute_pos_amount_to_pay(self):
+        for record in self:
+            record.pos_amount_to_pay = record.amount_total - sum(
+                record.mapped("statement_ids.amount")
+            )
 
     def _compute_invoice_id(self):
         for record in self:
@@ -76,6 +86,31 @@ class SaleOrder(models.Model):
     def _compute_picking_id(self):
         for record in self:
             record.picking_id = record.picking_ids and record.picking_ids[0]
+
+    @api.depends("order_line.product_uom_qty", "order_line.qty_delivered")
+    def _compute_unit_to_deliver(self):
+        # be carefull here the qty total is the sum of item
+        # this have a meaning for simple case when everything is a unit
+        # if it's not a unit then it have no meaning
+        # maybe you should adapt this to your case
+        for record in self:
+            record.unit_to_deliver = sum(
+                record.mapped("order_line.product_uom_qty")
+            ) - sum(record.mapped("order_line.qty_delivered"))
+
+    def open_pos_payment_wizard(self):
+        self.ensure_one()
+        wizard = self.env["pos.payment.wizard"].create_wizard(self)
+        action = wizard.get_formview_action()
+        action["target"] = "new"
+        return action
+
+    def open_pos_delivery_wizard(self):
+        self.ensure_one()
+        wizard = self.env["pos.delivery.wizard"].create_wizard(self)
+        action = wizard.get_formview_action()
+        action["target"] = "new"
+        return action
 
     def _prepare_pos_line(self, line):
         return {
@@ -153,6 +188,7 @@ class SaleOrder(models.Model):
                     result["receipts"] += sale._get_receipt()
                     result["uuids"].append(order["id"])
             except Exception as e:
+                raise
                 failed.append(order)
                 _logger.error(
                     "Sync POS Order failed order id {} data: {} error: {}".format(

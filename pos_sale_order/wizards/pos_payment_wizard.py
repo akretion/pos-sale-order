@@ -12,18 +12,14 @@ class PosPaymentWizard(models.TransientModel):
     _name = "pos.payment.wizard"
     _description = "Pos Payment Wizard"
 
-    amount = fields.Float(
-        digits=dp.get_precision("Product Price"), default=lambda s: s._default_amount()
-    )
+    amount = fields.Float(digits=dp.get_precision("Product Price"))
+    sale_order_id = fields.Many2one("sale.order")
     journal_id = fields.Many2one("account.journal", "Payment mode")
     available_journal_ids = fields.Many2many(
-        comodel_name="account.journal",
-        string="Available Journal",
-        compute="_compute_available_journal_ids",
+        comodel_name="account.journal", string="Available Journal", readonly=True
     )
 
     def _get_session(self):
-        self.ensure_one()
         session = self.env["pos.session"].search(
             [("state", "=", "opened"), ("user_id", "=", self._uid)]
         )
@@ -31,60 +27,46 @@ class PosPaymentWizard(models.TransientModel):
             raise UserError(_("There is no session Opened, please open one"))
         return session
 
-    def _compute_available_journal_ids(self):
-        self.available_journal_ids = self._get_session().mapped(
-            "statement_ids.journal_id"
-        )
-
-    def _default_amount(self):
-        record = self._get_record()
-        return record.amount_total
-
-    def _get_record(self):
-        return self.env[self._context["active_model"]].browse(
-            self._context["active_id"]
-        )
+    def create_wizard(self, sale):
+        available_journals = self._get_session().mapped("statement_ids.journal_id")
+        default_journal = available_journals[0]
+        for journal in available_journals:
+            if journal.type == "cash":
+                default_journal = journal
+                break
+        vals = {
+            "sale_order_id": sale.id,
+            "available_journal_ids": [(6, 0, available_journals.ids)],
+            "journal_id": default_journal.id,
+            "amount": sale.pos_amount_to_pay,
+        }
+        return self.create(vals)
 
     def _prepare_statement_line(self):
         session = self._get_session()
+        sale = self.sale_order_id
         statement = session.statement_ids.filtered(
             lambda s: s.journal_id == self.journal_id
         )
-        record = self._get_record()
-        name = _("Manual payment {}").format(record.name)
-        vals = {
+        name = _("Manual payment {}").format(sale.name)
+        partner = sale.partner_invoice_id.commercial_partner_id
+        account_def = (
+            self.env["ir.property"]
+            .with_context(force_company=self.journal_id.company_id.id)
+            .get("property_account_receivable_id", "res.partner")
+        )
+        account = partner.property_account_receivable_id or account_def
+        return {
             "amount": self.amount,
             "date": fields.Date.context_today(self),
             "name": name,
-            "partner_id": record.partner_id.id,
             "statement_id": statement.id,
             "journal_id": self.journal_id.id,
             "ref": session.name,
+            "partner_id": partner.id,
+            "pos_sale_order_id": sale.id,
+            "account_id": account.id,
         }
-        if record._name == "sale.order":
-            partner = record.partner_invoice_id.commercial_partner_id
-            account_def = (
-                self.env["ir.property"]
-                .with_context(force_company=self.journal_id.company_id.id)
-                .get("property_account_receivable_id", "res.partner")
-            )
-            account = partner.property_account_receivable_id or account_def
-            vals.update(
-                {
-                    "partner_id": partner.id,
-                    "pos_sale_order_id": record.id,
-                    "account_id": account.id,
-                }
-            )
-        elif record._name == "account.invoice":
-            vals.update(
-                {
-                    "partner_id": record.partner_id.commercial_partner_id.id,
-                    "pos_invoice_id": record.id,
-                    "account_id": record.account_id.id,
-                }
-            )
-        return vals
 
     def pay(self):
         vals = self._prepare_statement_line()

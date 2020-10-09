@@ -15,6 +15,7 @@
         "sale",
         "account_reconcile_restrict_partner_mismatch",
         "web_widget_numeric_step",
+        "sale_delivery_state",
     ],
     "data": [
         "security/res_groups.xml",
@@ -22,7 +23,6 @@
         "wizards/pos_delivery_wizard_view.xml",
         "views/sale_view.xml",
         "views/point_of_sale_view.xml",
-        "views/stock_picking_view.xml",
         "views/menu.xml",
         "data/res_partner_data.xml",
         "data/pos_config_data.xml",

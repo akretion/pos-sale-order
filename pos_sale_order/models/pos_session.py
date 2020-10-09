@@ -40,7 +40,7 @@ class PosSession(models.Model):
         for session in self:
             invoices = session.mapped(
                 "statement_ids.line_ids.pos_sale_order_id.invoice_ids"
-            ) + session.mapped("statement_ids.line_ids.pos_invoice_id")
+            )
             open_invoices = invoices.filtered(lambda s: s.state == "open")
             open_invoices._reconcile_with_pos_payment()
 

@@ -20,6 +20,3 @@ class AccountBankStatementLine(models.Model):
     pos_sale_order_id = fields.Many2one(
         "sale.order", string="Sale Order", ondelete="cascade"
     )
-    pos_invoice_id = fields.Many2one(
-        "account.invoice", string="POS invoice", ondelete="cascade"
-    )

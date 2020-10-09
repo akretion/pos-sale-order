@@ -5,25 +5,83 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <button name="action_unlock" position="after">
-                <button string="Pay" type="action" name="%(pos_payment_wizard_action)d"/>
-                    <!--invisible="not context.get('pay_with_pos')"/>-->
-            </button>
             <xpath expr="//notebook/page[@name='other_information']/group" position="inside">
                 <group name="pos">
                     <field name="session_id"/>
                     <field name="pos_reference"/>
-                    <field name="statement_ids"
-                        colspan="4" readonly="True">
-                            <tree>
-                                <field name="journal_id"/>
-                                <field name="statement_id"/>
-                                <field name="amount"/>
-                        </tree>
-                    </field>
                 </group>
             </xpath>
+            <field name="amount_total" position="after">
+                <field colspan="4" name="statement_ids" readonly="True" nolabel="1" attrs="{'invisible': [('statement_ids', '=', False)]}">
+                    <tree>
+                        <field name="journal_id"/>
+                        <field name="amount"/>
+                    </tree>
+                </field>
+            </field>
          </field>
+    </record>
+
+    <record id="sale_order_view_form" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <div class="oe_title" position="after">
+                <div class="row justify-content-center">
+                    <div class="col-3" attrs="{'invisible': [('delivery_state', 'not in', ('unprocessed', 'partially'))]}">
+                        <div class="card text-white bg-danger mb-3 text-center">
+                            <div class="card-header">Delivery</div>
+                            <div class="card-body">
+                                <div class="card-title display-3">
+                                    <field name="unit_to_deliver"/>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                              <button class="btn-primary btn-lg" string="Deliver" type="object" name="open_pos_delivery_wizard"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3" attrs="{'invisible': [('delivery_state', '!=', 'done')]}">
+                        <div class="card text-white bg-success mb-3 text-center">
+                            <div class="card-header">Delivery</div>
+                            <div class="card-body">
+                                <div class="card-title display-3">Done</div>
+                            </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3" attrs="{'invisible': [('pos_amount_to_pay', '=', 0)]}">
+                        <div class="card text-white bg-danger mb-3 text-center">
+                          <div class="card-header">Payment</div>
+                          <div class="card-body">
+                              <div class="card-title display-3">
+                                <field name="pos_amount_to_pay"/>
+                              </div>
+                          </div>
+                          <div class="card-footer">
+                            <button class="btn-primary btn-lg" string="Pay" type="object" name="open_pos_payment_wizard"/>
+                          </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3" attrs="{'invisible': [('pos_amount_to_pay', '!=', 0)]}">
+                        <div class="card text-white bg-success mb-3 text-center">
+                            <div class="card-header">Payment</div>
+                            <div class="card-body">
+                                <div class="card-title display-3">Done</div>
+                            </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+          </field>
     </record>
 
     <record id="sale_order_view_tree" model="ir.ui.view">
@@ -35,7 +93,8 @@
                 <field name="partner_id"/>
                 <field name="user_id"/>
                 <field name="amount_total"/>
-                <button string="Pay" type="action" name="%(pos_payment_wizard_action)d" class="btn-primary"/>
+                <field name="delivery_state"/>
+                <field name="state"/>
             </tree>
         </field>
     </record>
@@ -46,7 +105,7 @@
         <field name="res_model">sale.order</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[]</field>
+        <field name="domain">[("state", "not in", ("draft", "sent", "cancel"))]</field>
         <field name="context">{}</field>
     </record>
 
@@ -55,6 +114,13 @@
         <field name="sequence" eval="10"/>
         <field name="view_mode">tree</field>
         <field name="view_id" ref="sale_order_view_tree"/>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="action_sale_order_pos_form">
+        <field name="act_window_id" ref="action_sale_order_pos"/>
+        <field name="sequence" eval="20"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="sale_order_view_form"/>
     </record>
 
 </odoo>

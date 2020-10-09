@@ -12,16 +12,13 @@ class AccountInvoice(models.Model):
     session_id = fields.Many2one(
         comodel_name="pos.session", string="PoS Session", readonly=True
     )
-    statement_ids = fields.One2many(
-        "account.bank.statement.line", "pos_invoice_id", "Statement"
-    )
 
     def _reconcile_with_pos_payment(self):
         for record in self:
             if record.state == "open":
                 statement_lines = record.mapped(
                     "invoice_line_ids.sale_line_ids.order_id.statement_ids"
-                ) + record.mapped("invoice_line_ids.invoice_id.statement_ids")
+                )
                 payment_lines = statement_lines.mapped("journal_entry_ids").filtered(
                     lambda s: s.account_id == record.account_id and not s.reconciled
                 )

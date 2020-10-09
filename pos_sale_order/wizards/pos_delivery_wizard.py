@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import fields, models
+from odoo.exceptions import UserError
 
 import odoo.addons.decimal_precision as dp
 
@@ -20,17 +21,30 @@ class PosDeliveryWizard(models.TransientModel):
             "move_line_id": line.id,
         }
 
-    def create_wizard(self, picking):
+    def create_wizard(self, sale):
         vals = []
-        for line in picking.move_lines:
-            vals.append([0, 0, self._prepare_line(line)])
+        for picking in sale.picking_ids:
+            if picking.picking_type_id.code == "outgoing" and picking.state != "done":
+                for line in picking.move_lines:
+                    if line.state != "done":
+                        vals.append([0, 0, self._prepare_line(line)])
         return self.create({"line_ids": vals})
 
     def confirm(self):
-        picking = self.mapped("line_ids.move_line_id.picking_id")
         for line in self.line_ids:
             line.move_line_id.quantity_done = line.qty
-        return picking.button_validate()
+        res = None
+        for picking in self.mapped("line_ids.move_line_id.picking_id"):
+            result = picking.button_validate()
+            if result:
+                if res is None:
+                    res = result
+                else:
+                    raise UserError(
+                        "Fail to deliver picking have been split, please do it"
+                        "from delivery menu"
+                    )
+        return res
 
 
 class PosDeliveryWizardLine(models.TransientModel):
