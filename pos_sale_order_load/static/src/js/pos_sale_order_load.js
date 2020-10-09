@@ -61,18 +61,24 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
 
     var order_initialize_original = models.Order.prototype.initialize;
     var export_as_JSON_original = models.Order.prototype.export_as_JSON;
+    var init_from_JSON_original = models.Order.prototype.init_from_JSON;
     models.Order = models.Order.extend({
         initialize: function(attributes, options) {
-            var res = order_initialize_original.call(this, attributes, options);
             this.set('sale_order_id', null);
             this.set('only_payment', null);
+            return order_initialize_original.call(this, attributes, options);
+        },
+        init_from_JSON: function(json) {
+            var res = init_from_JSON_original.call(this, json);
+            this.sale_order_id = json.sale_order_id;
+            this.only_payment = json.only_payment;
             return res;
         },
         export_as_JSON: function() {
             var res = export_as_JSON_original.call(this);
             var order = this;
-            res['sale_order_id'] = order.get('sale_order_id');
-            res['only_payment'] = order.get('only_payment');
+            res['sale_order_id'] = order.sale_order_id;
+            res['only_payment'] = order.only_payment;
             return res;
         },
     });

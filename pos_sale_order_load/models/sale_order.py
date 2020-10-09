@@ -2,7 +2,7 @@
 # @author Raphaël Reverdy <raphael.reverdy@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from odoo import api, models
+from odoo import api, fields, models
 
 
 class SaleOrder(models.Model):
@@ -29,11 +29,8 @@ class SaleOrder(models.Model):
         return {
             "qty": line.product_uom_qty,
             "price_unit": line.price_unit,
-            "price_subtotal": line.price_subtotal,
-            "price_subtotal_incl": line.price_total,
             "discount": line.discount,
             "product_id": line.product_id.id,
-            "tax_ids": [[6, False, line.tax_id.ids]],
             "id": line.id,
             "pack_lot_ids": [],
         }
@@ -51,41 +48,44 @@ class SaleOrder(models.Model):
 
     @api.model
     def create_from_ui(self, orders):
-        sale_id = orders[0]["data"].get("sale_order_id")
+        order = orders[0]["data"]
+        sale_id = order.get("sale_order_id")
         if sale_id:
+            # We hack the reference so the sale order will be not found
+            # and so the order will be imported again
+            order["name"] = sale_id
             self = self.with_context(update_pos_sale_order_id=sale_id)
         return super().create_from_ui(orders)
 
     @api.model_create_multi
     def create(self, vals):
-        pos_sale_order_id = self._context("update_pos_sale_order_id")
+        pos_sale_order_id = self._context.get("update_pos_sale_order_id")
         if pos_sale_order_id:
-            sale = self.browse(pos_sale_order_id)
-            sale.write(vals)
+            if len(vals) == 1:
+                # In case the we update the data from the POS we only update the line
+                sale = self.browse(pos_sale_order_id)
+                sale.order_line.unlink()
+                sale.write({"order_line": vals[0]["order_line"]})
+            else:
+                raise NotImplementedError
             return sale
         return super().create(vals)
 
     def _pos_json(self):
+        uuid = self.pos_reference.replace("Order ", "")
         data = {
             "sale_order_id": self.id,
-            "name": "Order {}".format(self.pos_reference),
-            "amount_paid": 0,
-            "amount_total": self.amount_total,
-            "amount_tax": self.amount_tax,
-            "amount_return": 0,
+            "name": self.pos_reference,
             "lines": [
-                (0, 0, self._prepare_pos_json_line(line))
+                [0, 0, self._prepare_pos_json_line(line)]
                 for line in self._get_pos_line()
             ],
             "statement_ids": [],
-            # "pos_session_id": 1,
             "pricelist_id": self.pricelist_id.id,
             "partner_id": self.partner_id.id,
-            # "user_id": 2,
-            "uid": self.pos_reference,
+            "uid": uuid,
             "sequence_number": 1,
-            # "creation_date": "2020-10-08T14:42:42.290Z",
+            "creation_date": fields.Datetime.to_string(self.date_order),
             "fiscal_position_id": self.fiscal_position_id.id,
-            "to_invoice": False,
         }
-        return {"id": self.pos_reference, "data": data}
+        return {"id": uuid, "data": data}
