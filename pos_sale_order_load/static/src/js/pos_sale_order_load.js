@@ -35,8 +35,8 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
     }
     tools.callbacks['sale_order.sale_selected'] = set_so;
 
-    var LoadSaleOrderWidget = PosBaseWidget.extend({
-        template: 'LoadSaleOrderWidget',
+    var SaleOrderLoadWidget = PosBaseWidget.extend({
+        template: 'SaleOrderLoadWidget',
         renderElement: function() {
           var self = this;
           this._super();
@@ -50,12 +50,30 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
     chrome.Chrome.include({
         //put the button in the view
         init: function(parent, options) {
-            this.loadSaleOrderWidget = new LoadSaleOrderWidget(parent, options);
+            this.SaleOrderLoadWidget = new SaleOrderLoadWidget(parent, options);
             this._super(parent, options);
         },
         build_widgets: function() {
             this._super();
-            this.loadSaleOrderWidget.insertBefore(this.$('.order-selector'));
+            this.SaleOrderLoadWidget.insertBefore(this.$('.order-selector'));
+        },
+    });
+
+    var order_initialize_original = models.Order.prototype.initialize;
+    var export_as_JSON_original = models.Order.prototype.export_as_JSON;
+    models.Order = models.Order.extend({
+        initialize: function(attributes, options) {
+            var res = order_initialize_original.call(this, attributes, options);
+            this.set('sale_order_id', null);
+            this.set('only_payment', null);
+            return res;
+        },
+        export_as_JSON: function() {
+            var res = export_as_JSON_original.call(this);
+            var order = this;
+            res['sale_order_id'] = order.get('sale_order_id');
+            res['only_payment'] = order.get('only_payment');
+            return res;
         },
     });
 

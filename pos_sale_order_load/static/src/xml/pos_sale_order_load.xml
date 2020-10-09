@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <t t-name="LoadSaleOrderWidget">
+    <t t-name="SaleOrderLoadWidget">
         <div class="">
             <span class="order-button load-so">
                    Load SO

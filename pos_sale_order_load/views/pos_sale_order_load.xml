@@ -4,7 +4,7 @@
 
         <template id="pos" name="POS Index POS helper" inherit_id="point_of_sale.index">
             <xpath expr="//head" position="inside"> <!-- POS only -->
-                <script type="text/javascript" src="/pos_sale_order_load/static/src/js/pos_load_sale_order.js"></script>
+                <script type="text/javascript" src="/pos_sale_order_load/static/src/js/pos_sale_order_load.js"></script>
             </xpath>
         </template>
     </data>
