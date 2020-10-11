@@ -15,7 +15,7 @@
         id="menu_pos_dashboard"
         action="point_of_sale.action_pos_config_kanban"
         parent="menu_pos_sale_order_root"
-        name="Point de vente"
+        name="Point of Sale"
         sequence="10"/>
 
     <menuitem id="menu_sale_quotations"

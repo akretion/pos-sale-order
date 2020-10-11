@@ -1,31 +1,27 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* pos_sale_order
+#	* pos_sale_order
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 8.0\n"
+"Project-Id-Version: Odoo Server 12.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-26 17:34+0000\n"
-"PO-Revision-Date: 2015-02-26 18:41+0100\n"
-"Last-Translator: David BEAL <david.beal@akretion.com>\n"
-"Language-Team: Akretion <david.beal@akretion.com>\n"
-"Language: fr_FR\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.4\n"
-"X-Poedit-SourceCharset: UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__amount
 msgid "Amount"
-msgstr "Montant"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__anonymous_partner_id
 msgid "Anonymous Partner"
-msgstr "Client Anonyme"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__iface_print_auto
@@ -35,7 +31,7 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__available_journal_ids
 msgid "Available Journal"
-msgstr "Journaux Disponible"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_account_bank_statement
@@ -56,12 +52,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_delivery_wizard_view_form
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_payment_wizard_view_form
 msgid "Cancel"
-msgstr "Annuler"
+msgstr ""
 
 #. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_delivery_wizard_view_form
 msgid "Confirm"
-msgstr "Valider"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__create_uid
@@ -86,13 +82,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_delivery_wizard_view_form
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
 msgid "Deliver"
-msgstr "Livrer"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__delivery_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
 msgid "Delivery"
-msgstr "Livraison"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__display_name
@@ -105,30 +101,25 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
 #: selection:sale.order,pos_payment_state:0
 msgid "Done"
-msgstr "Fait"
+msgstr ""
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/sale_order.py:180
 #, python-format
-msgid ""
-"Fail to sync the following order\n"
+msgid "Fail to sync the following order\n"
 " - {}"
 msgstr ""
-"Echec de synchronisation des commandes suivantes\n"
-" - {}"
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/pos_session.py:29
 #, python-format
 msgid "Following order have a draft invoice, please fix it %s"
 msgstr ""
-"Les commandes suivant ont des factures brouillons, merci de corriger %s"
 
 #. module: pos_sale_order
 #: model:res.groups,name:pos_sale_order.group_show_pos_order
 msgid "Group to show pos order (do not use)"
 msgstr ""
-"Groupe pour afficher le menu natif du points de vente (ne pas utiliser)"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__id
@@ -141,12 +132,12 @@ msgstr ""
 #: model:ir.model,name:pos_sale_order.model_account_invoice
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__invoice_id
 msgid "Invoice"
-msgstr "Facture"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_session__invoice_ids
 msgid "Invoices"
-msgstr "Factures"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,help:pos_sale_order.field_account_bank_statement__account_id
@@ -177,143 +168,139 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__line_ids
 msgid "Lines"
-msgstr "Lignes"
+msgstr ""
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:51
 #, python-format
 msgid "Manual payment {}"
-msgstr "Paiement manuel {}"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__move_line_id
 msgid "Move Line"
-msgstr "Ligne de mouvement"
+msgstr ""
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/pos_invoice.py:18
-#, fuzzy, python-format
+#, python-format
 msgid "No link to an invoice for %s."
-msgstr "Aucune facture pour %s., "
+msgstr ""
 
 #. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
 #: selection:sale.order,pos_payment_state:0
 msgid "Not needed"
-msgstr "Non nécessaire"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_session__order_ids
 #: model:ir.ui.menu,name:pos_sale_order.menu_sale_order
 msgid "Orders"
-msgstr "Commandes"
+msgstr ""
 
 #. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.view_sales_order_filter
 msgid "POS"
-msgstr "PdV"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__pos_amount_to_pay
 msgid "POS amount to pay"
-msgstr "Montant point de vente à payer"
+msgstr ""
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/sale_order.py:167
 #, python-format
 msgid "Partner is required if you want an invoice"
-msgstr "Le client est requis si vous souhaitez facturer"
+msgstr ""
 
 #. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_payment_wizard_view_form
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
 msgid "Pay"
-msgstr "Payer"
+msgstr ""
 
 #. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
 msgid "Payment"
-msgstr "Paiement"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__journal_id
 msgid "Payment mode"
-msgstr "Mode de paiement"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__statement_ids
 msgid "Payments"
-msgstr "Paiements"
+msgstr ""
 
 #. module: pos_sale_order
 #: selection:sale.order,pos_payment_state:0
 msgid "Pending Payment"
-msgstr "En attente de paiement"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__picking_id
 msgid "Picking"
-msgstr "Livraison"
+msgstr ""
 
 #. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_payment_wizard_view_form
 msgid "Please select the journal and the amount to paid"
-msgstr "Merci de choisir le journal et le saisir le montant à payer"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_invoice__session_id
-#, fuzzy
 msgid "PoS Session"
-msgstr "Session"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.ui.menu,name:pos_sale_order.menu_pos_dashboard
 #: model:ir.ui.menu,name:pos_sale_order.menu_pos_sale_order_root
 msgid "Point of Sale"
-msgstr "Point de vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_pos_config
-#, fuzzy
 msgid "Point of Sale Configuration"
-msgstr "Point de vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_report_point_of_sale_report_invoice
-#, fuzzy
 msgid "Point of Sale Invoice Report"
-msgstr "Point de vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_pos_session
-#, fuzzy
 msgid "Point of Sale Session"
-msgstr "Point de vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_invoice__pos_anonyme_invoice
 msgid "Pos Anonyme Invoice"
-msgstr "Facture anonyme du point de vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_pos_delivery_wizard
 msgid "Pos Delivery Wizard"
-msgstr "Assistant de livraison du point de vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_pos_delivery_wizard_line
 msgid "Pos Delivery Wizard Line"
-msgstr "Ligne d'assistant de livraison du point de vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__pos_payment_state
 msgid "Pos Payment State"
-msgstr "Etat de paiement du point de vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_pos_payment_wizard
 msgid "Pos Payment Wizard"
-msgstr "Assitant de paiement"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__iface_print_via_proxy
@@ -323,22 +310,22 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__product_id
 msgid "Product"
-msgstr "Produit"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__qty
 msgid "Qty"
-msgstr "Qté"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.ui.menu,name:pos_sale_order.menu_sale_quotations
 msgid "Quotations"
-msgstr "Devis"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__pos_reference
 msgid "Receipt Ref"
-msgstr "Réf PdV"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.actions.act_window,name:pos_sale_order.action_sale_order_pos
@@ -346,25 +333,23 @@ msgstr "Réf PdV"
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__pos_sale_order_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__sale_order_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_tree
-#, fuzzy
 msgid "Sale Order"
-msgstr "Commandes de Vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_sale_order_line
-#, fuzzy
 msgid "Sales Order Line"
-msgstr "Ligne de commandes de Vente"
+msgstr ""
 
 #. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_delivery_wizard_view_form
 msgid "Select the product to delivers"
-msgstr "Choisir les produits à livrer"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__session_id
 msgid "Session"
-msgstr "Session"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__iface_print_skip_screen
@@ -374,19 +359,16 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__stock_location_id
 msgid "Stock Location"
-msgstr "Emplacement de stock"
+msgstr ""
 
 #. module: pos_sale_order
 #: sql_constraint:sale.order:0
 msgid "The pos_reference must be uniq per session"
 msgstr ""
-"La référence de commande de point de vente doit être unique par session"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,help:pos_sale_order.field_pos_config__iface_print_skip_screen
-msgid ""
-"The receipt screen will be skipped if the receipt can be printed "
-"automatically."
+msgid "The receipt screen will be skipped if the receipt can be printed automatically."
 msgstr ""
 
 #. module: pos_sale_order
@@ -408,33 +390,10 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__unit_to_deliver
 msgid "Unit To Deliver"
-msgstr "Unité à livrer"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__warehouse_id
 msgid "Warehouse"
-msgstr "Entrepots"
+msgstr ""
 
-#~ msgid "Configuration Error!"
-#~ msgstr "Erreur de paramétrage !"
-
-#~ msgid "Error!"
-#~ msgstr "Erreur !"
-
-#~ msgid "Sale Order from Pos"
-#~ msgstr "Commande de Vente depuis PdV"
-
-#, fuzzy
-#~ msgid ""
-#~ "There is no receivable account defined to make payment for the partner: "
-#~ "\"%s\" (id:%d)."
-#~ msgstr ""
-#~ "Il n'y a pas de compte réception définie pour faire le paiement pour le "
-#~ "partenaire: \"%s\" (id:%d)."
-
-#, fuzzy
-#~ msgid "There is no receivable account defined to make payment."
-#~ msgstr "Il n'y a pas de compte réception définie pour faire le paiement"
-
-#~ msgid "You have to open at least one cashbox."
-#~ msgstr "Vous devez ouvrir au moins une caisse."
