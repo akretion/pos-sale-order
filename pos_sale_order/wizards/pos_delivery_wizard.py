@@ -2,7 +2,7 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models
+from odoo import _, fields, models
 from odoo.exceptions import UserError
 
 import odoo.addons.decimal_precision as dp
@@ -41,8 +41,10 @@ class PosDeliveryWizard(models.TransientModel):
                     res = result
                 else:
                     raise UserError(
-                        "Fail to deliver picking have been split, please do it"
-                        "from delivery menu"
+                        _(
+                            "Fail to deliver picking have been split, please do it "
+                            "from delivery menu"
+                        )
                     )
         return res
 

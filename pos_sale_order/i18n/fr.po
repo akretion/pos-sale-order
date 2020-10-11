@@ -108,6 +108,15 @@ msgid "Done"
 msgstr "Fait"
 
 #. module: pos_sale_order
+#: code:addons/pos_sale_order/wizards/pos_delivery_wizard.py:43
+#, fuzzy, python-format
+msgid ""
+"Fail to deliver picking have been split, please do it from delivery menu"
+msgstr ""
+"Impossible de livrer une commande avec plusieurs bon de livraison, veuiller "
+"le traiter depuis le menu livraison"
+
+#. module: pos_sale_order
 #: code:addons/pos_sale_order/models/sale_order.py:180
 #, python-format
 msgid ""

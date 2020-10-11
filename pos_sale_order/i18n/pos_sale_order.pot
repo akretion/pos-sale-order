@@ -104,6 +104,12 @@ msgid "Done"
 msgstr ""
 
 #. module: pos_sale_order
+#: code:addons/pos_sale_order/wizards/pos_delivery_wizard.py:43
+#, python-format
+msgid "Fail to deliver picking have been split, please do it from delivery menu"
+msgstr ""
+
+#. module: pos_sale_order
 #: code:addons/pos_sale_order/models/sale_order.py:180
 #, python-format
 msgid "Fail to sync the following order\n"
