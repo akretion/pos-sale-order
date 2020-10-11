@@ -68,16 +68,29 @@ class SaleOrder(models.Model):
         "stock.picking", "Picking", compute="_compute_picking_id"
     )
     unit_to_deliver = fields.Integer(compute="_compute_unit_to_deliver")
+    pos_payment_state = fields.Selection(
+        [("none", "Not needed"), ("pending", "Pending Payment"), ("done", "Done")],
+        compute="_compute_pos_payment",
+    )
     pos_amount_to_pay = fields.Monetary(
-        string="POS amount to pay", compute="_compute_pos_amount_to_pay", store=True
+        string="POS amount to pay", compute="_compute_pos_payment", store=True
     )
 
-    @api.depends("amount_total", "statement_ids.amount")
-    def _compute_pos_amount_to_pay(self):
+    @api.depends("amount_total", "statement_ids.amount", "state")
+    def _compute_pos_payment(self):
         for record in self:
-            record.pos_amount_to_pay = record.amount_total - sum(
-                record.mapped("statement_ids.amount")
-            )
+            if record.state in ("draft", "cancel", "sent") or not record.amount_total:
+                record.pos_amount_to_pay = 0
+                record.pos_payment_state = "none"
+            else:
+                residual = record.amount_total - sum(
+                    record.mapped("statement_ids.amount")
+                )
+                record.pos_amount_to_pay = residual
+                if residual == 0:
+                    record.pos_payment_state = "done"
+                else:
+                    record.pos_payment_state = "pending"
 
     def _compute_invoice_id(self):
         for record in self:
@@ -188,7 +201,6 @@ class SaleOrder(models.Model):
                     result["receipts"] += sale._get_receipt()
                     result["uuids"].append(order["id"])
             except Exception as e:
-                raise
                 failed.append(order)
                 _logger.error(
                     "Sync POS Order failed order id {} data: {} error: {}".format(

@@ -28,7 +28,8 @@
         <field name="mode">primary</field>
         <field name="arch" type="xml">
             <div class="oe_title" position="after">
-                <div class="row justify-content-center">
+                <field name="pos_payment_state" invisible="0"/>
+                <div class="row justify-content-center" attrs="{'invisible': [('state', 'in', ('draft', 'sent', 'cancel'))]}">
                     <div class="col-3" attrs="{'invisible': [('delivery_state', 'not in', ('unprocessed', 'partially'))]}">
                         <div class="card text-white bg-danger mb-3 text-center">
                             <div class="card-header">Delivery</div>
@@ -54,7 +55,7 @@
                         </div>
                     </div>
 
-                    <div class="col-3" attrs="{'invisible': [('pos_amount_to_pay', '=', 0)]}">
+                    <div class="col-3" attrs="{'invisible': [('pos_payment_state', '!=', 'pending')]}">
                         <div class="card text-white bg-danger mb-3 text-center">
                           <div class="card-header">Payment</div>
                           <div class="card-body">
@@ -68,11 +69,22 @@
                         </div>
                     </div>
 
-                    <div class="col-3" attrs="{'invisible': [('pos_amount_to_pay', '!=', 0)]}">
+                    <div class="col-3" attrs="{'invisible': [('pos_payment_state', '!=', 'done')]}">
                         <div class="card text-white bg-success mb-3 text-center">
                             <div class="card-header">Payment</div>
                             <div class="card-body">
                                 <div class="card-title display-3">Done</div>
+                            </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3" attrs="{'invisible': [('pos_payment_state', '!=', 'none')]}">
+                        <div class="card text-white bg-dark mb-3 text-center">
+                            <div class="card-header">Payment</div>
+                            <div class="card-body">
+                                <div class="card-title display-3">Not needed</div>
                             </div>
                             <div class="card-footer">
                             </div>
