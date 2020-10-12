@@ -83,6 +83,7 @@ class SaleOrder(models.Model):
             "statement_ids": [],
             "pricelist_id": self.pricelist_id.id,
             "partner_id": self.partner_id.id,
+            "partner_name": self.partner_id.name,
             "uid": uuid,
             "sequence_number": 1,
             "creation_date": fields.Datetime.to_string(self.date_order),

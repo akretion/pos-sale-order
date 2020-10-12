@@ -8,6 +8,7 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
     var translation = require('web.translation');
     var PosBaseWidget = require('point_of_sale.BaseWidget');
     var session = require('web.session');
+    var PosDB = require('point_of_sale.DB');
     var action_url;
     function open_backend(message) {
         action_url = action_url || session.rpc(
@@ -24,13 +25,33 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
     function set_so(message)  {
         var data = message.data;
         var json = data.payload.data;
-        var order = new models.Order({},{
-                pos:  posmodel, // it's a global
-                json: json,
-        });
-        posmodel.get('orders').add(order);
-        posmodel.set('selectedOrder', order);
+        // add the customer to list of customers
+        // mandatory if used with pos_backend_partner
+        var partner = {id: json.partner_id, name: json.partner_name, country_id: [] };
+        posmodel.db.add_partners([partner]);
 
+        // ensure uuid unicity (no duplicates) 
+        var uuid = json.uid;
+        var order;
+        var already_loaded = posmodel.get_order_list().some(function (o) {
+            if (o.uid == uuid) {
+                order = o;
+                return true;
+            }
+            return false;
+        });
+        if (!already_loaded) {
+            order = new models.Order({},{
+                    pos:  posmodel, // it's a global
+                    json: json,
+            });
+            order.sequence_number = posmodel.pos_session.sequence_number++;
+            posmodel.get('orders').add(order);
+        } else {
+            console.log('order already loaded');
+        }
+
+        posmodel.set('selectedOrder', order);
         alert(_t('SO Loaded')); //try to get the focus back
     }
     tools.callbacks['sale_order.sale_selected'] = set_so;
