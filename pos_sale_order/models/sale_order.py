@@ -196,7 +196,9 @@ class SaleOrder(models.Model):
                     if ids:
                         sale = self.browse(ids)
                     else:
-                        sale = self.search([("pos_reference", "=", order["id"])])
+                        sale = self.search(
+                            [("pos_reference", "=", order["data"]["name"])]
+                        )
                     result["ids"] += sale.ids
                     result["receipts"] += sale._get_receipt()
                     result["uuids"].append(order["id"])

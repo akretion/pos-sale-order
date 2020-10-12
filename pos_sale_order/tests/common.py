@@ -123,22 +123,16 @@ class CommonCase(SavepointCase):
                 "product_id": cls.env.ref("product.product_product_1").id,
                 "qty": 3.0,
                 "price_unit": 10.0,
-                "pack_lot_ids": [],
-                "discount": 0,
             },
             {
                 "product_id": cls.env.ref("product.product_product_3").id,
                 "qty": 1.0,
                 "price_unit": 5.0,
-                "pack_lot_ids": [],
-                "discount": 0,
             },
             {
                 "product_id": cls.env.ref("product.product_product_5").id,
                 "qty": 2.0,
                 "price_unit": 15.0,
-                "pack_lot_ids": [],
-                "discount": 0,
             },
         ]
         cls.partner_2 = cls.env.ref("base.res_partner_2")
