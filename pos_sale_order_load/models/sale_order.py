@@ -35,17 +35,6 @@ class SaleOrder(models.Model):
             "pack_lot_ids": [],
         }
 
-    #            "config": {
-    #                "selected_options": [
-    #                    {
-    #                        "id": "1",
-    #                        "product_id": "4",
-    #                        "description": "Poche",
-    #                        "quantity": 2,
-    #                        "price": 1,
-    #                        "notes": "fdsfdfsfds",
-    #                    }
-
     @api.model
     def create_from_ui(self, orders):
         order = orders[0]["data"]
