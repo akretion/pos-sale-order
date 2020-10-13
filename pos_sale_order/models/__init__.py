@@ -19,6 +19,9 @@
 ##############################################################################
 
 from . import account_bank_statement
-from . import point_of_sale
 from . import pos_invoice
+from . import pos_config
+from . import pos_session
 from . import account_invoice
+from . import sale_order
+from . import sale_order_line

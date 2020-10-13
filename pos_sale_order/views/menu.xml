@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="point_of_sale.menu_point_root" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [ref('group_show_pos_order')])]"/>
+    </record>
+
+    <menuitem
+        id="menu_pos_sale_order_root"
+        name="Point of Sale"
+        groups="point_of_sale.group_pos_manager,point_of_sale.group_pos_user"
+        web_icon="point_of_sale,static/description/icon.png"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_pos_dashboard"
+        action="point_of_sale.action_pos_config_kanban"
+        parent="menu_pos_sale_order_root"
+        name="Point of Sale"
+        sequence="10"/>
+
+    <menuitem id="menu_sale_quotations"
+        action="sale.action_quotations_with_onboarding"
+        parent="menu_pos_sale_order_root"
+        sequence="20"/>
+
+    <menuitem id="menu_sale_order"
+        name="Orders"
+        action="action_sale_order_pos"
+        parent="menu_pos_sale_order_root"
+        sequence="30"/>
+
+</odoo>

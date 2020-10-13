@@ -1,0 +1,1 @@
+odoo12-addon-sale-delivery-state @ git+https://github.com/akretion/sale-workflow@9f806500c2ef8ee00169a537198a2720dd1f2905#subdirectory=setup/sale_delivery_state
