@@ -1,17 +1,16 @@
-'use strict';
+/* global posmodel _t */
+/* eslint-disable no-alert */
 
 odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
+    "use strict";
     var tools = require('pos_backend_communication.tools');
-    var screens = require('point_of_sale.screens');
     var chrome = require('point_of_sale.chrome');
     var models = require('point_of_sale.models');
-    var translation = require('web.translation');
     var PosBaseWidget = require('point_of_sale.BaseWidget');
     var session = require('web.session');
-    var PosDB = require('point_of_sale.DB');
-    var action_url;
-    function open_backend(message) {
-        action_url = action_url || session.rpc(
+    var action_url = null;
+    function open_backend() {
+        action_url = action_url || session.rpc(
             '/web/action/load', { "action_id":"pos_sale_order_load.action_select_sale_order_pos"})
             .then(function (e) { return e.id; });
 
@@ -22,44 +21,44 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
         });
     }
 
-    function set_so(message)  {
+    function set_so(message) {
         var data = message.data;
         var json = data.payload.data;
-        // add the customer to list of customers
+        // Add the customer to list of customers
         // mandatory if used with pos_backend_partner
         var partner = {id: json.partner_id, name: json.partner_name, country_id: [] };
         posmodel.db.add_partners([partner]);
 
-        // ensure uuid unicity (no duplicates) 
+        // Ensure uuid unicity (no duplicates)
         var uuid = json.uid;
-        var order;
+        var order = null;
         var already_loaded = posmodel.get_order_list().some(function (o) {
-            if (o.uid == uuid) {
+            if (o.uid === uuid) {
                 order = o;
                 return true;
             }
             return false;
         });
-        if (!already_loaded) {
+        if (already_loaded) {
+            console.log('order already loaded');
+        } else {
             order = new models.Order({},{
-                    pos:  posmodel, // it's a global
+                    pos:  posmodel,
                     json: json,
             });
             order.sequence_number = posmodel.pos_session.sequence_number++;
             posmodel.get('orders').add(order);
-        } else {
-            console.log('order already loaded');
         }
 
         posmodel.set('selectedOrder', order);
-        alert(_t('SO Loaded')); //try to get the focus back
+        // Try to get the focus back
+        alert(_t('SO Loaded'));
     }
     tools.callbacks['sale_order.sale_selected'] = set_so;
 
     var SaleOrderLoadWidget = PosBaseWidget.extend({
         template: 'SaleOrderLoadWidget',
         renderElement: function() {
-          var self = this;
           this._super();
           this.$('.load-so').click(function(){
               open_backend();
@@ -69,7 +68,7 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
 
 
     chrome.Chrome.include({
-        //put the button in the view
+        // Put the button in the view
         init: function(parent, options) {
             this.SaleOrderLoadWidget = new SaleOrderLoadWidget(parent, options);
             this._super(parent, options);
@@ -98,8 +97,8 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
         export_as_JSON: function() {
             var res = export_as_JSON_original.call(this);
             var order = this;
-            res['sale_order_id'] = order.sale_order_id;
-            res['only_payment'] = order.only_payment;
+            res.sale_order_id = order.sale_order_id;
+            res.only_payment = order.only_payment;
             return res;
         },
     });
