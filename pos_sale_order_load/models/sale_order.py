@@ -40,9 +40,6 @@ class SaleOrder(models.Model):
         order = orders[0]["data"]
         sale_id = order.get("sale_order_id")
         if sale_id:
-            # We hack the reference so the sale order will be not found
-            # and so the order will be imported again
-            order["name"] = sale_id
             self = self.with_context(update_pos_sale_order_id=sale_id)
         return super().create_from_ui(orders)
 
@@ -61,10 +58,10 @@ class SaleOrder(models.Model):
         return super().create(vals)
 
     def _pos_json(self):
-        uuid = self.pos_reference.replace("Order ", "")
         data = {
             "sale_order_id": self.id,
-            "name": self.pos_reference,
+            "sale_order_name": self.name,
+            "name": self.name,
             "lines": [
                 [0, 0, self._prepare_pos_json_line(line)]
                 for line in self._get_pos_line()
@@ -73,9 +70,9 @@ class SaleOrder(models.Model):
             "pricelist_id": self.pricelist_id.id,
             "partner_id": self.partner_id.id,
             "partner_name": self.partner_id.name,
-            "uid": uuid,
+            "uid": self.id,
             "sequence_number": 1,
             "creation_date": fields.Datetime.to_string(self.date_order),
             "fiscal_position_id": self.fiscal_position_id.id,
         }
-        return {"id": uuid, "data": data}
+        return {"id": self.id, "data": data}

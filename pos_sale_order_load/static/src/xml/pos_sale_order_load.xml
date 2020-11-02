@@ -5,4 +5,18 @@
             <a class="order-button load-so" href="/web#view_type=list&amp;model=sale.order&amp;action=pos_sale_order_load.action_select_sale_order_pos" target="backoffice">Load SO</a>
         </div>
     </t>
+
+    <t t-extend="OrderSelectorWidget">
+        <t t-jquery=".order-sequence" t-operation="replace">
+            <span class='order-sequence'>
+                <t t-if='order.sale_order_name != undefined'>
+                    <t t-esc='order.sale_order_name'/>
+                </t>
+                <t t-else="">
+                    <t t-esc='order.sequence_number'/>
+                </t>
+            </span>
+        </t>
+    </t>
+
 </odoo>

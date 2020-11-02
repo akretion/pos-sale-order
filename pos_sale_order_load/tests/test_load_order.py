@@ -12,13 +12,15 @@ class TestCreateOrder(CommonCase):
         sales = self._create_sale([data])
         ori = data["data"]
         expected_data = {
-            "name": ori["name"],
+            "name": sales.name,
             "partner_id": ori["partner_id"],
-            "uid": ori["uid"],
+            "partner_name": sales.partner_id.name,
+            "uid": sales.id,
             "pricelist_id": ori["pricelist_id"],
             "statement_ids": [],
             "sequence_number": 1,
             "sale_order_id": sales.id,
+            "sale_order_name": sales.name,
             "fiscal_position_id": False,
             "creation_date": ori["creation_date"],
             "lines": [
