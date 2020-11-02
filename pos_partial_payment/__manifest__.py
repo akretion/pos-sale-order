@@ -9,12 +9,8 @@
     "author": "Akretion",
     "website": "https://www.akretion.com",
     "license": "AGPL-3",
-    "depends": [
-        "pos_sale_order",
-    ],
-    "data": [
-        "views/pos_partial_payment.xml",
-    ],
+    "depends": ["pos_sale_order"],
+    "data": ["views/pos_partial_payment.xml"],
     "demo": [],
     "installable": True,
 }
