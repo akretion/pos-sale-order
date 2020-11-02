@@ -7,19 +7,6 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
     var chrome = require('point_of_sale.chrome');
     var models = require('point_of_sale.models');
     var PosBaseWidget = require('point_of_sale.BaseWidget');
-    var session = require('web.session');
-    var action_url = null;
-    function open_backend() {
-        action_url = action_url || session.rpc(
-            '/web/action/load', { "action_id":"pos_sale_order_load.action_select_sale_order_pos"})
-            .then(function (e) { return e.id; });
-
-        action_url.then(function (action_id) {
-            var url = "/web#view_type=list&model=sale.order&action=" + action_id;
-            var msg = {'type': 'sale_order.choose'};
-            tools.open_page(url, msg, 'sale_order');
-        });
-    }
 
     function set_so(message) {
         var data = message.data;
@@ -60,12 +47,8 @@ odoo.define('pos_sale_order_load.pos_sale_order_load', function (require) {
         template: 'SaleOrderLoadWidget',
         renderElement: function() {
           this._super();
-          this.$('.load-so').click(function(){
-              open_backend();
-          });
         }
     });
-
 
     chrome.Chrome.include({
         // Put the button in the view

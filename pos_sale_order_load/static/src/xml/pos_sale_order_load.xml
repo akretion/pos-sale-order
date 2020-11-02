@@ -2,9 +2,7 @@
 <odoo>
     <t t-name="SaleOrderLoadWidget">
         <div class="">
-            <span class="order-button load-so">
-                   Load SO
-            </span>
+            <a class="order-button load-so" href="/web#view_type=list&amp;model=sale.order&amp;action=pos_sale_order_load.action_select_sale_order_pos" target="backoffice">Load SO</a>
         </div>
     </t>
 </odoo>
