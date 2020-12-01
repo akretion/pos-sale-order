@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <t t-name="SaleWidget">
+        <div class="oe_status">
+            <div class="js_connected oe_icon">
+                <a class="fa fa-shopping-cart" style="color:white" href="/web#view_type=list&amp;model=sale.order&amp;action=pos_sale_order.action_sale_order_pos" target="backoffice"/>
+            </div>
+        </div>
+    </t>
+
+</odoo>

@@ -18,6 +18,13 @@
         name="Point of Sale"
         sequence="10"/>
 
+    <menuitem
+        id="menu_pos_customer"
+        action="pos_backend_partner.action_select_partner_pos"
+        parent="menu_pos_sale_order_root"
+        name="Customer"
+        sequence="15"/>
+
     <menuitem id="menu_sale_quotations"
         action="sale.action_quotations_with_onboarding"
         parent="menu_pos_sale_order_root"

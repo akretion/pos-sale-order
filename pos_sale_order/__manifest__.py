@@ -28,6 +28,7 @@
         "data/pos_config_data.xml",
         "templates/assets.xml",
     ],
+    "qweb": ["static/src/xml/pos_sale_order.xml"],
     "demo": [],
     "installable": True,
     "post_init_hook": "post_init_hook",
