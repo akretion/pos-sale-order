@@ -8,7 +8,6 @@ from odoo import api, fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    @api.multi
     def select_in_pos_current_order(self):
         """
         Action called from view with self.id = a res.partner.

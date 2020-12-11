@@ -12,7 +12,6 @@ class PosSession(models.Model):
     order_ids = fields.One2many("sale.order", "session_id", string="Orders")
     invoice_ids = fields.One2many("account.invoice", "session_id", string="Invoices")
 
-    @api.multi
     def _confirm_orders(self):
         for session in self:
             draft_sales = session.order_ids.filtered(lambda s: s.state == "draft")
