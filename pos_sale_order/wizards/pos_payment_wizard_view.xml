@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
 
 
@@ -9,13 +9,16 @@
             <p class="oe_grey">Please select the journal and the amount to paid
             </p>
             <group>
-                <field name="available_journal_ids" invisible="1"/>
-                <field name="journal_id" domain="[('id', 'in', available_journal_ids)]"/>
-                <field name="amount"/>
+                <field name="available_journal_ids" invisible="1" />
+                <field
+                        name="journal_id"
+                        domain="[('id', 'in', available_journal_ids)]"
+                    />
+                <field name="amount" />
             </group>
             <footer>
-                <button name="pay" string="Pay" type="object" class="btn-primary"/>
-                <button string="Cancel" class="btn-secondary" special="cancel"/>
+                <button name="pay" string="Pay" type="object" class="btn-primary" />
+                <button string="Cancel" class="btn-secondary" special="cancel" />
             </footer>
         </form>
     </field>

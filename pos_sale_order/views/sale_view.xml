@@ -1,21 +1,30 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <odoo>
 
     <record id="view_order_form" model="ir.ui.view">
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
-            <xpath expr="//notebook/page[@name='other_information']/group" position="inside">
+            <xpath
+                expr="//notebook/page[@name='other_information']/group"
+                position="inside"
+            >
                 <group name="pos">
-                    <field name="session_id"/>
-                    <field name="pos_reference"/>
+                    <field name="session_id" />
+                    <field name="pos_reference" />
                 </group>
             </xpath>
             <field name="amount_total" position="after">
-                <field colspan="4" name="statement_ids" readonly="True" nolabel="1" attrs="{'invisible': [('statement_ids', '=', False)]}">
+                <field
+                    colspan="4"
+                    name="statement_ids"
+                    readonly="True"
+                    nolabel="1"
+                    attrs="{'invisible': [('statement_ids', '=', False)]}"
+                >
                     <tree>
-                        <field name="journal_id"/>
-                        <field name="amount"/>
+                        <field name="journal_id" />
+                        <field name="amount" />
                     </tree>
                 </field>
             </field>
@@ -24,27 +33,41 @@
 
     <record id="sale_order_view_form" model="ir.ui.view">
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="inherit_id" ref="sale.view_order_form" />
         <field name="mode">primary</field>
         <field name="arch" type="xml">
             <div class="oe_title" position="after">
-                <field name="pos_payment_state" invisible="0"/>
-                <div class="row justify-content-center" attrs="{'invisible': [('state', 'in', ('draft', 'sent', 'cancel'))]}">
-                    <div class="col-3" attrs="{'invisible': [('delivery_state', 'not in', ('unprocessed', 'partially'))]}">
+                <field name="pos_payment_state" invisible="0" />
+                <div
+                    class="row justify-content-center"
+                    attrs="{'invisible': [('state', 'in', ('draft', 'sent', 'cancel'))]}"
+                >
+                    <div
+                        class="col-3"
+                        attrs="{'invisible': [('delivery_state', 'not in', ('unprocessed', 'partially'))]}"
+                    >
                         <div class="card text-white bg-danger mb-3 text-center">
                             <div class="card-header">Delivery</div>
                             <div class="card-body">
                                 <div class="card-title display-3">
-                                    <field name="unit_to_deliver"/>
+                                    <field name="unit_to_deliver" />
                                 </div>
                             </div>
                             <div class="card-footer">
-                              <button class="btn-primary btn-lg" string="Deliver" type="object" name="open_pos_delivery_wizard"/>
+                              <button
+                                    class="btn-primary btn-lg"
+                                    string="Deliver"
+                                    type="object"
+                                    name="open_pos_delivery_wizard"
+                                />
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-3" attrs="{'invisible': [('delivery_state', '!=', 'done')]}">
+                    <div
+                        class="col-3"
+                        attrs="{'invisible': [('delivery_state', '!=', 'done')]}"
+                    >
                         <div class="card text-white bg-success mb-3 text-center">
                             <div class="card-header">Delivery</div>
                             <div class="card-body">
@@ -55,21 +78,32 @@
                         </div>
                     </div>
 
-                    <div class="col-3" attrs="{'invisible': [('pos_payment_state', '!=', 'pending')]}">
+                    <div
+                        class="col-3"
+                        attrs="{'invisible': [('pos_payment_state', '!=', 'pending')]}"
+                    >
                         <div class="card text-white bg-danger mb-3 text-center">
                           <div class="card-header">Payment</div>
                           <div class="card-body">
                               <div class="card-title display-3">
-                                <field name="pos_amount_to_pay"/>
+                                <field name="pos_amount_to_pay" />
                               </div>
                           </div>
                           <div class="card-footer">
-                            <button class="btn-primary btn-lg" string="Pay" type="object" name="open_pos_payment_wizard"/>
+                            <button
+                                    class="btn-primary btn-lg"
+                                    string="Pay"
+                                    type="object"
+                                    name="open_pos_payment_wizard"
+                                />
                           </div>
                         </div>
                     </div>
 
-                    <div class="col-3" attrs="{'invisible': [('pos_payment_state', '!=', 'done')]}">
+                    <div
+                        class="col-3"
+                        attrs="{'invisible': [('pos_payment_state', '!=', 'done')]}"
+                    >
                         <div class="card text-white bg-success mb-3 text-center">
                             <div class="card-header">Payment</div>
                             <div class="card-body">
@@ -80,7 +114,10 @@
                         </div>
                     </div>
 
-                    <div class="col-3" attrs="{'invisible': [('pos_payment_state', '!=', 'none')]}">
+                    <div
+                        class="col-3"
+                        attrs="{'invisible': [('pos_payment_state', '!=', 'none')]}"
+                    >
                         <div class="card text-white bg-dark mb-3 text-center">
                             <div class="card-header">Payment</div>
                             <div class="card-body">
@@ -100,13 +137,13 @@
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
             <tree string="Sale Order" create="0">
-                <field name="name"/>
-                <field name="confirmation_date"/>
-                <field name="partner_id"/>
-                <field name="user_id"/>
-                <field name="amount_total"/>
-                <field name="delivery_state"/>
-                <field name="state"/>
+                <field name="name" />
+                <field name="confirmation_date" />
+                <field name="partner_id" />
+                <field name="user_id" />
+                <field name="amount_total" />
+                <field name="delivery_state" />
+                <field name="state" />
             </tree>
         </field>
     </record>
@@ -122,17 +159,17 @@
     </record>
 
     <record model="ir.actions.act_window.view" id="action_sale_order_pos_tree">
-        <field name="act_window_id" ref="action_sale_order_pos"/>
-        <field name="sequence" eval="10"/>
+        <field name="act_window_id" ref="action_sale_order_pos" />
+        <field name="sequence" eval="10" />
         <field name="view_mode">tree</field>
-        <field name="view_id" ref="sale_order_view_tree"/>
+        <field name="view_id" ref="sale_order_view_tree" />
     </record>
 
     <record model="ir.actions.act_window.view" id="action_sale_order_pos_form">
-        <field name="act_window_id" ref="action_sale_order_pos"/>
-        <field name="sequence" eval="20"/>
+        <field name="act_window_id" ref="action_sale_order_pos" />
+        <field name="sequence" eval="20" />
         <field name="view_mode">form</field>
-        <field name="view_id" ref="sale_order_view_form"/>
+        <field name="view_id" ref="sale_order_view_form" />
     </record>
 
 </odoo>

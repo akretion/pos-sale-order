@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <data>
         <template id="pos" name="POS Index POS helper" inherit_id="point_of_sale.index">
             <xpath expr="//head" position="inside"> <!-- POS only -->
-                <script type="text/javascript" src="/pos_partial_payment/static/src/js/pos_partial_payment.js"></script>
+                <script
+                    type="text/javascript"
+                    src="/pos_partial_payment/static/src/js/pos_partial_payment.js"
+                />
             </xpath>
         </template>
     </data>

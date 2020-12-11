@@ -6,8 +6,8 @@ generate_requirements_txt: true
 include_wkhtmltopdf: false
 odoo_version: 14.0
 rebel_module_groups: []
-repo_description: When using the Point of Sale, Odoo will generate Sale Order instead
-  of Pos Order
+repo_description:
+  When using the Point of Sale, Odoo will generate Sale Order instead of Pos Order
 repo_name: Replace POS by Sale Order
 repo_slug: pos-sale-order
 travis_apt_packages: []

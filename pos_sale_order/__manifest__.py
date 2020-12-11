@@ -5,10 +5,10 @@
 
 {
     "name": "POS Only Sale Order",
-    "version": "12.0.0.1.0",
+    "version": "14.0.1.0.0",
     "category": "Point Of Sale",
     "author": "Akretion",
-    "website": "http://www.akretion.com",
+    "website": "https://github.com/akretion/pos-sale-order",
     "license": "AGPL-3",
     "depends": [
         "point_of_sale",

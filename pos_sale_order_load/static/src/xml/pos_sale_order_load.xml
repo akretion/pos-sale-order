@@ -1,8 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <t t-name="SaleOrderLoadWidget">
         <div class="">
-            <a class="order-button load-so fa fa-upload" href="/web#view_type=list&amp;model=sale.order&amp;action=pos_sale_order_load.action_select_sale_order_pos" target="backoffice"/>
+            <a
+                class="order-button load-so fa fa-upload"
+                href="/web#view_type=list&amp;model=sale.order&amp;action=pos_sale_order_load.action_select_sale_order_pos"
+                target="backoffice"
+            />
         </div>
     </t>
 
@@ -10,10 +14,10 @@
         <t t-jquery=".order-sequence" t-operation="replace">
             <span class='order-sequence'>
                 <t t-if='order.sale_order_name != undefined'>
-                    <t t-esc='order.sale_order_name'/>
+                    <t t-esc='order.sale_order_name' />
                 </t>
                 <t t-else="">
-                    <t t-esc='order.sequence_number'/>
+                    <t t-esc='order.sequence_number' />
                 </t>
             </span>
         </t>

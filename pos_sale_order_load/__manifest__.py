@@ -5,10 +5,10 @@
 
 {
     "name": "POS Sale Order Load",
-    "version": "12.0.0.1.0",
+    "version": "14.0.1.0.0",
     "category": "Point Of Sale",
     "author": "Akretion",
-    "website": "https://www.akretion.com",
+    "website": "https://github.com/akretion/pos-sale-order",
     "license": "AGPL-3",
     "depends": ["pos_sale_order", "pos_backend_communication"],
     "data": ["views/pos_sale_order_load.xml", "views/sale_order.xml"],
