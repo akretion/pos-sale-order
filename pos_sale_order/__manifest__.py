@@ -16,6 +16,7 @@
         "account_reconcile_restrict_partner_mismatch",
         "web_widget_numeric_step",
         "sale_delivery_state",
+        "pos_backend_partner",
     ],
     "data": [
         "security/res_groups.xml",
@@ -28,6 +29,7 @@
         "data/pos_config_data.xml",
         "templates/assets.xml",
     ],
+    "qweb": ["static/src/xml/pos_sale_order.xml"],
     "demo": [],
     "installable": True,
     "post_init_hook": "post_init_hook",

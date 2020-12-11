@@ -13,6 +13,9 @@
             <script
                 type="text/javascript"
                 src="/pos_sale_order/static/src/js/screens.js"/>
+            <script
+                type="text/javascript"
+                src="/pos_sale_order/static/src/js/chrome.js"/>
         </xpath>
     </template>
 
