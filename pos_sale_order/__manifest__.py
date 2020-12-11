@@ -13,10 +13,10 @@
     "depends": [
         "point_of_sale",
         "sale",
-        "account_reconcile_restrict_partner_mismatch",
-        "web_widget_numeric_step",
-        "sale_delivery_state",
-        "pos_backend_partner",
+        # "account_reconcile_restrict_partner_mismatch",
+        # "web_widget_numeric_step",
+        # "sale_delivery_state",
+        # "pos_backend_partner",
     ],
     "data": [
         "security/res_groups.xml",
