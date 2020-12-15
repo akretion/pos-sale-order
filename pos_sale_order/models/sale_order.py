@@ -199,6 +199,7 @@ class SaleOrder(models.Model):
                         sale = self.search(
                             [("pos_reference", "=", order["data"]["name"])]
                         )
+                    sale.with_context(validate_from_rla_wizard=True).action_confirm()
                     result["ids"] += sale.ids
                     result["receipts"] += sale._get_receipt()
                     result["uuids"].append(order["id"])
