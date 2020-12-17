@@ -3,7 +3,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import logging
-from datetime import datetime
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -162,7 +161,8 @@ class SaleOrder(models.Model):
             "order_line": lines,
             "pos_reference": ui_order["name"],
             "partner_id": ui_order["partner_id"] or False,
-            "date_order": datetime.fromisoformat(ui_order["creation_date"]),
+            # date order same implementation as odoo
+            "date_order": ui_order["creation_date"].replace("T", " ")[:19],
             "fiscal_position_id": ui_order["fiscal_position_id"],
             "pricelist_id": ui_order["pricelist_id"],
             "to_invoice": ui_order.get("to_invoice"),

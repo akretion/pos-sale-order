@@ -30,7 +30,7 @@ class CommonCase(TestPoSCommon):
         )
         if amount_return:
             data["data"]["amount_return"] = amount_return
-        data["data"]["creation_date"] = datetime.now().isoformat()
+        data["data"]["creation_date"] = datetime.now().isoformat()[0:23] + "Z"
         return data
 
     @classmethod
