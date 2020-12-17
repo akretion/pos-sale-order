@@ -25,6 +25,7 @@ SaleOrderPatched._process_order = PosOrder._process_order
 SaleOrderPatched.add_payment = PosOrder.add_payment
 SaleOrderPatched._payment_fields = PosOrder._payment_fields
 SaleOrderPatched._get_valid_session = PosOrder._get_valid_session
+SaleOrderPatched._process_payment_lines = PosOrder._process_payment_lines
 
 
 class SaleOrder(models.Model):
@@ -55,8 +56,9 @@ class SaleOrder(models.Model):
         string="Payments",
         readonly=True,
     )
-    invoice_id = fields.Many2one(
-        "account.move", "Invoice", compute="_compute_invoice_id"
+    to_invoice = fields.Boolean("To invoice")
+    account_move = fields.Many2one(
+        "account.move", "Invoice", compute="_compute_account_move"
     )
     picking_id = fields.Many2one(
         "stock.picking", "Picking", compute="_compute_picking_id"
@@ -69,6 +71,23 @@ class SaleOrder(models.Model):
     pos_amount_to_pay = fields.Monetary(
         string="POS amount to pay", compute="_compute_pos_payment", store=True
     )
+    amount_paid = fields.Float(
+        string="Paid",
+        states={"draft": [("readonly", False)]},
+        readonly=True,
+        digits=0,
+        required=True,
+    )
+    is_invoiced = fields.Boolean("Is Invoiced", compute="_compute_is_invoiced")
+
+    @property
+    def lines(self):
+        return self.order_line
+
+    @api.depends("account_move")
+    def _compute_is_invoiced(self):
+        for order in self:
+            order.is_invoiced = bool(order.account_move)
 
     @api.depends("amount_total", "payment_ids.amount", "state")
     def _compute_pos_payment(self):
@@ -86,9 +105,10 @@ class SaleOrder(models.Model):
                 else:
                     record.pos_payment_state = "pending"
 
-    def _compute_invoice_id(self):
+    @api.depends("invoice_ids")
+    def _compute_account_move(self):
         for record in self:
-            record.invoice_id = record.invoice_ids and record.invoice_ids[0]
+            record.account_move = fields.first(record.invoice_ids)
 
     def _compute_picking_id(self):
         for record in self:
@@ -144,12 +164,12 @@ class SaleOrder(models.Model):
             "date_order": ui_order["creation_date"],
             "fiscal_position_id": ui_order["fiscal_position_id"],
             "pricelist_id": ui_order["pricelist_id"],
+            "to_invoice": ui_order.get("to_invoice"),
         }
 
-    def _payment_fields(self, order, ui_payment_line):
-        res = super()._payment_fields(order, ui_payment_line)
-        res["pos_sale_order_id"] = res.pop("pos_order_id")
-        return res
+    def add_payment(self, data):
+        data["pos_sale_order_id"] = data.pop("pos_order_id")
+        return super().add_payment(data)
 
     def action_pos_order_paid(self):
         """ We do nothing, not needed in sale_order case"""
@@ -160,8 +180,8 @@ class SaleOrder(models.Model):
             if order.partner_id == order.session_id.config_id.anonymous_partner_id:
                 raise UserError(_("Partner is required if you want an invoice"))
             order.action_confirm()
-            order.action_invoice_create()
-            order.invoice_id.action_invoice_open()
+            order._create_invoices()
+            order.invoice_ids.action_post()
         return True
 
     @api.model
@@ -179,24 +199,32 @@ class SaleOrder(models.Model):
         """Inherit to generate your own ticket"""
         return []
 
+    def _process_order(self, order, draft, existing_order):
+        sale_id = super()._process_order(order, draft, existing_order)
+        sale = self.browse(sale_id)
+        # native code will print the invoice when state is "paid"
+        # this state do not exist on sale order
+        if sale.to_invoice:
+            sale.action_pos_order_invoice()
+        return sale.id
+
     @api.model
-    def create_from_ui(self, orders):
+    def create_from_ui(self, orders, draft=False):
         result = {"ids": [], "uuids": [], "receipts": [], "error": False}
         failed = []
         for order in orders:
             try:
                 with self.env.cr.savepoint():
-                    ids = super().create_from_ui([order])
-                    if ids:
-                        sale = self.browse(ids)
-                    else:
-                        sale = self.search(
-                            [("pos_reference", "=", order["data"]["name"])]
-                        )
+                    sale = self.search([("pos_reference", "=", order["data"]["name"])])
+                    if not sale:
+                        sale_id = self._process_order(order, draft, None)
+                        sale = self.browse(sale_id)
+                    # TODO support update
                     result["ids"] += sale.ids
                     result["receipts"] += sale._get_receipt()
                     result["uuids"].append(order["id"])
             except Exception as e:
+                raise
                 failed.append(order)
                 _logger.error(
                     "Sync POS Order failed order id {} data: {} error: {}".format(
@@ -214,4 +242,7 @@ class SaleOrder(models.Model):
                 for statement in record.statement_ids:
                     if statement.partner_id != record.partner_invoice_id:
                         statement.partner_id = record.partner_invoice_id
+        return True
+
+    def _create_order_picking(self):
         return True

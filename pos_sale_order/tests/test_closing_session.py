@@ -12,10 +12,10 @@ class TestClosingSession(CommonCase):
         datas = [
             cls._get_pos_data(),
             cls._get_pos_data(amount_return=5),
-            cls._get_pos_data(partner_id=cls.partner_3.id),
-            cls._get_pos_data(partner_id=cls.partner_3.id),
-            cls._get_pos_data(partner_id=cls.partner_2.id),
-            cls._get_pos_data(partner_id=cls.partner_2.id, to_invoice=True),
+            cls._get_pos_data(partner=cls.partner_3),
+            cls._get_pos_data(partner=cls.partner_3),
+            cls._get_pos_data(partner=cls.partner_2),
+            cls._get_pos_data(partner=cls.partner_2, to_invoice=True),
         ]
         return cls._create_sale(datas)
 
@@ -37,12 +37,12 @@ class TestClosingSession(CommonCase):
         # - one for the partner 3
         # - two for the partner 2
 
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         self.assertEqual(set(self.sales.mapped("invoice_status")), {"invoiced"})
 
         invoices = self.sales.mapped("order_line.invoice_lines.invoice_id")
-        self.assertEqual(self.session.invoice_ids, invoices)
+        self.assertEqual(self.pos_session.invoice_ids, invoices)
         self.assertEqual(len(invoices), 4)
 
         self._check_invoice_number(
@@ -65,12 +65,12 @@ class TestClosingSession(CommonCase):
                 "partner_shipping_id": self.partner_4.id,
             }
         )
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         self.assertEqual(set(self.sales.mapped("invoice_status")), {"invoiced"})
 
         invoices = self.sales.mapped("order_line.invoice_lines.invoice_id")
-        self.assertEqual(self.session.invoice_ids, invoices)
+        self.assertEqual(self.pos_session.invoice_ids, invoices)
         self.assertEqual(len(invoices), 5)
 
         self._check_invoice_number(
@@ -105,12 +105,12 @@ class TestClosingSession(CommonCase):
         invoices = self.env["account.invoice"].browse(invoice_ids)
         invoices.action_invoice_open()
 
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         self.assertEqual(set(self.sales.mapped("invoice_status")), {"invoiced"})
 
         invoices = self.sales.mapped("order_line.invoice_lines.invoice_id")
-        self.assertEqual(self.session.invoice_ids, invoices)
+        self.assertEqual(self.pos_session.invoice_ids, invoices)
         self.assertEqual(len(invoices), 5)
 
         self._check_invoice_number(
@@ -139,12 +139,12 @@ class TestClosingSession(CommonCase):
         invoices.write({"partner_id": self.partner_4.id})
         invoices.action_invoice_open()
 
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
 
         self.assertEqual(set(self.sales.mapped("invoice_status")), {"invoiced"})
 
         invoices = self.sales.mapped("order_line.invoice_lines.invoice_id")
-        self.assertEqual(self.session.invoice_ids, invoices)
+        self.assertEqual(self.pos_session.invoice_ids, invoices)
         self.assertEqual(len(invoices), 5)
 
         self._check_invoice_number(
@@ -164,7 +164,7 @@ class TestClosingSession(CommonCase):
         data = self._get_pos_data()
         data["data"]["statement_ids"] = []
         sale = self._create_sale([data])
-        self.session.action_pos_session_validate()
+        self.pos_session.action_pos_session_validate()
         self.pos.refresh()
 
         # Open a new session
