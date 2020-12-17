@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 
+from datetime import datetime
 from random import randint
 
 from odoo.addons.point_of_sale.tests.common import TestPoSCommon
@@ -29,6 +30,7 @@ class CommonCase(TestPoSCommon):
         )
         if amount_return:
             data["data"]["amount_return"] = amount_return
+        data["data"]["creation_date"] = datetime.now().isoformat()
         return data
 
     @classmethod
