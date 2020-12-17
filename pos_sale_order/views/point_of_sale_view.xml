@@ -8,10 +8,10 @@
                 <filter name="my_sale_orders_filter" position="after">
                     <separator />
                     <filter
-                        name="pos"
-                        string="POS"
-                        domain="[('pos_reference', '!=', '')]"
-                    />
+                    name="pos"
+                    string="POS"
+                    domain="[('pos_reference', '!=', '')]"
+                />
                 </filter>
             </field>
         </record>
@@ -28,7 +28,7 @@
                 <field name="picking_type_id" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
-                <field name="stock_location_id" position="before">
+                <field name="picking_type_id" position="before">
                     <field name="warehouse_id" />
                 </field>
                 <field name="currency_id" position="after">
@@ -44,7 +44,7 @@
             <field name="model">pos.config</field>
             <field name="inherit_id" ref="point_of_sale.view_pos_config_tree" />
             <field name="arch" type="xml">
-                <field name="stock_location_id" position="replace">
+                <field name="name" position="after">
                     <field name="warehouse_id" />
                 </field>
             </field>
@@ -54,7 +54,7 @@
             <field name="model">pos.config</field>
             <field name="inherit_id" ref="point_of_sale.view_pos_config_search" />
             <field name="arch" type="xml">
-                <field name="stock_location_id" position="replace">
+                <field name="picking_type_id" position="replace">
                     <field name="warehouse_id" />
                 </field>
             </field>

@@ -17,13 +17,13 @@
             <field name="amount_total" position="after">
                 <field
                     colspan="4"
-                    name="statement_ids"
+                    name="payment_ids"
                     readonly="True"
                     nolabel="1"
-                    attrs="{'invisible': [('statement_ids', '=', False)]}"
+                    attrs="{'invisible': [('payment_ids', '=', False)]}"
                 >
                     <tree>
-                        <field name="journal_id" />
+                        <field name="payment_method_id" />
                         <field name="amount" />
                     </tree>
                 </field>
@@ -138,7 +138,7 @@
         <field name="arch" type="xml">
             <tree string="Sale Order" create="0">
                 <field name="name" />
-                <field name="confirmation_date" />
+                <field name="date_order" />
                 <field name="partner_id" />
                 <field name="user_id" />
                 <field name="amount_total" />

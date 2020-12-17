@@ -2,7 +2,7 @@
 # @author sébastien beau <sebastien.beau@akretion.com>
 # license agpl-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import _, api, fields, models
+from odoo import _, fields, models
 from odoo.exceptions import UserError
 
 
@@ -10,7 +10,7 @@ class PosSession(models.Model):
     _inherit = "pos.session"
 
     order_ids = fields.One2many("sale.order", "session_id", string="Orders")
-    invoice_ids = fields.One2many("account.invoice", "session_id", string="Invoices")
+    invoice_ids = fields.One2many("account.move", "session_id", string="Invoices")
 
     def _confirm_orders(self):
         for session in self:

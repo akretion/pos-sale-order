@@ -6,14 +6,6 @@
 from odoo import fields, models
 
 
-class AccountBankStatement(models.Model):
-    _inherit = "account.bank.statement"
-
-    account_id = fields.Many2one(
-        "account.account", related="journal_id.default_debit_account_id", readonly=True
-    )
-
-
 class AccountBankStatementLine(models.Model):
     _inherit = "account.bank.statement.line"
 

@@ -6,14 +6,15 @@
 import uuid
 
 from odoo import fields
-from odoo.tests import SavepointCase
+
+from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 
 
 def now():
     return fields.Datetime.to_string(fields.Datetime.now())
 
 
-class CommonCase(SavepointCase):
+class CommonCase(TestPoSCommon):
     @classmethod
     def _get_pos_line(cls):
         res = []
@@ -101,41 +102,74 @@ class CommonCase(SavepointCase):
         return cls.env["sale.order"].browse(res["ids"])
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpClass(cls, chart_template_ref=None):
+        super().setUpClass(chart_template_ref=chart_template_ref)
         cls.env = cls.env(context={"test_partner_mismatch": True})
+
+        # Create product
+        cls.product0 = cls.create_product("Product 0", cls.categ_basic, 10.0)
+        cls.product1 = cls.create_product("Product 1", cls.categ_basic, 5)
+        cls.product2 = cls.create_product("Product 2", cls.categ_basic, 15)
+
+        cls.lines = [
+            (cls.product0, 3.0),
+            (cls.product1, 1.0),
+            (cls.product2, 2.0),
+        ]
+
+        # cls.lines = [
+        #    {
+        #        "product_id": cls.env.ref("product.product_product_1").id,
+        #        "qty": 3.0,
+        #        "price_unit": 10.0,
+        #    },
+        #    {
+        #        "product_id": cls.env.ref("product.product_product_3").id,
+        #        "qty": 1.0,
+        #        "price_unit": 5.0,
+        #    },
+        #    {
+        #        "product_id": cls.env.ref("product.product_product_5").id,
+        #        "qty": 2.0,
+        #        "price_unit": 15.0,
+        #    },
+        # ]
 
         # Open a session and extract cashregirster
         cls.pos = cls.env.ref("point_of_sale.pos_config_main")
         cls.pos.warehouse_id = cls.env.ref("stock.warehouse0")
-        journal_obj = cls.env["account.journal"]
-        cls.check_journal = journal_obj.create({"name": "Check", "type": "bank"})
-        cls.card_journal = journal_obj.create({"name": "Card", "type": "bank"})
-        cls.cash_journal = journal_obj.search([("code", "=", "CSH1")])
-        cls.pos.journal_ids = cls.check_journal + cls.card_journal + cls.cash_journal
-        cls.pos.open_session_cb()
-        cls.session = cls.pos.current_session_id
-        cls.cash_statement = cls.session.statement_ids.filtered(
-            lambda s: s.journal_id.code == "CSH1"
-        )
-        cls.lines = [
-            {
-                "product_id": cls.env.ref("product.product_product_1").id,
-                "qty": 3.0,
-                "price_unit": 10.0,
-            },
-            {
-                "product_id": cls.env.ref("product.product_product_3").id,
-                "qty": 1.0,
-                "price_unit": 5.0,
-            },
-            {
-                "product_id": cls.env.ref("product.product_product_5").id,
-                "qty": 2.0,
-                "price_unit": 15.0,
-            },
-        ]
+
+        ##
+        # journal_obj = cls.env["account.journal"]
+        # cls.check_journal = journal_obj.create({"name": "Check", "type": "bank"})
+        # cls.card_journal = journal_obj.create({"name": "Card", "type": "bank"})
+        # cls.cash_journal = journal_obj.search([("code", "=", "CSH1")])
+        # TODO Gestion des Chèque et CB
+        # pay_method_obj = cls.env["pos.payment.method"]
+        # cls.check_payment_method = pay_method_obj.create({
+        #    "name": "Check",
+        #    "is_cash_count": False,
+        #    })
+        # cls.card_payment_method = pay_method_obj.create({
+        #    "name": "Card",
+        #    "is_cash_count": False,
+        #    })
+        # cls.cash_payment_method = pay_method_obj.create({
+        #    "name": "Cash",
+        #    "is_cash_count": True,
+        #    "cash_journal_id": cls.check_journal.id,
+        #    })
+        # cls.pos.payment_method_ids = (
+        #    cls.check_payment_method,
+        #    cls.card_payment_method,
+        #    cls.cash_payment_method,
+        #    )
+        # cls.pos.open_session_cb()
+        # cls.session = cls.pos.current_session_id
+        # cls.cash_statement = cls.session.statement_ids.filtered(
+        #    lambda s: s.journal_id.code == "CSH1"
+        # )
         cls.partner_2 = cls.env.ref("base.res_partner_2")
-        cls.partner_3 = cls.env.ref("base.res_partner_3")
-        cls.partner_4 = cls.env.ref("base.res_partner_4")
+        # cls.partner_3 = cls.env.ref("base.res_partner_3")
+        # cls.partner_4 = cls.env.ref("base.res_partner_4")
         cls.partner_anonymous = cls.env.ref("pos_sale_order.res_partner_anonymous")

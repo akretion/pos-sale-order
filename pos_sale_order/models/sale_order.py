@@ -24,10 +24,6 @@ SaleOrderPatched.create_from_ui = PosOrder.create_from_ui
 SaleOrderPatched._process_order = PosOrder._process_order
 SaleOrderPatched.add_payment = PosOrder.add_payment
 SaleOrderPatched._payment_fields = PosOrder._payment_fields
-SaleOrderPatched._prepare_bank_statement_line_payment_values = (
-    PosOrder._prepare_bank_statement_line_payment_values
-)
-SaleOrderPatched._match_payment_to_invoice = PosOrder._match_payment_to_invoice
 SaleOrderPatched._get_valid_session = PosOrder._get_valid_session
 
 
@@ -53,16 +49,14 @@ class SaleOrder(models.Model):
         copy=False,
         readonly=True,
     )
-    statement_ids = fields.One2many(
-        "account.bank.statement.line",
+    payment_ids = fields.One2many(
+        "pos.payment",
         "pos_sale_order_id",
         string="Payments",
-        states={"draft": [("readonly", False)]},
         readonly=True,
-        copy=False,
     )
     invoice_id = fields.Many2one(
-        "account.invoice", "Invoice", compute="_compute_invoice_id"
+        "account.move", "Invoice", compute="_compute_invoice_id"
     )
     picking_id = fields.Many2one(
         "stock.picking", "Picking", compute="_compute_picking_id"
@@ -76,7 +70,7 @@ class SaleOrder(models.Model):
         string="POS amount to pay", compute="_compute_pos_payment", store=True
     )
 
-    @api.depends("amount_total", "statement_ids.amount", "state")
+    @api.depends("amount_total", "payment_ids.amount", "state")
     def _compute_pos_payment(self):
         for record in self:
             if record.state in ("draft", "cancel", "sent") or not record.amount_total:
@@ -84,7 +78,7 @@ class SaleOrder(models.Model):
                 record.pos_payment_state = "none"
             else:
                 residual = record.amount_total - sum(
-                    record.mapped("statement_ids.amount")
+                    record.mapped("payment_ids.amount")
                 )
                 record.pos_amount_to_pay = residual
                 if residual == 0:
@@ -152,9 +146,9 @@ class SaleOrder(models.Model):
             "pricelist_id": ui_order["pricelist_id"],
         }
 
-    def _prepare_bank_statement_line_payment_values(self, data):
-        res = super()._prepare_bank_statement_line_payment_values(data)
-        res["pos_sale_order_id"] = res.pop("pos_statement_id")
+    def _payment_fields(self, order, ui_payment_line):
+        res = super()._payment_fields(order, ui_payment_line)
+        res["pos_sale_order_id"] = res.pop("pos_order_id")
         return res
 
     def action_pos_order_paid(self):

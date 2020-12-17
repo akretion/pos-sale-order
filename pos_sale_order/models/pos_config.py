@@ -10,10 +10,8 @@ class PosConfig(models.Model):
 
     anonymous_partner_id = fields.Many2one("res.partner", string="Anonymous Partner")
     warehouse_id = fields.Many2one("stock.warehouse", string="Warehouse", required=True)
-    stock_location_id = fields.Many2one(
-        "stock.location",
-        string="Stock Location",
-        related="warehouse_id.lot_stock_id",
+    picking_type_id = fields.Many2one(
+        related="warehouse_id.out_type_id",
         required=False,
         store=True,
     )

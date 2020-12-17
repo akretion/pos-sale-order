@@ -7,7 +7,8 @@ from .common import CommonCase
 
 class TestCreateOrder(CommonCase):
     def test_create_sale(self):
-        data = self._get_pos_data()
+        self.open_new_session()
+        data = self.create_ui_order_data(self.lines)
         sales = self._create_sale([data])
         self.assertEqual(len(sales), 1)
         sale = sales[0]
@@ -22,8 +23,8 @@ class TestCreateOrder(CommonCase):
         ]
         self.assertEqual(res, self.lines)
         self.assertEqual(sale.amount_total, 65)
-        self.assertEqual(len(sale.statement_ids), 1)
-        self.assertEqual(sale.statement_ids.amount, 65)
+        self.assertEqual(len(sale.payment_ids), 1)
+        self.assertEqual(sale.payment_ids.amount, 65)
 
     def test_create_existing_sale(self):
         data = self._get_pos_data()
