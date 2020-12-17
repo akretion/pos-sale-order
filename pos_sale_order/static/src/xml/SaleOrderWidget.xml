@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <t t-name="SaleWidget">
+    <t t-name="SaleOrderWidget" owl="1">
         <div class="oe_status">
             <div class="js_connected oe_icon">
                 <a
@@ -11,6 +11,17 @@
                 />
             </div>
         </div>
+    </t>
+
+    <t
+        t-name="Chrome"
+        t-inherit="point_of_sale.Chrome"
+        t-inherit-mode="extension"
+        owl="1"
+    >
+        <xpath expr="//Portal/div" position="inside">
+            <SaleOrderWidget />
+        </xpath>
     </t>
 
 </odoo>

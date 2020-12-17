@@ -13,11 +13,11 @@
             />
             <script
                 type="text/javascript"
-                src="/pos_sale_order/static/src/js/screens.js"
+                src="/pos_sale_order/static/src/js/AbstractReceiptScreen.js"
             />
             <script
                 type="text/javascript"
-                src="/pos_sale_order/static/src/js/chrome.js"
+                src="/pos_sale_order/static/src/js/SaleOrderWidget.js"
             />
         </xpath>
     </template>
