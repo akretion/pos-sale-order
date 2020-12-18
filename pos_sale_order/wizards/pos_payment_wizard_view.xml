@@ -9,10 +9,10 @@
             <p class="oe_grey">Please select the journal and the amount to paid
             </p>
             <group>
-                <field name="available_journal_ids" invisible="1" />
+                <field name="available_payment_method_ids" invisible="1" />
                 <field
-                        name="journal_id"
-                        domain="[('id', 'in', available_journal_ids)]"
+                        name="payment_method_id"
+                        domain="[('id', 'in', available_payment_method_ids)]"
                     />
                 <field name="amount" />
             </group>

@@ -166,6 +166,7 @@ class SaleOrder(models.Model):
             "fiscal_position_id": ui_order["fiscal_position_id"],
             "pricelist_id": ui_order["pricelist_id"],
             "to_invoice": ui_order.get("to_invoice"),
+            "invoice_policy": "order",
         }
 
     def add_payment(self, data):
@@ -234,15 +235,6 @@ class SaleOrder(models.Model):
         if failed:
             result["error"] = self._build_pos_error_message(failed)
         return result
-
-    def write(self, vals):
-        super().write(vals)
-        if "partner_invoice_id" in vals:
-            for record in self:
-                for statement in record.statement_ids:
-                    if statement.partner_id != record.partner_invoice_id:
-                        statement.partner_id = record.partner_invoice_id
-        return True
 
     def _create_order_picking(self):
         return True

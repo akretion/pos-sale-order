@@ -14,9 +14,11 @@ class PosPaymentWizard(models.TransientModel):
 
     amount = fields.Float(digits=dp.get_precision("Product Price"))
     sale_order_id = fields.Many2one("sale.order")
-    journal_id = fields.Many2one("account.journal", "Payment mode")
-    available_journal_ids = fields.Many2many(
-        comodel_name="account.journal", string="Available Journal", readonly=True
+    payment_method_id = fields.Many2one("pos.payment.method", "Payment method")
+    available_payment_method_ids = fields.Many2many(
+        comodel_name="pos.payment.method",
+        string="Available Payment Method",
+        readonly=True,
     )
 
     def _get_session(self):
@@ -28,47 +30,33 @@ class PosPaymentWizard(models.TransientModel):
         return session
 
     def create_wizard(self, sale):
-        available_journals = self._get_session().mapped("statement_ids.journal_id")
-        default_journal = available_journals[0]
-        for journal in available_journals:
-            if journal.type == "cash":
-                default_journal = journal
+        payment_methods = self._get_session().payment_method_ids
+        default_method = payment_methods[0]
+        for method in payment_methods:
+            if method.is_cash_count:
+                default_method = method
                 break
         vals = {
             "sale_order_id": sale.id,
-            "available_journal_ids": [(6, 0, available_journals.ids)],
-            "journal_id": default_journal.id,
+            "available_payment_method_ids": [(6, 0, payment_methods.ids)],
+            "payment_method_id": default_method.id,
             "amount": sale.pos_amount_to_pay,
         }
         return self.create(vals)
 
-    def _prepare_statement_line(self):
-        session = self._get_session()
+    def _prepare_payment(self):
+        # session = self._get_session()
+        # TODO session is related to the sale order
+        # We have to check the total amount in the statement
         sale = self.sale_order_id
-        statement = session.statement_ids.filtered(
-            lambda s: s.journal_id == self.journal_id
-        )
-        name = _("Manual payment {}").format(sale.name)
-        partner = sale.partner_invoice_id.commercial_partner_id
-        account_def = (
-            self.env["ir.property"]
-            .with_context(force_company=self.journal_id.company_id.id)
-            .get("property_account_receivable_id", "res.partner")
-        )
-        account = partner.property_account_receivable_id or account_def
         return {
             "amount": self.amount,
-            "date": fields.Date.context_today(self),
-            "name": name,
-            "statement_id": statement.id,
-            "journal_id": self.journal_id.id,
-            "ref": session.name,
-            "partner_id": partner.id,
+            "name": _("Manual payment {}").format(sale.name),
+            "payment_method_id": self.payment_method_id.id,
             "pos_sale_order_id": sale.id,
-            "account_id": account.id,
         }
 
     def pay(self):
-        vals = self._prepare_statement_line()
-        self.env["account.bank.statement.line"].create(vals)
+        vals = self._prepare_payment()
+        self.env["pos.payment"].create(vals)
         return True

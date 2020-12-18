@@ -2,6 +2,8 @@
 # @author sébastien beau <sebastien.beau@akretion.com>
 # license agpl-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+from collections import defaultdict
+
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
@@ -12,58 +14,50 @@ class PosSession(models.Model):
     order_ids = fields.One2many("sale.order", "session_id", string="Orders")
     invoice_ids = fields.One2many("account.move", "session_id", string="Invoices")
 
-    def _confirm_orders(self):
-        for session in self:
-            draft_sales = session.order_ids.filtered(lambda s: s.state == "draft")
-            if draft_sales:
-                draft_sales.action_confirm()
+    def _create_account_move(self):
+        self.ensure_one()
+        # we create all invoice so odoo code will not generate account move for order
+        # TODO FIX quotation case (we should have a pos_type)
+        orders = self._get_order_to_confirm()
+        orders.action_confirm()
+        self._check_no_draft_invoice()
 
-            invoices = session.mapped("order_ids.invoice_ids")
-            draft_invoices = invoices.filtered(lambda s: s.state == "draft")
-            if draft_invoices:
-                orders_name = ", ".join(
-                    draft_invoices.mapped("invoice_line.sale_line_ids.order_id.name")
+        # TODO
+        # - check case where we have draft order
+        # - check journal used
+        # - activate mismatch partner
+        for partner, orders in self._get_order_to_invoice().items():
+            if partner == self.config_id.anonymous_partner_id:
+                orders = orders.with_context(
+                    default_journal_id=self.config_id.journal_id
                 )
-                raise UserError(
-                    _("Following order have a draft invoice, please fix it %s"),
-                    orders_name,
-                )
+            orders._create_invoices()
+            orders.invoice_ids.action_post()
+        return super()._create_account_move()
 
-            invoices |= self._generate_invoice(anonymous=True)
-            invoices |= self._generate_invoice()
-            invoices._reconcile_with_pos_payment()
-        self._reconcile_manual_payment()
+    def _get_order_to_confirm(self):
+        return self.order_ids.filtered(lambda s: s.state == "draft")
 
-    def _reconcile_manual_payment(self):
-        "Search all invoice not paid linked to statement line and reconcile them"
-        for session in self:
-            invoices = session.mapped(
-                "statement_ids.line_ids.pos_sale_order_id.invoice_ids"
+    def _get_order_to_invoice(self):
+        partner_to_orders = defaultdict(lambda: self.env["sale.order"].browse(False))
+        for order in self.order_ids:
+            if any(order.mapped("order_line.qty_to_invoice")):
+                partner_to_orders[order.partner_id.id] += order
+        return partner_to_orders
+
+    def _check_no_draft_invoice(self):
+        draft_invoices = self.mapped("order_ids.invoice_ids").filtered(
+            lambda s: s.state == "draft"
+        )
+        if draft_invoices:
+            orders_name = ", ".join(
+                draft_invoices.mapped("move_line.sale_line_ids.order_id.name")
             )
-            open_invoices = invoices.filtered(lambda s: s.state == "open")
-            open_invoices._reconcile_with_pos_payment()
-
-    def _get_so_domain(self, anonymous=False):
-        partner = self.config_id.anonymous_partner_id
-        domain = [("session_id", "=", self.id), ("invoice_status", "=", "to invoice")]
-        if anonymous:
-            domain.append(("partner_id", "=", partner.id))
-        else:
-            domain.append(("partner_id", "!=", partner.id))
-        return domain
-
-    def _generate_invoice(self, anonymous=False):
-        if anonymous:
-            self = self.with_context(
-                default_journal_id=self.config_id.journal_id,
-                default_pos_anonyme_invoice=True,
+            raise UserError(
+                _("Following order have a draft invoice, please fix it %s"),
+                orders_name,
             )
-        domain = self._get_so_domain(anonymous=anonymous)
-        sales = self.env["sale.order"].search(domain)
-        if sales:
-            invoice_ids = sales.action_invoice_create()
-            invoices = self.env["account.invoice"].browse(invoice_ids)
-            invoices.action_invoice_open()
-            return invoices
-        else:
-            return self.env["account.invoice"].browse()
+
+    def _check_if_no_draft_orders(self):
+        # we can have quotation
+        return True

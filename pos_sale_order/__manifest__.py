@@ -13,13 +13,16 @@
     "depends": [
         "point_of_sale",
         "sale",
+        # TODO FIXME
         # "account_reconcile_restrict_partner_mismatch",
         # "web_widget_numeric_step",
         "sale_delivery_state",
         "pos_backend_partner",
+        "sale_invoice_policy",
     ],
     "data": [
         "security/res_groups.xml",
+        "security/ir.model.access.csv",
         "wizards/pos_payment_wizard_view.xml",
         "wizards/pos_delivery_wizard_view.xml",
         "views/sale_view.xml",
