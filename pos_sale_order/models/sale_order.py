@@ -67,6 +67,7 @@ class SaleOrder(models.Model):
     pos_payment_state = fields.Selection(
         [("none", "Not needed"), ("pending", "Pending Payment"), ("done", "Done")],
         compute="_compute_pos_payment",
+        store=True,
     )
     pos_amount_to_pay = fields.Monetary(
         string="POS amount to pay", compute="_compute_pos_payment", store=True
