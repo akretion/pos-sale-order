@@ -5,8 +5,6 @@
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
-import odoo.addons.decimal_precision as dp
-
 
 class PosDeliveryWizard(models.TransientModel):
     _name = "pos.delivery.wizard"
@@ -56,4 +54,4 @@ class PosDeliveryWizardLine(models.TransientModel):
     delivery_id = fields.Many2one("pos.delivery.wizard", "Delivery")
     product_id = fields.Many2one("product.product", "Product")
     move_line_id = fields.Many2one("stock.move", "Move Line")
-    qty = fields.Float(digits=dp.get_precision("Product Unit of Measure"))
+    qty = fields.Float(digits="Product Unit of Measure")

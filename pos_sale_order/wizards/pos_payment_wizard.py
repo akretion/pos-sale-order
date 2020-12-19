@@ -5,14 +5,12 @@
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
-import odoo.addons.decimal_precision as dp
-
 
 class PosPaymentWizard(models.TransientModel):
     _name = "pos.payment.wizard"
     _description = "Pos Payment Wizard"
 
-    amount = fields.Float(digits=dp.get_precision("Product Price"))
+    amount = fields.Float(digits="Product Price")
     sale_order_id = fields.Many2one("sale.order")
     payment_method_id = fields.Many2one("pos.payment.method", "Payment method")
     available_payment_method_ids = fields.Many2many(
