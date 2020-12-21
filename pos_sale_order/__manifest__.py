@@ -20,6 +20,9 @@
         "pos_backend_partner",
         "sale_invoice_policy",
     ],
+    "external_dependencies": {
+        "python": ["openupgradelib"],
+    },
     "data": [
         "security/res_groups.xml",
         "security/ir.model.access.csv",
@@ -36,4 +39,5 @@
     "demo": [],
     "installable": True,
     "post_init_hook": "post_init_hook",
+    "pre_init_hook": "pre_init_hook",
 }

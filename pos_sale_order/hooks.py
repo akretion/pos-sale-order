@@ -2,7 +2,15 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+from openupgradelib import openupgrade
+
 from odoo import SUPERUSER_ID, api
+
+
+def pre_init_hook(cr):
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    openupgrade.load_data(cr, "pos_sale_order", "data/res_partner_data.xml")
+    env["res.partner"].flush()
 
 
 def post_init_hook(cr, registry):

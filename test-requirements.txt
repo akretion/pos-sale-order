@@ -2,3 +2,4 @@ odoo14-addon-sale-delivery-state @ git+https://github.com/oca/sale-workflow@refs
 odoo14-addon-pos_backend_communication @ git+https://github.com/oca/pos@refs/pull/574/head#subdirectory=setup/pos_backend_communication
 odoo14-addon-pos_backend_partner @ git+https://github.com/oca/pos@refs/pull/575/head#subdirectory=setup/pos_backend_partner
 odoo14-addon-sale_invoice_policy @ git+https://github.com/oca/sale-workflow@refs/pull/1385/head#subdirectory=setup/sale_invoice_policy
+openupgradelib @ git+https://github.com/OCA/openupgradelib.git
