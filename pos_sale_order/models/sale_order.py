@@ -77,7 +77,7 @@ class SaleOrder(models.Model):
         states={"draft": [("readonly", False)]},
         readonly=True,
         digits=0,
-        required=True,
+        default=0,
     )
     is_invoiced = fields.Boolean("Is Invoiced", compute="_compute_is_invoiced")
 
