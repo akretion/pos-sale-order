@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <t
+        t-name="PaymentScreen"
+        t-inherit="point_of_sale.PaymentScreen"
+        t-inherit-mode="extension"
+        owl="1"
+    >
+        <xpath
+            expr="//div[contains(@class, 'button js_invoice')]"
+            position="attributes"
+        >
+            <attribute name="t-if">currentOrder.is_payment_allowed()</attribute>
+        </xpath>
+        <xpath
+            expr="//div[contains(@class, 'button js_cashdrawer')]"
+            position="attributes"
+        >
+            <attribute name="t-if">currentOrder.is_payment_allowed()</attribute>
+        </xpath>
+        <xpath expr="//div[contains(@class, 'paymentmethods')]" position="attributes">
+            <attribute name="t-if">currentOrder.is_payment_allowed()</attribute>
+        </xpath>
+        <xpath
+            expr="//div[contains(@class, 'paymentmethods-container')]"
+            position="before"
+        >
+            <div class="QuotationButtonContainer">
+                <QuotationButton />
+            </div>
+        </xpath>
+    </t>
+
+</odoo>

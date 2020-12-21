@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="assets" inherit_id="point_of_sale.assets">
+        <xpath expr=".">
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_no_payment/static/src/js/models.js"
+            />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_no_payment/static/src/js/PaymentScreen.js"
+            />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_no_payment/static/src/js/PaymentScreenNumpad.js"
+            />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_no_payment/static/src/js/QuotationButton.js"
+            />
+            <link
+                rel="stylesheet"
+                href="/pos_sale_order_no_payment/static/src/css/pos_sale_order_no_payment.css"
+            />
+        </xpath>
+    </template>
+</odoo>
