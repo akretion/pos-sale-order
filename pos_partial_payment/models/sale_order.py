@@ -8,11 +8,11 @@ from odoo import models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    def _process_order(self, pos_order):
+    def _process_order(self, order, draft, existing_order):
         # remove fake payment
-        pos_order["statement_ids"] = [
+        order["data"]["statement_ids"] = [
             statement
-            for statement in pos_order["statement_ids"]
-            if statement[2]["journal_id"] != -1
+            for statement in order["data"]["statement_ids"]
+            if statement[2]["payment_method_id"] != -1
         ]
-        return super()._process_order(pos_order)
+        return super()._process_order(order, draft, existing_order)
