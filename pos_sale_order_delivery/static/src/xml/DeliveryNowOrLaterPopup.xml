@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="DeliveryNowOrLaterPopUp" owl="1">
+        <div role="dialog" class="modal-dialog">
+            <Draggable>
+                <div class="popup popup-selection">
+                    <header class="title drag-handle">
+                        <t t-esc="props.title" />
+                    </header>
+                    <article t-if="!state.loaded">
+                        Loading, please wait
+                    </article>
+                    <article t-if="state.loaded">
+                        <div class="deliveryLater">
+                            <div t-if="props.askWarehouse">
+                                <label for="warehouse">Warehouse</label>
+                                <select
+                                    id="warehouse"
+                                    name="warehouse"
+                                    t-model="state.warehouse_id"
+                                >
+                                    <t
+                                        t-foreach="state.warehouses"
+                                        t-as="warehouse"
+                                        t-key="warehouse.id"
+                                    >
+                                        <option
+                                            t-att-value="warehouse.id"
+                                            t-att-selected="warehouse.selected"
+                                        >
+                                            <t t-esc="warehouse.name" />
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <label for="deliveryDate">Delivery date</label>
+                            <input id="deliveryDate" type="date" t-model="state.date" />
+                            <div>
+                               <button
+                                    class=""
+                                    t-on-click="clickDeliveryLater"
+                                >Deliver later</button>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="deliveryNow">
+                            <span
+                                t-if="!state.allowDeliveryNow"
+                            >Delivery now not available for this order</span>
+                            <button
+                                class=""
+                                t-on-click="clickDeliveryNow"
+                                t-if="state.allowDeliveryNow"
+                            >Deliver now</button>
+                        </div>
+                    </article>
+
+                    <footer class="footer">
+                        <div class="button cancel" t-on-click="cancel">
+                            Cancel
+                        </div>
+                    </footer>
+                </div>
+            </Draggable>
+        </div>
+    </t>
+
+</templates>
