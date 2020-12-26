@@ -46,12 +46,12 @@
                         <hr />
                         <div class="deliveryNow">
                             <span
-                                t-if="!state.allowDeliveryNow"
+                                t-if="!state.allow_delivery_now"
                             >Delivery now not available for this order</span>
                             <button
                                 class=""
                                 t-on-click="clickDeliveryNow"
-                                t-if="state.allowDeliveryNow"
+                                t-if="state.allow_delivery_now"
                             >Deliver now</button>
                         </div>
                     </article>

@@ -2,6 +2,7 @@
 # @author Raphaël Reverdy <raphael.reverdy@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+from datetime import date, timedelta
 
 from odoo import api, models
 
@@ -9,10 +10,29 @@ from odoo import api, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    def compute_pos_requested_date(self):
+    @api.model
+    def _get_product_ids(self, data):
+        product_ids = []
+        for _a, _b, line in data["lines"]:
+            product_ids.append(line["product_id"])
+
+            # compatibility with pos_sale_configurator_option
+            # simple if to avoid glue module
+            if line.get("config", {}).get("selected_options"):
+                for option in line["config"]["selected_options"]:
+                    product_ids.append(option["product_id"])
+
+        return product_ids
+
+    @api.model
+    def compute_pos_requested_date(self, data):
+        product_ids = self._get_product_ids(data)
+        products = self.env["product.product"].browse(product_ids)
+        sale_delay = max(products.mapped("sale_delay"))
+        allow_delivery_now = all(products.mapped("pos_delivery_now_allowed"))
         return {
-            "date": "2020-06-20",
-            "allowDeliveryNow": True,
+            "date": str(date.today() + timedelta(days=sale_delay)),
+            "allow_delivery_now": allow_delivery_now,
         }
 
     @api.model

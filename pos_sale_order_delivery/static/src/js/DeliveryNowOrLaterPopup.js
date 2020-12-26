@@ -18,7 +18,7 @@ odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopUp", function (require
                 warehouse_id: null,
                 warehouses: this.env.pos.warehouses,
                 when: null,
-                allowDeliveryNow: false,
+                allow_delivery_now: false,
                 loaded: false,
             });
             this.props.askWarehouse = this.env.pos.config.iface_ask_warehouse;
@@ -52,7 +52,7 @@ odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopUp", function (require
             }).then((result) => {
                 this.state.disabled = false;
                 this.state.date = result.date;
-                this.state.allowDeliveryNow = result.allowDeliveryNow;
+                this.state.allow_delivery_now = result.allow_delivery_now;
                 this.state.loaded = true;
             });
         }
