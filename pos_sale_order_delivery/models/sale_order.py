@@ -4,11 +4,15 @@
 
 from datetime import date, timedelta
 
-from odoo import api, models
+from odoo import api, fields, models
 
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
+
+    pos_auto_delivery = fields.Boolean(
+        help="Technical Field to flag order that should be delivered automatically"
+    )
 
     @api.model
     def _get_product_ids(self, data):
@@ -38,6 +42,23 @@ class SaleOrder(models.Model):
     @api.model
     def _order_fields(self, ui_order):
         res = super()._order_fields(ui_order)
-        res["commitment_date"] = ui_order["commitment_date"]
-        # TODO: do something with ui_order['deliver_now']
+        res.update(
+            {
+                "commitment_date": ui_order["commitment_date"],
+                "pos_auto_delivery": ui_order["deliver_now"],
+            }
+        )
         return res
+
+    def action_confirm(self):
+        res = super().action_confirm()
+        for record in self:
+            if record.pos_auto_delivery:
+                record.with_delay().action_deliver_all()
+        return res
+
+    def action_deliver_all(self):
+        for picking in self.picking_ids:
+            for line in picking.move_lines:
+                line.quantity_done = line.product_uom_qty
+            picking.button_validate()
