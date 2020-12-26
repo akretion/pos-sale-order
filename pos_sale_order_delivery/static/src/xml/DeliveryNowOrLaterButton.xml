@@ -3,11 +3,12 @@
 
     <t t-name="DeliveryNowOrLaterButton" owl="1">
         <div class="button" att-class="{ 'higlight': state.shouldHighlight }">
-            <i
-                class="fa"
-                att-class="{ currentOrder.get('delivery_when')=='now' ? 'fa-arrow-circle-down': 'fa-forward'}"
-            />
-
+            <t t-if="currentOrder.get('delivery_when')=='now'">
+                <i class="fa fa-arrow-circle-down" />
+            </t>
+            <t t-else="">
+                <i class="fa fa-forward" />
+            </t>
             <t t-if="!currentOrder.get('delivery_when')">Choose delivery</t>
             <t t-if="currentOrder.get('delivery_when')=='now'">Deliver now</t>
             <t t-if="currentOrder.get('delivery_when')=='later'">
