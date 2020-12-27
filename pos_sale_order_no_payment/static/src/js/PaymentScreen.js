@@ -30,13 +30,11 @@ odoo.define("pos_sale_order_no_payment.PaymentScreen", function (require) {
             }
             activatePayment() {
                 this.currentOrder.is_paid = models.Order.prototype.is_paid;
-                this.togglePayment(true);
             }
             deactivatePayment() {
                 this.currentOrder.is_paid = function () {
                     return true;
                 };
-                this.togglePayment(false);
                 // Remove all paymentlines
                 this.currentOrder
                     .get_paymentlines()
