@@ -22,9 +22,12 @@ odoo.define("pos_sale_order_reference.models", function (require) {
             if (order.get("delivery_when") === "now") {
                 res.deliver_now = true;
                 res.commitment_date = false;
-            } else {
+            } else if (order.get("delivery_when") === "later") {
                 res.deliver_now = false;
                 res.commitment_date = order.get("commitment_date");
+            } else {
+                res.deliver_now = false;
+                res.commitment_date = false;
             }
             res.warehouse_id = order.get("warehouse_id");
             return res;

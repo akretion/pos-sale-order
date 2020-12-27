@@ -12,6 +12,9 @@
                         Loading, please wait
                     </article>
                     <article t-if="state.loaded">
+                        <div class="noDelivery" t-if="state.no_delivery_message">
+                            <span t-esc="state.no_delivery_message" />
+                        </div>
                         <div class="deliveryLater">
                             <div t-if="props.askWarehouse">
                                 <label for="warehouse">Warehouse</label>
@@ -34,13 +37,18 @@
                                     </t>
                                 </select>
                             </div>
-                            <label for="deliveryDate">Delivery date</label>
-                            <input id="deliveryDate" type="date" t-model="state.date" />
                             <div>
-                               <button
-                                    class=""
-                                    t-on-click="clickDeliveryLater"
-                                >Deliver later</button>
+                                <span
+                                    t-if="!state.allow_delivery_later"
+                                >Delivery not available for this order</span>
+                                <t t-if="state.allow_delivery_later">
+                                    <label for="deliveryDate">Delivery date</label>
+                                    <input id="deliveryDate" type="date" t-model="state.date" />
+                                    <button
+                                            class=""
+                                            t-on-click="clickDeliveryLater"
+                                    >Deliver later</button>
+                                </t>
                             </div>
                         </div>
                         <hr />
