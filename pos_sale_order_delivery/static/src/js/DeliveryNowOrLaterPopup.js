@@ -4,7 +4,7 @@
 
 odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopUp", function (require) {
     "use strict";
-
+    /* global owl */
     var AbstractAwaitablePopup = require("point_of_sale.AbstractAwaitablePopup");
     var {useState} = owl.hooks;
     var Registries = require("point_of_sale.Registries");
@@ -30,7 +30,7 @@ odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopUp", function (require
         }
         async getPayload() {
             this.state.warehouse = this.state.warehouses.filter((wh) => {
-                return wh.id == this.state.warehouse_id;
+                return wh.id === this.state.warehouse_id;
             })[0];
             return this.state;
         }

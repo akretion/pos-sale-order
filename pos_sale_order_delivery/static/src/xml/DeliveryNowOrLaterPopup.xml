@@ -43,10 +43,14 @@
                                 >Delivery not available for this order</span>
                                 <t t-if="state.allow_delivery_later">
                                     <label for="deliveryDate">Delivery date</label>
-                                    <input id="deliveryDate" type="date" t-model="state.date" />
+                                    <input
+                                        id="deliveryDate"
+                                        type="date"
+                                        t-model="state.date"
+                                    />
                                     <button
-                                            class=""
-                                            t-on-click="clickDeliveryLater"
+                                        class=""
+                                        t-on-click="clickDeliveryLater"
                                     >Deliver later</button>
                                 </t>
                             </div>
