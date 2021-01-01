@@ -34,7 +34,7 @@ class SaleOrder(models.Model):
         products = self.env["product.product"].browse(product_ids)
         sale_delay = max(products.mapped("sale_delay"))
         allow_delivery_now = all(products.mapped("pos_delivery_now_allowed"))
-        allow_delivery_later = False
+        allow_delivery_later = True
         no_delivery_message = False
         return {
             "date": str(date.today() + timedelta(days=sale_delay)),
