@@ -5,35 +5,31 @@
 odoo.define("pos_partial_payment.hijack_model_load", function (require) {
     "use strict";
     var pos_models = require("point_of_sale.models");
-    var bankStatementOriginal = null;
-    var journalLoadedOriginal = null;
-    function bankStatementLoaded(self, cashregisters, tmp) {
-        self.cashregisters = cashregisters;
-        var one = cashregisters[0];
-        var copy = Object.assign({}, one);
-        copy.name = "Pay later";
-        copy.account_id = [-1, "Fake account"];
-        copy.journal_id = [-1, "Pay later"];
-        self.cashregisters.push(copy);
-        bankStatementOriginal(self, cashregisters, tmp);
-    }
+    var posPaymentMethodLoadedOriginal = null;
 
-    function journalLoaded(self, journals) {
-        self.journals = journals;
-        var one = journals[0];
-        var copy = Object.assign({}, one);
-        copy.id = -1;
-        self.journals.push(copy);
-        journalLoadedOriginal(self, journals);
+    function posPaymentMethodLoaded(self, payment_methods) {
+        var fake_method = {
+            id: -1,
+            is_cash_count: false,
+            name: "Pay later",
+            use_payment_terminal: false,
+        };
+        payment_methods.push(fake_method);
+        posPaymentMethodLoadedOriginal(self, payment_methods);
+        // Self.payment_methods is sorted by cash then id.
+        // so our negative id is put too high in the list
+        // we want our fake payment method to be at the end
+        var idx = self.payment_methods.indexOf(fake_method);
+        // Remove it where it is
+        self.payment_methods.splice(idx, 1);
+        // Add it back at the end
+        self.payment_methods.push(fake_method);
     }
 
     pos_models.PosModel.prototype.models.forEach(function (m) {
-        if (m.model === "account.journal") {
-            journalLoadedOriginal = m.loaded;
-            m.loaded = journalLoaded;
-        } else if (m.model === "account.bank.statement") {
-            bankStatementOriginal = m.loaded;
-            m.loaded = bankStatementLoaded;
+        if (m.model === "pos.payment.method") {
+            posPaymentMethodLoadedOriginal = m.loaded;
+            m.loaded = posPaymentMethodLoaded;
         }
     });
 });
