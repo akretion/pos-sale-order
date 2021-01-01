@@ -61,3 +61,6 @@ class PosSession(models.Model):
     def _check_if_no_draft_orders(self):
         # we can have quotation
         return True
+
+    def _create_picking_at_end_of_session(self):
+        return True
