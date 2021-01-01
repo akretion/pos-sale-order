@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record model="ir.ui.view" id="pos_config_view_form">
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='inventory_location']/div" position="inside">
+                <div class="o_setting_left_pane">
+                    <field name="iface_ask_warehouse" id="iface_ask_warehouse" />
+                </div>
+                <div class="o_setting_right_pane">
+                    <label for="iface_ask_warehouse" />
+                    <div class="text-muted">
+                        Propose to change warehouse delivery
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

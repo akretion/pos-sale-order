@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <t t-name="DeliveryNowOrLaterButton" owl="1">
+        <div class="button" att-class="{ 'higlight': state.shouldHighlight }">
+            <t t-if="currentOrder.get('delivery_when')=='now'">
+                <i class="fa fa-arrow-circle-down" />
+            </t>
+            <t t-else="">
+                <i class="fa fa-forward" />
+            </t>
+            <t t-if="!currentOrder.get('delivery_when')">Choose delivery</t>
+            <t t-if="currentOrder.get('delivery_when')=='now'">Deliver now</t>
+            <t t-if="currentOrder.get('delivery_when')=='later'">
+                Deliver <t t-esc="currentOrder.get('commitment_date')" />
+                <t t-if="currentOrder.get('warehouse')">
+                    <br />
+                    <small t-esc="currentOrder.get('warehouse').name" />
+                </t>
+            </t>
+        </div>
+    </t>
+
+    <t
+        t-name="PaymentScreen"
+        t-inherit="point_of_sale.PaymentScreen"
+        t-inherit-mode="extension"
+        owl="1"
+    >
+        <xpath expr="//div[contains(@class, 'payment-controls')]" position="inside">
+            <DeliveryNowOrLaterButton />
+        </xpath>
+    </t>
+
+</odoo>
