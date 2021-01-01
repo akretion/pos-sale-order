@@ -48,8 +48,8 @@ class SaleOrder(models.Model):
         res = super()._order_fields(ui_order)
         res.update(
             {
-                "commitment_date": ui_order["commitment_date"],
-                "pos_auto_delivery": ui_order["deliver_now"],
+                "commitment_date": ui_order.get("commitment_date"),
+                "pos_auto_delivery": ui_order.get("deliver_now", True),
             }
         )
         return res
