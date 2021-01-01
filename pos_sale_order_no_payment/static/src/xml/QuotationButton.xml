@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <t t-name="QuotationButton" owl="1">
+        <div
+            class="QuotationButton button"
+            t-att-class="{ highlight: currentOrder.get('is_quotation') }"
+        >
+            <i class='fa fa-file-o' />
+                <t t-if="!currentOrder.get('is_quotation')"> Order</t>
+                <t t-if="currentOrder.get('is_quotation')"> Quotation</t>
+        </div>
+    </t>
+</odoo>
