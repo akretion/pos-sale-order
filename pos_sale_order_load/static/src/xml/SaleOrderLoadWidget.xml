@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <t t-name="SaleOrderLoadWidget" owl="1">
-        <div class="oe_status">
-            <div class="js_connected oe_icon">
-                <a
-                    class="load-so fa fa-upload"
-                    href="/web#view_type=list&amp;model=sale.order&amp;action=pos_sale_order_load.action_select_sale_order_pos"
-                    target="backoffice"
-                    style="color:white"
-                />
-            </div>
+        <div class="ticket-button">
+            <a
+                class="load-so fa fa-upload"
+                href="/web#view_type=list&amp;model=sale.order&amp;action=pos_sale_order_load.action_select_sale_order_pos"
+                target="backoffice"
+                style="color:white"
+            > Load Order</a>
         </div>
     </t>
 
@@ -19,7 +17,7 @@
         t-inherit-mode="extension"
         owl="1"
     >
-        <xpath expr="//Portal/div" position="inside">
+        <xpath expr="//div[@class='pos-branding']" position="inside">
              <SaleOrderLoadWidget />
         </xpath>
     </t>
