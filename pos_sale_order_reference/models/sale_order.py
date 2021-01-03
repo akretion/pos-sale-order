@@ -12,5 +12,5 @@ class SaleOrder(models.Model):
     @api.model
     def _order_fields(self, ui_order):
         res = super()._order_fields(ui_order)
-        res["client_order_ref"] = ui_order["client_order_ref"]
+        res["client_order_ref"] = ui_order.get("client_order_ref")
         return res
