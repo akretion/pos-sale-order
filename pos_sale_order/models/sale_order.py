@@ -198,7 +198,7 @@ class SaleOrder(models.Model):
             "\n - ".join([order["id"] for order in failed])
         )
 
-    def _get_receipt(self):
+    def _get_receipts(self):
         """Inherit to generate your own ticket"""
         return []
 
@@ -224,7 +224,7 @@ class SaleOrder(models.Model):
                         sale = self.browse(sale_id)
                     # TODO support update
                     result["ids"] += sale.ids
-                    result["receipts"] += sale._get_receipt()
+                    result["receipts"] += sale._get_receipts()
                     result["uuids"].append(order["id"])
             except Exception as e:
                 failed.append(order)
