@@ -195,7 +195,7 @@ class SaleOrder(models.Model):
 
     def _build_pos_error_message(self, failed):
         return _("Fail to sync the following order\n - {}").format(
-            "\n - ".join([order["id"] for order in failed])
+            "\n - ".join([str(order["id"]) for order in failed])
         )
 
     def _get_receipts(self):
