@@ -12,7 +12,7 @@
             <t t-if="!currentOrder.get('delivery_when')">Choose delivery</t>
             <t t-if="currentOrder.get('delivery_when')=='now'">Deliver now</t>
             <t t-if="currentOrder.get('delivery_when')=='later'">
-                Deliver <t t-esc="currentOrder.get('commitment_date')" />
+                Delivery <t t-esc="currentOrder.get('commitment_date')" />
                 <t t-if="currentOrder.get('warehouse')">
                     <br />
                     <small t-esc="currentOrder.get('warehouse').name" />

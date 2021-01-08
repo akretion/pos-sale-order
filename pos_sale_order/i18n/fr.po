@@ -92,7 +92,7 @@ msgstr "Livrer"
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__delivery_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
 msgid "Delivery"
-msgstr "Livraison"
+msgstr "Retrait"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__display_name
