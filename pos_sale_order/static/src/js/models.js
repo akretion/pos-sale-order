@@ -49,14 +49,16 @@ odoo.define("pos_sale_order.models", function (require) {
                     res.uuids.forEach(function (order_id) {
                         self.db.remove_order(order_id);
                     });
-                    if (typeof self.proxy.printer.print_receipts === "function") {
-                        await self.proxy.printer.print_receipts(res.receipts);
-                    } else {
-                        await Promise.all(
-                            res.receipts.map(function (receipt) {
-                                self.proxy.printer.print_receipt(receipt);
-                            })
-                        );
+                    if (self.proxy.printer !== undefined) {
+                        if (typeof self.proxy.printer.print_receipts === "function") {
+                            await self.proxy.printer.print_receipts(res.receipts);
+                        } else {
+                            await Promise.all(
+                                res.receipts.map(function (receipt) {
+                                    return self.proxy.printer.print_receipt(receipt);
+                                })
+                            );
+                        }
                     }
                     if (res.error) {
                         return Promise.reject({
