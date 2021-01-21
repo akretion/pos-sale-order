@@ -33,9 +33,9 @@ msgid "Automatic Receipt Printing"
 msgstr ""
 
 #. module: pos_sale_order
-#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__available_journal_ids
-msgid "Available Journal"
-msgstr "Journaux Disponible"
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__available_payment_method_ids
+msgid "Available Payment Method"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_account_bank_statement
@@ -59,9 +59,24 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__company_id
+msgid "Company"
+msgstr ""
+
+#. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_delivery_wizard_view_form
 msgid "Confirm"
 msgstr "Valider"
+
+#. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__currency_rate
+msgid "Conversion Rate"
+msgstr ""
+
+#. module: pos_sale_order
+#: model:ir.model.fields,help:pos_sale_order.field_pos_payment__currency_rate
+msgid "Conversion rate from company currency to order currency."
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__create_uid
@@ -78,8 +93,14 @@ msgid "Created on"
 msgstr ""
 
 #. module: pos_sale_order
-#: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement__account_id
-msgid "Default Debit Account"
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__partner_id
+#: model:ir.ui.menu,name:pos_sale_order.menu_pos_customer
+msgid "Customer"
 msgstr ""
 
 #. module: pos_sale_order
@@ -89,26 +110,37 @@ msgid "Deliver"
 msgstr "Livrer"
 
 #. module: pos_sale_order
+#. openerp-web
+#: code:addons/pos_sale_order/static/src/xml/SaleOrderWidget.xml:0
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__delivery_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
+#, python-format
 msgid "Delivery"
 msgstr "Retrait"
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_report_point_of_sale_report_invoice__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order_line__display_name
 msgid "Display Name"
 msgstr ""
 
 #. module: pos_sale_order
+#: model:ir.model.fields.selection,name:pos_sale_order.selection__sale_order__pos_payment_state__done
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
-#: selection:sale.order,pos_payment_state:0
 msgid "Done"
 msgstr "Fait"
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/wizards/pos_delivery_wizard.py:43
+#: code:addons/pos_sale_order/wizards/pos_delivery_wizard.py:0
 #, fuzzy, python-format
 msgid ""
 "Fail to deliver picking have been split, please do it from delivery menu"
@@ -117,7 +149,7 @@ msgstr ""
 "le traiter depuis le menu livraison"
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/models/sale_order.py:180
+#: code:addons/pos_sale_order/models/sale_order.py:0
 #, python-format
 msgid ""
 "Fail to sync the following order\n"
@@ -127,7 +159,7 @@ msgstr ""
 " - {}"
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/models/pos_session.py:29
+#: code:addons/pos_sale_order/models/pos_session.py:0
 #, python-format
 msgid "Following order have a draft invoice, please fix it %s"
 msgstr ""
@@ -140,15 +172,23 @@ msgstr ""
 "Groupe pour afficher le menu natif du points de vente (ne pas utiliser)"
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_report_point_of_sale_report_invoice__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order_line__id
 msgid "ID"
 msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_account_invoice
-#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__invoice_id
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__account_move
 msgid "Invoice"
 msgstr "Facture"
 
@@ -158,14 +198,28 @@ msgid "Invoices"
 msgstr "Factures"
 
 #. module: pos_sale_order
-#: model:ir.model.fields,help:pos_sale_order.field_account_bank_statement__account_id
-msgid "It acts as a default account for debit amount"
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__is_invoiced
+#, fuzzy
+msgid "Is Invoiced"
+msgstr "Facture"
+
+#. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_account_move
+msgid "Journal Entry"
 msgstr ""
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_config____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_session____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_report_point_of_sale_report_invoice____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order_line____last_update
 msgid "Last Modified on"
 msgstr ""
 
@@ -189,7 +243,7 @@ msgid "Lines"
 msgstr "Lignes"
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:51
+#: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:0
 #, python-format
 msgid "Manual payment {}"
 msgstr "Paiement manuel {}"
@@ -200,16 +254,27 @@ msgid "Move Line"
 msgstr "Ligne de mouvement"
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/models/pos_invoice.py:18
+#: code:addons/pos_sale_order/models/pos_invoice.py:0
 #, fuzzy, python-format
 msgid "No link to an invoice for %s."
 msgstr "Aucune facture pour %s., "
 
 #. module: pos_sale_order
+#: model:ir.model.fields.selection,name:pos_sale_order.selection__sale_order__pos_payment_state__none
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
-#: selection:sale.order,pos_payment_state:0
 msgid "Not needed"
 msgstr "Non nécessaire"
+
+#. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__picking_type_id
+msgid "Operation Type"
+msgstr ""
+
+#. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__pos_order_id
+#, fuzzy
+msgid "Order"
+msgstr "Commandes"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_session__order_ids
@@ -228,7 +293,12 @@ msgid "POS amount to pay"
 msgstr "Montant point de vente à payer"
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/models/sale_order.py:167
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__amount_paid
+msgid "Paid"
+msgstr ""
+
+#. module: pos_sale_order
+#: code:addons/pos_sale_order/models/sale_order.py:0
 #, python-format
 msgid "Partner is required if you want an invoice"
 msgstr "Le client est requis si vous souhaitez facturer"
@@ -245,17 +315,18 @@ msgid "Payment"
 msgstr "Paiement"
 
 #. module: pos_sale_order
-#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__journal_id
-msgid "Payment mode"
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__payment_method_id
+#, fuzzy
+msgid "Payment method"
 msgstr "Mode de paiement"
 
 #. module: pos_sale_order
-#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__statement_ids
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__payment_ids
 msgid "Payments"
 msgstr "Paiements"
 
 #. module: pos_sale_order
-#: selection:sale.order,pos_payment_state:0
+#: model:ir.model.fields.selection,name:pos_sale_order.selection__sale_order__pos_payment_state__pending
 msgid "Pending Payment"
 msgstr "En attente de paiement"
 
@@ -270,7 +341,9 @@ msgid "Please select the journal and the amount to paid"
 msgstr "Merci de choisir le journal et le saisir le montant à payer"
 
 #. module: pos_sale_order
-#: model:ir.model.fields,field_description:pos_sale_order.field_account_invoice__session_id
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__session_id
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move__session_id
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment__session_id
 #, fuzzy
 msgid "PoS Session"
 msgstr "Session"
@@ -294,13 +367,27 @@ msgid "Point of Sale Invoice Report"
 msgstr "Point de vente"
 
 #. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_pos_order
+#, fuzzy
+msgid "Point of Sale Orders"
+msgstr "Point de vente"
+
+#. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_pos_payment
+#, fuzzy
+msgid "Point of Sale Payments"
+msgstr "Point de vente"
+
+#. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_pos_session
 #, fuzzy
 msgid "Point of Sale Session"
 msgstr "Point de vente"
 
 #. module: pos_sale_order
-#: model:ir.model.fields,field_description:pos_sale_order.field_account_invoice__pos_anonyme_invoice
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__pos_anonyme_invoice
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move__pos_anonyme_invoice
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment__pos_anonyme_invoice
 msgid "Pos Anonyme Invoice"
 msgstr "Facture anonyme du point de vente"
 
@@ -351,12 +438,18 @@ msgstr "Réf PdV"
 
 #. module: pos_sale_order
 #: model:ir.actions.act_window,name:pos_sale_order.action_sale_order_pos
-#: model:ir.model,name:pos_sale_order.model_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__pos_sale_order_id
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__pos_sale_order_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__sale_order_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_tree
 #, fuzzy
 msgid "Sale Order"
+msgstr "Commandes de Vente"
+
+#. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_sale_order
+#, fuzzy
+msgid "Sales Order"
 msgstr "Commandes de Vente"
 
 #. module: pos_sale_order
@@ -371,6 +464,7 @@ msgid "Select the product to delivers"
 msgstr "Choisir les produits à livrer"
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__session_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__session_id
 msgid "Session"
 msgstr "Session"
@@ -381,12 +475,7 @@ msgid "Skip Preview Screen"
 msgstr ""
 
 #. module: pos_sale_order
-#: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__stock_location_id
-msgid "Stock Location"
-msgstr "Emplacement de stock"
-
-#. module: pos_sale_order
-#: sql_constraint:sale.order:0
+#: model:ir.model.constraint,message:pos_sale_order.constraint_sale_order_pos_reference_uniq
 msgid "The pos_reference must be uniq per session"
 msgstr ""
 "La référence de commande de point de vente doit être unique par session"
@@ -404,15 +493,16 @@ msgid "The receipt will automatically be printed at the end of each order."
 msgstr ""
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:27
+#: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:0
 #, python-format
 msgid "There is no session Opened, please open one"
 msgstr ""
 
 #. module: pos_sale_order
-#: model:ir.model,name:pos_sale_order.model_stock_picking
-msgid "Transfer"
-msgstr ""
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__to_invoice
+#, fuzzy
+msgid "To invoice"
+msgstr "Facture"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__unit_to_deliver
@@ -423,6 +513,12 @@ msgstr "Unité à livrer"
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__warehouse_id
 msgid "Warehouse"
 msgstr "Entrepots"
+
+#~ msgid "Available Journal"
+#~ msgstr "Journaux Disponible"
+
+#~ msgid "Stock Location"
+#~ msgstr "Emplacement de stock"
 
 #~ msgid "Configuration Error!"
 #~ msgstr "Erreur de paramétrage !"

@@ -61,6 +61,13 @@ msgstr ""
 
 #. module: pos_sale_order_no_payment
 #. openerp-web
+#: code:addons/pos_sale_order_no_payment/static/src/js/QuotationButton.js:0
+#, python-format
+msgid "You will need to confirm the sale in the backend"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#. openerp-web
 #: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0
 #: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0
 #: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0

@@ -34,13 +34,6 @@ msgstr ""
 
 #. module: pos_sale_order_delivery
 #. openerp-web
-#: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterButton.xml:0
-#, python-format
-msgid "Deliver"
-msgstr "Retrait"
-
-#. module: pos_sale_order_delivery
-#. openerp-web
 #: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterPopup.xml:0
 #, python-format
 msgid "Deliver later"
@@ -52,6 +45,13 @@ msgstr ""
 #: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterPopup.xml:0
 #, python-format
 msgid "Deliver now"
+msgstr ""
+
+#. module: pos_sale_order_delivery
+#. openerp-web
+#: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterButton.xml:0
+#, python-format
+msgid "Delivery"
 msgstr ""
 
 #. module: pos_sale_order_delivery
@@ -101,7 +101,7 @@ msgstr ""
 #: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterPopup.xml:0
 #, python-format
 msgid "Loading, please wait"
-msgstr "Chargement en cours, merci de patienter"
+msgstr ""
 
 #. module: pos_sale_order_delivery
 #. openerp-web

@@ -23,7 +23,7 @@ odoo.define("pos_sale_order_no_payment.QuotationButton", function (require) {
             } else {
                 var ret = await this.showPopup("ConfirmPopup", {
                     title: _t("Confirm Quotation"),
-                    body: "You will need to confirm the sale in the backend",
+                    body: _t("You will need to confirm the sale in the backend"),
                 });
                 if (ret.confirmed) {
                     this.currentOrder.set("is_quotation", true);

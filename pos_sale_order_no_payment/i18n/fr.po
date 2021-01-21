@@ -8,6 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
@@ -61,8 +62,13 @@ msgstr "Devis"
 
 #. module: pos_sale_order_no_payment
 #. openerp-web
-#: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0
-#: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0
+#: code:addons/pos_sale_order_no_payment/static/src/js/QuotationButton.js:0
+#, python-format
+msgid "You will need to confirm the sale in the backend"
+msgstr "Vous devrez valider la commande manuellement dans le backoffice"
+
+#. module: pos_sale_order_no_payment
+#. openerp-web
 #: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0
 #: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreenStatus.xml:0
 #, python-format
