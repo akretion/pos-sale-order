@@ -6,12 +6,14 @@ odoo.define("pos_partial_payment.hijack_model_load", function (require) {
     "use strict";
     var pos_models = require("point_of_sale.models");
     var posPaymentMethodLoadedOriginal = null;
+    var core = require("web.core");
+    var _t = core._t;
 
     function posPaymentMethodLoaded(self, payment_methods) {
         var fake_method = {
             id: -1,
             is_cash_count: false,
-            name: "Pay later",
+            name: _t("Pay later"),
             use_payment_terminal: false,
         };
         payment_methods.push(fake_method);

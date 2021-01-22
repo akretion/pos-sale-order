@@ -33,7 +33,7 @@ msgstr ""
 #: code:addons/pos_partial_payment/static/src/js/pos_partial_payment.js:0
 #, python-format
 msgid "Pay later"
-msgstr ""
+msgstr "Payer plus tard"
 
 #. module: pos_partial_payment
 #: model:ir.model,name:pos_partial_payment.model_sale_order
