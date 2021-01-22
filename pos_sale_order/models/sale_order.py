@@ -81,6 +81,12 @@ class SaleOrder(models.Model):
     )
     is_invoiced = fields.Boolean("Is Invoiced", compute="_compute_is_invoiced")
 
+    @api.model
+    def _payment_fields(self, order, ui_paymentline):
+        res = super()._payment_fields(order, ui_paymentline)
+        res["session_id"] = order.session_id.id
+        return res
+
     @property
     def lines(self):
         return self.order_line

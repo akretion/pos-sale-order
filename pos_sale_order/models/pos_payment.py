@@ -12,7 +12,7 @@ class PosPayment(models.Model):
         "sale.order", string="Sale Order", ondelete="cascade", required=True
     )
     pos_order_id = fields.Many2one(required=False)
-    session_id = fields.Many2one(related="pos_sale_order_id.session_id", store=True)
+    session_id = fields.Many2one(related=False)
     partner_id = fields.Many2one(related="pos_sale_order_id.partner_id")
     company_id = fields.Many2one(related="pos_sale_order_id.company_id")
     currency_id = fields.Many2one(related="pos_sale_order_id.currency_id")

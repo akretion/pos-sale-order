@@ -43,15 +43,14 @@ class PosPaymentWizard(models.TransientModel):
         return self.create(vals)
 
     def _prepare_payment(self):
-        # session = self._get_session()
-        # TODO session is related to the sale order
-        # We have to check the total amount in the statement
+        session = self._get_session()
         sale = self.sale_order_id
         return {
             "amount": self.amount,
             "name": _("Manual payment {}").format(sale.name),
             "payment_method_id": self.payment_method_id.id,
             "pos_sale_order_id": sale.id,
+            "session_id": session.id,
         }
 
     def pay(self):
