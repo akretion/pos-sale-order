@@ -12,7 +12,7 @@ odoo.define("pos_sale_order.AbstractReceiptScreen", function (require) {
     var PSOAbstractReceiptScreen = (AbstractReceiptScreen) =>
         class PSOAbstractReceiptScreen extends AbstractReceiptScreen {
             async _printReceipt() {
-                return Promise.resolve();
+                return true;
             }
         };
 
