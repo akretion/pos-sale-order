@@ -233,7 +233,7 @@ class SaleOrder(models.Model):
                     if not sale:
                         sale_id = self._process_order(order, draft, None)
                         sale = self.browse(sale_id)
-                    # TODO support update
+                    # For update support, see pos_sale_order_load
                     result["ids"] += sale.ids
                     result["receipts"] += sale._get_receipts()
                     result["uuids"].append(order["id"])
