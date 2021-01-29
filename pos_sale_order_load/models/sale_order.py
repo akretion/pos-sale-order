@@ -43,18 +43,17 @@ class SaleOrder(models.Model):
         return super().create_from_ui(orders)
 
     @api.model_create_multi
-    def create(self, vals):
+    def create(self, vals_list):
         pos_sale_order_id = self._context.get("update_pos_sale_order_id")
         if pos_sale_order_id:
-            if len(vals) == 1:
-                # In case the we update the data from the POS we only update the line
+            if len(vals_list) == 1:
                 sale = self.browse(pos_sale_order_id)
                 sale.order_line.unlink()
-                sale.write({"order_line": vals[0]["order_line"]})
+                sale.write(vals_list[0])
             else:
                 raise NotImplementedError
             return sale
-        return super().create(vals)
+        return super().create(vals_list)
 
     def _pos_json(self):
         data = {
