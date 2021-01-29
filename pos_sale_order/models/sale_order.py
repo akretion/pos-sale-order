@@ -128,9 +128,10 @@ class SaleOrder(models.Model):
         # if it's not a unit then it have no meaning
         # maybe you should adapt this to your case
         for record in self:
-            record.unit_to_deliver = sum(
-                record.mapped("order_line.product_uom_qty")
-            ) - sum(record.mapped("order_line.qty_delivered"))
+            lines = record.order_line.filtered(lambda s: s.product_id.type != "service")
+            record.unit_to_deliver = sum(lines.mapped("product_uom_qty")) - sum(
+                lines.mapped("qty_delivered")
+            )
 
     def open_pos_payment_wizard(self):
         self.ensure_one()
