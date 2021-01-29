@@ -28,11 +28,14 @@ class SaleOrder(models.Model):
 
         return product_ids
 
+    def _get_pos_sale_delay(self, products, data):
+        return max(products.mapped("sale_delay"))
+
     @api.model
     def compute_pos_requested_date(self, data):
         product_ids = self._get_product_ids(data)
         products = self.env["product.product"].browse(product_ids)
-        sale_delay = max(products.mapped("sale_delay"))
+        sale_delay = self._get_pos_sale_delay(products, data)
         allow_delivery_now = all(products.mapped("pos_delivery_now_allowed"))
         allow_delivery_later = True
         no_delivery_message = False
