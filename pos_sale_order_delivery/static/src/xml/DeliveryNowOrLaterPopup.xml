@@ -75,7 +75,7 @@
                             </div>
                         </div>
                         <hr />
-                        <div class="deliveryNow">
+                        <div class="deliveryNow" t-if="!state.no_delivery_message">
                             <span
                                 t-if="!state.allow_delivery_now"
                             >Delivery now not available for this order</span>
