@@ -10,6 +10,7 @@
                 <i class="fa fa-forward" />
             </t>
             <t t-if="!currentOrder.get('delivery_when')">Choose delivery</t>
+            <t t-if="currentOrder.get('delivery_when')=='no'">No Deliver</t>
             <t t-if="currentOrder.get('delivery_when')=='now'">Deliver now</t>
             <t t-if="currentOrder.get('delivery_when')=='later'">
                 Delivery <t t-esc="currentOrder.get('commitment_date')" />

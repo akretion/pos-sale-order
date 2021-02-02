@@ -42,6 +42,10 @@ odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopUp", function (require
             this.state.when = "now";
             return this.confirm();
         }
+        async clickNoDelivery() {
+            this.state.when = "no";
+            return this.confirm();
+        }
         get currentOrder() {
             return this.env.pos.get_order();
         }

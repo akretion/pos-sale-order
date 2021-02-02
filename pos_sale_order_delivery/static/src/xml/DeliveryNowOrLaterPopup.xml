@@ -12,9 +12,6 @@
                         Loading, please wait
                     </article>
                     <article t-if="state.loaded">
-                        <div class="noDelivery" t-if="state.no_delivery_message">
-                            <span t-esc="state.no_delivery_message" />
-                        </div>
                         <div class="deliveryLater">
                             <div t-if="props.askWarehouse">
                                 <div>
@@ -41,7 +38,19 @@
                                     </select>
                                 </div>
                             </div>
-                            <div>
+                            <div class="noDelivery" t-if="state.no_delivery_message">
+                                <div>
+                                    <span t-esc="state.no_delivery_message" />
+                                </div>
+                                <div>
+                                    <button
+                                        class="pos-delivery-button"
+                                        t-on-click="clickNoDelivery"
+                                    >Confirm</button>
+                                </div>
+
+                            </div>
+                            <div t-else="">
                                 <span
                                     t-if="!state.allow_delivery_later"
                                 >Delivery not available for this order</span>
