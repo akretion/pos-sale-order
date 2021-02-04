@@ -175,6 +175,7 @@ class SaleOrder(models.Model):
             "pricelist_id": ui_order["pricelist_id"],
             "to_invoice": ui_order.get("to_invoice"),
             "invoice_policy": "order",
+            "warehouse_id": ui_order.get("warehouse_id") or config.warehouse_id,
         }
 
     def add_payment(self, data):

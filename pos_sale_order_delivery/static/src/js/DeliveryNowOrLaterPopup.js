@@ -29,6 +29,7 @@ odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopUp", function (require
             this.fetchDate();
         }
         async getPayload() {
+            this.state.warehouse_id = parseInt(this.state.warehouse_id);
             this.state.warehouse = this.state.warehouses.filter((wh) => {
                 return wh.id === this.state.warehouse_id;
             })[0];

@@ -19,16 +19,17 @@ odoo.define("pos_sale_order_delivery.ClientOrderRefButton", function (require) {
                 warehouses: [],
             });
             if (ret.confirmed) {
-                this.peristChoice(ret.payload);
+                this.persistChoice(ret.payload);
             }
         }
         get currentOrder() {
             return this.env.pos.get_order();
         }
-        peristChoice(payload) {
+        persistChoice(payload) {
             var order = this.currentOrder;
             order.set("commitment_date", payload.date);
             order.set("warehouse", payload.warehouse);
+            order.set("warehouse_id", payload.warehouse_id);
             order.set("delivery_when", payload.when);
             this.render();
         }
