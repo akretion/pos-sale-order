@@ -20,7 +20,9 @@ class CommonCase(TestPoSCommon):
         return "%05d-%03d-%04d" % (randint(1, 99999), randint(1, 999), randint(1, 9999))
 
     @classmethod
-    def _get_pos_data(cls, partner=False, to_invoice=False, amount_return=0):
+    def _get_pos_data(
+        cls, pos_session=None, partner=False, to_invoice=False, amount_return=0
+    ):
         payments = None
         if amount_return:
             payments = [(cls.cash_pm, 65 + amount_return)]
@@ -28,6 +30,8 @@ class CommonCase(TestPoSCommon):
         data = cls.create_ui_order_data(
             cls, cls.lines, customer=partner, is_invoiced=to_invoice, payments=payments
         )
+        if pos_session:
+            data["data"]["pos_session_id"] = pos_session.id
         if amount_return:
             data["data"]["amount_return"] = amount_return
         data["data"]["creation_date"] = datetime.now().isoformat()[0:23] + "Z"

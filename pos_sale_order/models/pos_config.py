@@ -36,7 +36,12 @@ class PosConfig(models.Model):
             record.iface_print_skip_screen = True
 
     def _get_default_warehouse(self):
-        return self.env["stock.warehouse"].search([], limit=1)
+        return self.env["stock.warehouse"].search(
+            [
+                ("company_id", "=", self.env.company.id),
+            ],
+            limit=1,
+        )
 
     def _get_default_partner(self):
         return self.env.ref("pos_sale_order.res_partner_anonymous")

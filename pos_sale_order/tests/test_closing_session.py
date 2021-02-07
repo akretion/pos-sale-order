@@ -8,14 +8,16 @@ from .common import CommonCase
 
 class TestClosingSession(CommonCase):
     @classmethod
-    def _create_session_sale(cls):
+    def _create_session_sale(cls, pos_session=None):
         datas = [
-            cls._get_pos_data(),
-            cls._get_pos_data(amount_return=5),
-            cls._get_pos_data(partner=cls.partner_3),
-            cls._get_pos_data(partner=cls.partner_3),
-            cls._get_pos_data(partner=cls.partner_2),
-            cls._get_pos_data(partner=cls.partner_2, to_invoice=True),
+            cls._get_pos_data(pos_session=pos_session),
+            cls._get_pos_data(pos_session=pos_session, amount_return=5),
+            cls._get_pos_data(partner=cls.partner_3, pos_session=pos_session),
+            cls._get_pos_data(partner=cls.partner_3, pos_session=pos_session),
+            cls._get_pos_data(partner=cls.partner_2, pos_session=pos_session),
+            cls._get_pos_data(
+                partner=cls.partner_2, pos_session=pos_session, to_invoice=True
+            ),
         ]
         return cls._create_sale(datas)
 
@@ -169,7 +171,7 @@ class TestClosingSession(CommonCase):
         # Open a new session
         self.config.open_session_cb(check_coa=False)
         self.pos_session = self.config.current_session_id
-        self._create_session_sale()
+        self._create_session_sale(pos_session=self.pos_session)
 
         # Register a backoffice payment on sale order
         wizard = self.env["pos.payment.wizard"].create_wizard(sale)
@@ -185,3 +187,8 @@ class TestClosingSession(CommonCase):
         self.pos_session.action_pos_session_validate()
         self.assertEqual(sale.invoice_ids.state, "posted")
         self.assertEqual(sale.invoice_ids.payment_state, "paid")
+
+        # Odoo can create rescue session if we do something wrong
+        # Ensure that is not the case
+        session = self.env["pos.session"].search([("rescue", "=", True)])
+        self.assertFalse(session)

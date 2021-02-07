@@ -21,7 +21,11 @@ class PosPaymentWizard(models.TransientModel):
 
     def _get_session(self):
         session = self.env["pos.session"].search(
-            [("state", "=", "opened"), ("user_id", "=", self._uid)]
+            [
+                ("state", "=", "opened"),
+                ("user_id", "=", self._uid),
+                ("rescue", "=", False),
+            ]
         )
         if not session:
             raise UserError(_("There is no session Opened, please open one"))

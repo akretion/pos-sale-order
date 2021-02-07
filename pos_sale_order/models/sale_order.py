@@ -6,6 +6,7 @@ import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import float_is_zero
 
 from odoo.addons.point_of_sale.models.pos_order import PosOrder
 
@@ -85,6 +86,7 @@ class SaleOrder(models.Model):
     def _payment_fields(self, order, ui_paymentline):
         res = super()._payment_fields(order, ui_paymentline)
         res["session_id"] = order.session_id.id
+        res["pos_sale_order_id"] = res.pop("pos_order_id")
         return res
 
     @property
@@ -178,10 +180,6 @@ class SaleOrder(models.Model):
             "warehouse_id": ui_order.get("warehouse_id") or config.warehouse_id.id,
         }
 
-    def add_payment(self, data):
-        data["pos_sale_order_id"] = data.pop("pos_order_id")
-        return super().add_payment(data)
-
     def action_pos_order_paid(self):
         """ We do nothing, not needed in sale_order case"""
         return True
@@ -251,3 +249,37 @@ class SaleOrder(models.Model):
 
     def _create_order_picking(self):
         return True
+
+    def _prepare_return_amount_payment(self, pos_order, order, pos_session, draft):
+        cash_payment_method = pos_session.payment_method_ids.filtered("is_cash_count")[
+            :1
+        ]
+        if not cash_payment_method:
+            raise UserError(
+                _(
+                    "No cash statement found for this session. "
+                    "Unable to record returned cash."
+                )
+            )
+        return {
+            "name": _("return"),
+            "session_id": pos_session.id,
+            "pos_sale_order_id": order.id,
+            "amount": -pos_order["amount_return"],
+            "payment_date": fields.Datetime.now(),
+            "payment_method_id": cash_payment_method.id,
+            "is_change": True,
+        }
+
+    def _process_payment_lines(self, pos_order, order, pos_session, draft):
+        pos_order_without_return = pos_order.copy()
+        pos_order_without_return["amount_return"] = 0
+        super()._process_payment_lines(
+            pos_order_without_return, order, pos_session, draft
+        )
+        prec_acc = order.pricelist_id.currency_id.decimal_places
+        if not draft and not float_is_zero(pos_order["amount_return"], prec_acc):
+            vals = self._prepare_return_amount_payment(
+                pos_order, order, pos_session, draft
+            )
+            order.add_payment(vals)

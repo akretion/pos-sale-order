@@ -19,6 +19,7 @@
         "sale_delivery_state",
         "pos_backend_partner",
         "sale_invoice_policy",
+        "queue_job",
     ],
     "external_dependencies": {
         "python": ["openupgradelib"],
