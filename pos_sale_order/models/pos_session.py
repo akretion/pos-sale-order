@@ -38,6 +38,46 @@ class PosSession(models.Model):
             "domain": [("session_id", "in", self.ids)],
         }
 
+    def _prepare_sale_statement(self, partner, method, payments):
+        return {
+            "date": fields.Date.context_today(self),
+            "amount": sum(payments.mapped("amount")),
+            "payment_ref": self.name,
+            "journal_id": method.cash_journal_id.id,
+            "counterpart_account_id": method.receivable_account_id.id,
+            "partner_id": partner.id,
+        }
+
+    def _create_bank_statement_line_and_reconcile(self):
+        to_reconcile = []
+        self.ensure_one()
+        payments = self.env["pos.payment"].search([("session_id", "=", self.id)])
+        grouped_payments = defaultdict(
+            lambda: defaultdict(lambda: self.env["pos.payment"])
+        )
+        for payment in payments:
+            grouped_payments[payment.payment_method_id][payment.partner_id] |= payment
+
+        for method, payment_per_partner in grouped_payments.items():
+            statement = self.statement_ids.filtered(
+                lambda s: s.journal_id == method.cash_journal_id
+            )
+            for partner, payments in payment_per_partner.items():
+                vals = self._prepare_sale_statement(partner, method, payments)
+                vals["statement_id"] = statement.id
+                bk_line = self.env["account.bank.statement.line"].create(vals)
+                move_lines = (
+                    bk_line.move_id.line_ids
+                    + payments.pos_sale_order_id.invoice_ids.line_ids
+                )
+                lines = move_lines.filtered(
+                    lambda s: s.account_id == method.receivable_account_id
+                )
+                to_reconcile.append(lines)
+        self.statement_ids.button_post()
+        for lines in to_reconcile:
+            lines.reconcile()
+
     def _create_account_move(self):
         self.ensure_one()
         # we create all invoice so odoo code will not generate account move for order
@@ -46,9 +86,7 @@ class PosSession(models.Model):
         self._check_no_draft_invoice()
 
         # TODO
-        # - check case where we have draft order
         # - check journal used
-        # - activate mismatch partner
         for partner, orders in self._get_order_to_invoice().items():
             if partner == self.config_id.anonymous_partner_id:
                 orders = orders.with_context(
@@ -56,7 +94,9 @@ class PosSession(models.Model):
                 )
             orders._create_invoices()
             orders.invoice_ids.action_post()
-        return super()._create_account_move()
+        # TODO create payment for cash and check
+        self._create_bank_statement_line_and_reconcile()
+        return True
 
     def _get_order_to_confirm(self):
         return self.order_ids.filtered(lambda s: s.state == "draft")

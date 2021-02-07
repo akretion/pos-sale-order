@@ -46,7 +46,6 @@ class TestClosingSession(CommonCase):
             invoices,
             [(self.partner_2, 2), (self.partner_3, 1), (self.partner_anonymous, 1)],
         )
-
         self.assertEqual(set(invoices.mapped("state")), {"posted"})
         self.assertEqual(set(invoices.mapped("payment_state")), {"paid"})
 

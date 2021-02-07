@@ -53,6 +53,15 @@ class CommonCase(TestPoSCommon):
             (cls.product1, 1.0),
             (cls.product2, 2.0),
         ]
+        cash = cls.basic_config.payment_method_ids.filtered(
+            lambda pm: pm.is_cash_count and not pm.split_transactions
+        )[:1]
+        cash.receivable_account_id = cls.env["account.account"].search(
+            [
+                ("name", "=", "Account Receivable"),
+                ("company_id", "=", cls.company.id),
+            ]
+        )
         cls.config = cls.basic_config.with_context(**ctx)
         cls.open_new_session(cls)  # open_new_session is not a class method, hack it
         cls.partner_2 = cls.env.ref("base.res_partner_2")
