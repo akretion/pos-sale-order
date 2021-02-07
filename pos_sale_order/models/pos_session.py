@@ -14,10 +14,33 @@ class PosSession(models.Model):
     order_ids = fields.One2many("sale.order", "session_id", string="Orders")
     invoice_ids = fields.One2many("account.move", "session_id", string="Invoices")
 
+    def _compute_order_count(self):
+        orders_data = self.env["sale.order"].read_group(
+            [("session_id", "in", self.ids)], ["session_id"], ["session_id"]
+        )
+        sessions_data = {
+            order_data["session_id"][0]: order_data["session_id_count"]
+            for order_data in orders_data
+        }
+        for session in self:
+            session.order_count = sessions_data.get(session.id, 0)
+
+    def action_view_order(self):
+        return {
+            "name": _("Orders"),
+            "res_model": "sale.order",
+            "view_mode": "tree,form",
+            "views": [
+                (self.env.ref("sale.view_order_tree").id, "tree"),
+                (self.env.ref("sale.view_order_form").id, "form"),
+            ],
+            "type": "ir.actions.act_window",
+            "domain": [("session_id", "in", self.ids)],
+        }
+
     def _create_account_move(self):
         self.ensure_one()
         # we create all invoice so odoo code will not generate account move for order
-        # TODO FIX quotation case (we should have a pos_type)
         orders = self._get_order_to_confirm()
         orders.action_confirm()
         self._check_no_draft_invoice()

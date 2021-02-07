@@ -3,6 +3,8 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 
+from odoo.addons.queue_job.job import Job
+
 from .common import CommonCase
 
 
@@ -33,14 +35,7 @@ class TestClosingSession(CommonCase):
         for partner, qty in expected:
             self.assertEqual(count_inv(invoices, partner), qty)
 
-    def test_close_session(self):
-        # We expect 4 invoices
-        # - one invoice for anonymous SO
-        # - one for the partner 3
-        # - two for the partner 2
-
-        self.pos_session.action_pos_session_validate()
-
+    def _check_closing_session(self):
         self.assertEqual(set(self.sales.mapped("invoice_status")), {"invoiced"})
 
         invoices = self.sales.invoice_ids
@@ -54,6 +49,15 @@ class TestClosingSession(CommonCase):
 
         self.assertEqual(set(invoices.mapped("state")), {"posted"})
         self.assertEqual(set(invoices.mapped("payment_state")), {"paid"})
+
+    def test_close_session(self):
+        # We expect 4 invoices
+        # - one invoice for anonymous SO
+        # - one for the partner 3
+        # - two for the partner 2
+
+        self.pos_session.action_pos_session_validate()
+        self._check_closing_session()
 
     def test_change_partner_and_close(self):
         # We expect 5 invoices
@@ -192,3 +196,34 @@ class TestClosingSession(CommonCase):
         # Ensure that is not the case
         session = self.env["pos.session"].search([("rescue", "=", True)])
         self.assertFalse(session)
+
+    def test_job(self):
+        self.assertEqual(
+            self.sales.mapped("state"),
+            ["draft", "draft", "draft", "draft", "draft", "sale"],
+        )
+        jobs = self.env["queue.job"].search([])
+        self.assertEqual(len(jobs), 5)
+        for job in jobs:
+            Job.load(self.env, job.uuid).perform()
+        self.assertEqual(set(self.sales.mapped("state")), {"sale"})
+        self.pos_session.action_pos_session_validate()
+        self._check_closing_session()
+
+    def test_job_execute_after_closing(self):
+        self.assertEqual(
+            self.sales.mapped("state"),
+            ["draft", "draft", "draft", "draft", "draft", "sale"],
+        )
+        jobs = self.env["queue.job"].search([])
+        self.assertEqual(len(jobs), 5)
+        for job in jobs[:4]:
+            Job.load(self.env, job.uuid).perform()
+        self.assertEqual(
+            self.sales.mapped("state"),
+            ["draft", "sale", "sale", "sale", "sale", "sale"],
+        )
+        self.pos_session.action_pos_session_validate()
+        self._check_closing_session()
+
+        Job.load(self.env, jobs[0].uuid).perform()

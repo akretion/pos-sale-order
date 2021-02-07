@@ -215,11 +215,17 @@ class SaleOrder(models.Model):
         # this state do not exist on sale order
         if sale.to_invoice:
             sale.action_pos_order_invoice()
-        sale._confirm_pos_order(order)
+        else:
+            sale._confirm_pos_order(order)
         return sale.id
 
     def _confirm_pos_order(self, order):
-        return self.with_delay().action_confirm()
+        return self.with_delay().action_job_confirm()
+
+    def action_job_confirm(self):
+        for record in self:
+            if record.state in ("draft", "sent"):
+                record.action_confirm()
 
     @api.model
     def create_from_ui(self, orders, draft=False):
