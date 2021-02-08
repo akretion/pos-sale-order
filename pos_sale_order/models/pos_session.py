@@ -62,6 +62,8 @@ class PosSession(models.Model):
             statement = self.statement_ids.filtered(
                 lambda s: s.journal_id == method.cash_journal_id
             )
+            if not statement:
+                continue
             for partner, payments in payment_per_partner.items():
                 vals = self._prepare_sale_statement(partner, method, payments)
                 vals["statement_id"] = statement.id
@@ -114,11 +116,11 @@ class PosSession(models.Model):
         )
         if draft_invoices:
             orders_name = ", ".join(
-                draft_invoices.mapped("move_line.sale_line_ids.order_id.name")
+                draft_invoices.mapped("line_ids.sale_line_ids.order_id.name")
             )
             raise UserError(
-                _("Following order have a draft invoice, please fix it %s"),
-                orders_name,
+                _("Following order have a draft invoice, please fix it %s")
+                % orders_name
             )
 
     def _check_if_no_draft_orders(self):
