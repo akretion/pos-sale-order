@@ -89,7 +89,12 @@ class PosSession(models.Model):
 
         # TODO
         # - check journal used
-        for partner, orders in self._get_order_to_invoice().items():
+
+        partner_to_orders = defaultdict(lambda: self.env["sale.order"].browse(False))
+        for order in self._get_order_to_invoice():
+            partner_to_orders[order.partner_id.id] += order
+
+        for partner, orders in partner_to_orders.items():
             if partner == self.config_id.anonymous_partner_id:
                 orders = orders.with_context(
                     default_journal_id=self.config_id.journal_id
@@ -104,11 +109,9 @@ class PosSession(models.Model):
         return self.order_ids.filtered(lambda s: s.state == "draft")
 
     def _get_order_to_invoice(self):
-        partner_to_orders = defaultdict(lambda: self.env["sale.order"].browse(False))
-        for order in self.order_ids:
-            if any(order.mapped("order_line.qty_to_invoice")):
-                partner_to_orders[order.partner_id.id] += order
-        return partner_to_orders
+        return self.order_ids.filtered(
+            lambda s: any(s.mapped("order_line.qty_to_invoice"))
+        )
 
     def _check_no_draft_invoice(self):
         draft_invoices = self.mapped("order_ids.invoice_ids").filtered(
