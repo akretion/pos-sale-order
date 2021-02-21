@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+<record id="pos_sale_error_view_tree" model="ir.ui.view">
+    <field name="model">pos.sale.error</field>
+    <field name="arch" type="xml">
+        <tree string="Label">
+            <field name="name" />
+            <field name="pos_config_id" />
+            <field name="pos_session_id" />
+            <field name="user_id" />
+            <field name="company_id" />
+            <button name="run" type="object" />
+        </tree>
+    </field>
+</record>
+
+<record id="pos_sale_error_view_form" model="ir.ui.view">
+    <field name="model">pos.sale.error</field>
+    <field name="arch" type="xml">
+        <form string="Label">
+            <group>
+                <field name="name" />
+                <field name="pos_config_id" />
+                <field name="pos_session_id" />
+                <field name="user_id" />
+                <field name="company_id" />
+            </group>
+            <field name="data" colspan="4" />
+        </form>
+    </field>
+</record>
+
+<record id="pos_sale_error_view_search" model="ir.ui.view">
+    <field name="model">pos.sale.error</field>
+    <field name="arch" type="xml">
+        <search string="Label">
+            <field name="name" />
+            <field name="pos_config_id" />
+            <field name="pos_session_id" />
+            <field name="user_id" />
+            <field name="company_id" />
+        </search>
+    </field>
+</record>
+
+<record model="ir.actions.act_window" id="pos_sale_error_action">
+    <field name="name">Debug</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">pos.sale.error</field>
+    <field name="view_mode">tree,form</field>
+    <field name="search_view_id" ref="pos_sale_error_view_search" />
+    <field name="domain">[]</field>
+    <field name="context">{}</field>
+</record>
+
+<menuitem
+        id="pos_sale_error_menu"
+        parent="pos_sale_order.menu_pos_sale_order_root"
+        sequence="200"
+        action="pos_sale_error_action"
+    />
+
+</odoo>
