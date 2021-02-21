@@ -18,6 +18,7 @@
     },
     "depends": [
         "pos_sale_order",
+        "base_sparse_field",
     ],
     "data": [
         "security/ir.model.access.csv",
