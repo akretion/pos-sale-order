@@ -30,6 +30,16 @@ class TestCreateOrder(CommonCase):
         self.assertEqual(len(error), 1)
 
     @mute_logger("odoo.addons.pos_sale_order.models.sale_order")
+    def test_create_sale_missing_session(self):
+        data = self._get_pos_data()
+        data["data"]["statement_ids"][0][2]["name"] = "2021-01-01 00:00:00"
+        data["data"]["pos_session_id"] += 1000
+        self._create_sale([data])
+        error = self.env["pos.sale.error"].search([])
+        self.assertEqual(len(error), 1)
+        self.assertFalse(error.pos_session_id)
+
+    @mute_logger("odoo.addons.pos_sale_order.models.sale_order")
     def test_rerun_failed(self):
         self._create_sale([self.data])
         error = self.env["pos.sale.error"].search([])
