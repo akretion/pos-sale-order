@@ -49,13 +49,19 @@ class TestClosingSession(CommonCase):
         self.assertEqual(set(invoices.mapped("state")), {"posted"})
         self.assertEqual(set(invoices.mapped("payment_state")), {"paid"})
 
+        move = self.env["account.move"].search(
+            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+        )
+        # we expect 3 payment (one per partner)
+        self.assertEqual(len(move), 3)
+        self.assertEqual(sum(move.mapped("amount_total")), 390)
+
     def test_close_session(self):
         # We expect 4 invoices
         # - one invoice for anonymous SO
         # - one for the partner 3
         # - two for the partner 2
-
-        self.pos_session.action_pos_session_validate()
+        self._close_session()
         self._check_closing_session()
 
     def test_change_partner_and_close(self):
@@ -71,7 +77,7 @@ class TestClosingSession(CommonCase):
                 "partner_shipping_id": self.partner_4.id,
             }
         )
-        self.pos_session.action_pos_session_validate()
+        self._close_session()
 
         self.assertEqual(set(self.sales.mapped("invoice_status")), {"invoiced"})
 
@@ -110,7 +116,7 @@ class TestClosingSession(CommonCase):
         invoices = sale._create_invoices()
         invoices.action_post()
 
-        self.pos_session.action_pos_session_validate()
+        self._close_session()
 
         self.assertEqual(set(self.sales.mapped("invoice_status")), {"invoiced"})
 
@@ -144,7 +150,7 @@ class TestClosingSession(CommonCase):
         invoices.write({"partner_id": self.partner_4.id})
         invoices.action_post()
 
-        self.pos_session.action_pos_session_validate()
+        self._close_session()
 
         self.assertEqual(set(self.sales.mapped("invoice_status")), {"invoiced"})
 
@@ -169,7 +175,7 @@ class TestClosingSession(CommonCase):
         data = self._get_pos_data()
         data["data"]["statement_ids"] = []
         sale = self._create_sale([data])
-        self.pos_session.action_pos_session_validate()
+        self._close_session()
 
         # Open a new session
         self.config.open_session_cb(check_coa=False)
@@ -187,7 +193,7 @@ class TestClosingSession(CommonCase):
         self.assertEqual(len(sale.payment_ids), 1)
 
         # Close the session and check the invoice linked to the sale order
-        self.pos_session.action_pos_session_validate()
+        self._close_session()
         self.assertEqual(sale.invoice_ids.state, "posted")
         self.assertEqual(sale.invoice_ids.payment_state, "paid")
 
@@ -206,7 +212,7 @@ class TestClosingSession(CommonCase):
         for job in jobs:
             Job.load(self.env, job.uuid).perform()
         self.assertEqual(set(self.sales.mapped("state")), {"sale"})
-        self.pos_session.action_pos_session_validate()
+        self._close_session()
         self._check_closing_session()
 
     def test_job_execute_after_closing(self):
@@ -222,7 +228,7 @@ class TestClosingSession(CommonCase):
             self.sales.mapped("state"),
             ["draft", "sale", "sale", "sale", "sale", "sale"],
         )
-        self.pos_session.action_pos_session_validate()
+        self._close_session()
         self._check_closing_session()
 
         Job.load(self.env, jobs[0].uuid).perform()

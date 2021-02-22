@@ -228,25 +228,32 @@ class SaleOrder(models.Model):
                 record.action_confirm()
 
     @api.model
+    def import_one_pos_order(self, order, draft=False):
+        sale = self.search([("pos_reference", "=", order["data"]["name"])])
+        # For update support, see pos_sale_order_load
+        if not sale:
+            sale_id = self._process_order(order, draft, None)
+            sale = self.browse(sale_id)
+        return sale
+
+    @api.model
     def create_from_ui(self, orders, draft=False):
         result = {"ids": [], "uuids": [], "receipts": [], "error": False}
         failed = []
         for order in orders:
+            # Copy to keep a clean version for logging
+            original_order = order.copy()
             try:
                 with self.env.cr.savepoint():
-                    sale = self.search([("pos_reference", "=", order["data"]["name"])])
-                    if not sale:
-                        sale_id = self._process_order(order, draft, None)
-                        sale = self.browse(sale_id)
-                    # For update support, see pos_sale_order_load
+                    sale = self.import_one_pos_order(order, draft=draft)
                     result["ids"] += sale.ids
                     result["receipts"] += sale._get_receipts()
                     result["uuids"].append(order["id"])
             except Exception as e:
-                failed.append(order)
+                failed.append(original_order)
                 _logger.error(
                     "Sync POS Order failed order id {} data: {} error: {}".format(
-                        order["id"], order, e
+                        original_order["id"], original_order, e
                     )
                 )
         if failed:

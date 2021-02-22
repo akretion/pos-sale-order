@@ -11,3 +11,7 @@ class PosSession(models.Model):
     def _get_order_to_confirm(self):
         orders = super()._get_order_to_confirm()
         return orders.filtered(lambda s: not s.is_pos_quotation)
+
+    def _get_order_to_invoice(self):
+        orders = super()._get_order_to_invoice()
+        return orders.filtered(lambda s: not s.is_pos_quotation)

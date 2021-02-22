@@ -35,12 +35,11 @@ class SaleOrder(models.Model):
         }
 
     @api.model
-    def create_from_ui(self, orders):
-        order = orders[0]["data"]
-        sale_id = order.get("sale_order_id")
+    def import_one_pos_order(self, order, draft=False):
+        sale_id = order["data"].get("sale_order_id")
         if sale_id:
             self = self.with_context(update_pos_sale_order_id=sale_id)
-        return super().create_from_ui(orders)
+        return super().import_one_pos_order(order, draft=draft)
 
     @api.model_create_multi
     def create(self, vals_list):

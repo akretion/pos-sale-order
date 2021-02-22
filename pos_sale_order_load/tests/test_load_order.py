@@ -71,5 +71,18 @@ class TestCreateOrder(CommonCase):
         self.assertEqual(expected_data, exported_data)
 
     def test_update_sale(self):
-        # TODO
-        pass
+        data = self._get_pos_data()
+        sales = self._create_sale([data])
+
+        data["data"]["sale_order_id"] = sales.id
+        new_sales = self._create_sale([data])
+        self.assertEqual(sales, new_sales)
+
+    def test_update_sale_and_send_other_order(self):
+        data = self._get_pos_data()
+        sales = self._create_sale([data])
+
+        data["data"]["sale_order_id"] = sales.id
+        new_data = self._get_pos_data()
+        new_sales = self._create_sale([data, new_data])
+        self.assertEqual(len(set(new_sales)), 2)

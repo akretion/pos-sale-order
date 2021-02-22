@@ -68,3 +68,9 @@ class CommonCase(TestPoSCommon):
         cls.partner_3 = cls.env.ref("base.res_partner_3")
         cls.partner_4 = cls.env.ref("base.res_partner_4")
         cls.partner_anonymous = cls.env.ref("pos_sale_order.res_partner_anonymous")
+
+    def _close_session(self):
+        self.pos_session.cash_register_id.balance_end_real = (
+            self.pos_session.cash_register_balance_end
+        )
+        self.pos_session.action_pos_session_validate()
