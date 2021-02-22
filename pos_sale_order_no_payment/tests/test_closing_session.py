@@ -43,8 +43,7 @@ class TestClosingSession(CommonCase):
         # - two for the partner 2
         # - first sale should be still in draft
 
-        self.pos_session.action_pos_session_validate()
-
+        self._close_session()
         self.assertEqual(self.sales[0].state, "draft")
         self.assertEqual(set(self.sales[1:].mapped("state")), {"sale"})
 
@@ -66,4 +65,6 @@ class TestClosingSession(CommonCase):
         move = self.env["account.move"].search(
             [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
         )
-        self.assertEqual(move.amount_total, 325)
+        # we expect 3 payment (one per partner)
+        self.assertEqual(len(move), 3)
+        self.assertEqual(sum(move.mapped("amount_total")), 325)
