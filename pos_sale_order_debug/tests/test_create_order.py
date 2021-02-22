@@ -2,6 +2,8 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+from odoo.tools import mute_logger
+
 from odoo.addons.pos_sale_order.tests.common import CommonCase
 
 
@@ -16,6 +18,7 @@ class TestCreateOrder(CommonCase):
         # odoo test put a datetime as name this raise an issue when converting to json
         cls.data["data"]["statement_ids"][0][2]["name"] = "2021-01-01 00:00:00"
 
+    @mute_logger("odoo.addons.pos_sale_order.models.sale_order")
     def test_create_sale(self):
         self._create_sale([self.data])
 
@@ -26,6 +29,7 @@ class TestCreateOrder(CommonCase):
         error = self.env["pos.sale.error"].search([])
         self.assertEqual(len(error), 1)
 
+    @mute_logger("odoo.addons.pos_sale_order.models.sale_order")
     def test_rerun_failed(self):
         self._create_sale([self.data])
         error = self.env["pos.sale.error"].search([])
