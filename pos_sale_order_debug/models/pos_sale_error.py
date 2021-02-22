@@ -19,9 +19,13 @@ class PosSaleError(models.Model):
     def _log_error(self, order):
         name = order["data"].get("name")
         record = self.search([("name", "=", name)])
+        session_id = order["data"].get("pos_session_id")
+        if session_id:
+            session = self.env["pos.session"].browse(session_id)
+            session_id = session.exists().id
         vals = {
             "name": name,
-            "pos_session_id": order["data"].get("pos_session_id"),
+            "pos_session_id": session_id,
             "user_id": order["data"].get("user_id"),
             "data": order,
         }
