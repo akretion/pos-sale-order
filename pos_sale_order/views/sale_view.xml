@@ -45,7 +45,7 @@
                 >
                     <div
                         class="col-3"
-                        attrs="{'invisible': [('delivery_state', 'not in', ('unprocessed', 'partially'))]}"
+                        attrs="{'invisible': [('delivery_state', 'in', ('no', 'done'))]}"
                     >
                         <div class="card text-white bg-danger mb-3 text-center">
                             <div class="card-header">Delivery</div>
