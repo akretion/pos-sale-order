@@ -43,4 +43,8 @@
         sequence="30"
     />
 
+    <record id="point_of_sale.menu_point_config_product" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_pos_sale_order_root" />
+    </record>
+
 </odoo>
