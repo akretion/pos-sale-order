@@ -92,12 +92,12 @@ class PosSession(models.Model):
 
         partner_to_orders = defaultdict(lambda: self.env["sale.order"].browse(False))
         for order in self._get_order_to_invoice():
-            partner_to_orders[order.partner_id.id] += order
+            partner_to_orders[order.partner_id] += order
 
         for partner, orders in partner_to_orders.items():
             if partner == self.config_id.anonymous_partner_id:
                 orders = orders.with_context(
-                    default_journal_id=self.config_id.journal_id
+                    default_journal_id=self.config_id.journal_id.id
                 )
             orders._create_invoices()
             orders.invoice_ids.action_post()
