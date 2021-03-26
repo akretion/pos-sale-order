@@ -132,3 +132,14 @@ class PosSession(models.Model):
 
     def _create_picking_at_end_of_session(self):
         return True
+
+    def _validate_session(self):
+        super()._validate_session()
+        return {
+            "type": "ir.actions.client",
+            "name": "Point of Sale",
+            "tag": "reload",
+            "params": {
+                "menu_id": self.env.ref("pos_sale_order.menu_pos_sale_order_root").id
+            },
+        }
