@@ -64,6 +64,30 @@ class TestClosingSession(CommonCase):
         self._close_session()
         self._check_closing_session()
 
+    def test_no_cash_payment(self):
+        """Ensure that payment are generated even for no cash payment"""
+        # use _write as write is forbidden with open session
+        self.cash_pm._write({"is_cash_count": False})
+        self._close_session()
+        move = self.env["account.move"].search(
+            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+        )
+        # we expect 3 payment (one per partner)
+        self.assertEqual(len(move), 3)
+        self.assertEqual(sum(move.mapped("amount_total")), 390)
+
+    def test_split_transaction_payment(self):
+        """Ensure that payment are generated even for no cash payment"""
+        # use _write as write is forbidden with open session
+        self.cash_pm._write({"split_transactions": True})
+        self._close_session()
+        move = self.env["account.move"].search(
+            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+        )
+        # we expect 6 payment (one per sale)
+        self.assertEqual(len(move), 6)
+        self.assertEqual(sum(move.mapped("amount_total")), 390)
+
     def test_change_partner_and_close(self):
         # We expect 5 invoices
         # - one invoice for anonymous SO

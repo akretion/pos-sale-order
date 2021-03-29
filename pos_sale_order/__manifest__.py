@@ -30,6 +30,7 @@
         "wizards/pos_payment_wizard_view.xml",
         "wizards/pos_delivery_wizard_view.xml",
         "views/sale_view.xml",
+        "views/pos_payment_method_views.xml",
         "views/point_of_sale_view.xml",
         "views/menu.xml",
         "data/res_partner_data.xml",

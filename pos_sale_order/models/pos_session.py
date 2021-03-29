@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -13,6 +13,7 @@ class PosSession(models.Model):
 
     order_ids = fields.One2many("sale.order", "session_id", string="Orders")
     invoice_ids = fields.One2many("account.move", "session_id", string="Invoices")
+    payment_ids = fields.One2many("pos.payment", "session_id", string="Payments")
 
     def _compute_order_count(self):
         orders_data = self.env["sale.order"].read_group(
@@ -38,15 +39,27 @@ class PosSession(models.Model):
             "domain": [("session_id", "in", self.ids)],
         }
 
-    def _prepare_sale_statement(self, partner, method, payments):
+    def _prepare_sale_statement(self, payments):
+        method = payments.payment_method_id
         return {
             "date": fields.Date.context_today(self),
             "amount": sum(payments.mapped("amount")),
             "payment_ref": self.name,
             "journal_id": method.cash_journal_id.id,
             "counterpart_account_id": method.receivable_account_id.id,
-            "partner_id": partner.id,
+            "partner_id": payments.partner_id.id,
         }
+
+    def _create_bank_statement_line(self, statement, payments):
+        vals = self._prepare_sale_statement(payments)
+        vals["statement_id"] = statement.id
+        bk_line = self.env["account.bank.statement.line"].create(vals)
+        move_lines = (
+            bk_line.move_id.line_ids + payments.pos_sale_order_id.invoice_ids.line_ids
+        )
+        return move_lines.filtered(
+            lambda s: s.account_id == payments.payment_method_id.receivable_account_id
+        )
 
     def _create_bank_statement_line_and_reconcile(self):
         to_reconcile = []
@@ -56,26 +69,21 @@ class PosSession(models.Model):
             lambda: defaultdict(lambda: self.env["pos.payment"])
         )
         for payment in payments:
-            grouped_payments[payment.payment_method_id][payment.partner_id] |= payment
-
-        for method, payment_per_partner in grouped_payments.items():
+            if payment.payment_method_id.split_transactions:
+                key = payment.pos_sale_order_id
+            else:
+                key = payment.partner_id
+            grouped_payments[payment.payment_method_id][key] |= payment
+        for method, payment_per_key in grouped_payments.items():
             statement = self.statement_ids.filtered(
                 lambda s: s.journal_id == method.cash_journal_id
             )
             if not statement:
                 continue
-            for partner, payments in payment_per_partner.items():
-                vals = self._prepare_sale_statement(partner, method, payments)
-                vals["statement_id"] = statement.id
-                bk_line = self.env["account.bank.statement.line"].create(vals)
-                move_lines = (
-                    bk_line.move_id.line_ids
-                    + payments.pos_sale_order_id.invoice_ids.line_ids
+            for _key, payments in payment_per_key.items():
+                to_reconcile.append(
+                    self._create_bank_statement_line(statement, payments)
                 )
-                lines = move_lines.filtered(
-                    lambda s: s.account_id == method.receivable_account_id
-                )
-                to_reconcile.append(lines)
         self.statement_ids.button_post()
         for lines in to_reconcile:
             lines.reconcile()
@@ -86,9 +94,6 @@ class PosSession(models.Model):
         orders = self._get_order_to_confirm()
         orders.action_confirm()
         self._check_no_draft_invoice()
-
-        # TODO
-        # - check journal used
 
         partner_to_orders = defaultdict(lambda: self.env["sale.order"].browse(False))
         for order in self._get_order_to_invoice():
@@ -101,7 +106,6 @@ class PosSession(models.Model):
                 )
             orders._create_invoices()
             orders.invoice_ids.action_post()
-        # TODO create payment for cash and check
         self._create_bank_statement_line_and_reconcile()
         return True
 
@@ -143,3 +147,8 @@ class PosSession(models.Model):
                 "menu_id": self.env.ref("pos_sale_order.menu_pos_sale_order_root").id
             },
         }
+
+    @api.depends("payment_ids.amount")
+    def _compute_total_payments_amount(self):
+        for session in self:
+            session.total_payments_amount = sum(session.mapped("payment_ids.amount"))

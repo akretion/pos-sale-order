@@ -21,9 +21,16 @@ class CommonCase(TestPoSCommon):
 
     @classmethod
     def _get_pos_data(
-        cls, pos_session=None, partner=False, to_invoice=False, amount_return=0
+        cls,
+        pos_session=None,
+        partner=False,
+        to_invoice=False,
+        amount_return=0,
+        payments=None,
     ):
-        payments = None
+        if payments and amount_return:
+            raise NotImplementedError
+
         if amount_return:
             payments = [(cls.cash_pm, 65 + amount_return)]
 
@@ -71,6 +78,7 @@ class CommonCase(TestPoSCommon):
 
     def _close_session(self):
         self.pos_session.cash_register_id.balance_end_real = (
-            self.pos_session.cash_register_balance_end
+            self.pos_session.cash_register_id.balance_start
+            + self.pos_session.total_payments_amount
         )
         self.pos_session.action_pos_session_validate()
