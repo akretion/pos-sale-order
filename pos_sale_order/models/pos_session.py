@@ -78,8 +78,15 @@ class PosSession(models.Model):
             statement = self.statement_ids.filtered(
                 lambda s: s.journal_id == method.cash_journal_id
             )
-            if not statement:
-                continue
+            if not statement and method.cash_journal_id:
+                statement = self.env["account.bank.statement"].create(
+                    {
+                        "journal_id": method.cash_journal_id.id,
+                        "pos_session_id": self.id,
+                        "user_id": self.env.user.id,
+                        "name": self.name,
+                    }
+                )
             for _key, payments in payment_per_key.items():
                 to_reconcile.append(
                     self._create_bank_statement_line(statement, payments)

@@ -8,7 +8,9 @@ from odoo import fields, models
 class PosPaymentMethod(models.Model):
     _inherit = "pos.payment.method"
 
-    cash_journal_id = fields.Many2one(string="Journal")
+    cash_journal_id = fields.Many2one(
+        string="Journal", help="Journal used for generating payment"
+    )
     split_transactions = fields.Boolean(
         help="If ticked, each payment will generate a separated journal item."
     )

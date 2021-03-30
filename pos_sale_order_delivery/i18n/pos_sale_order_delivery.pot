@@ -36,6 +36,13 @@ msgstr ""
 #. openerp-web
 #: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterPopup.xml:0
 #, python-format
+msgid "Confirm"
+msgstr ""
+
+#. module: pos_sale_order_delivery
+#. openerp-web
+#: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterPopup.xml:0
+#, python-format
 msgid "Deliver later"
 msgstr ""
 
@@ -101,6 +108,13 @@ msgstr ""
 #: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterPopup.xml:0
 #, python-format
 msgid "Loading, please wait"
+msgstr ""
+
+#. module: pos_sale_order_delivery
+#. openerp-web
+#: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterButton.xml:0
+#, python-format
+msgid "No Deliver"
 msgstr ""
 
 #. module: pos_sale_order_delivery

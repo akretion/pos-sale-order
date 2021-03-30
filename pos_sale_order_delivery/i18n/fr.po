@@ -37,6 +37,13 @@ msgstr "Date Retrait"
 #. openerp-web
 #: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterPopup.xml:0
 #, python-format
+msgid "Confirm"
+msgstr ""
+
+#. module: pos_sale_order_delivery
+#. openerp-web
+#: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterPopup.xml:0
+#, python-format
 msgid "Deliver later"
 msgstr "Retrait planifié"
 
@@ -103,6 +110,13 @@ msgstr ""
 #, python-format
 msgid "Loading, please wait"
 msgstr ""
+
+#. module: pos_sale_order_delivery
+#. openerp-web
+#: code:addons/pos_sale_order_delivery/static/src/xml/DeliveryNowOrLaterButton.xml:0
+#, fuzzy, python-format
+msgid "No Deliver"
+msgstr "Retrait"
 
 #. module: pos_sale_order_delivery
 #. openerp-web
