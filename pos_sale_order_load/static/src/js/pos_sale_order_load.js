@@ -1,12 +1,17 @@
-/* global posmodel _t */
+/* Copyright (C) 2020-Today Akretion (https://www.akretion.com)
+    @author Raphaël Reverdy (https://www.akretion.com)
+    License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
+*/
+/* global posmodel */
 /* eslint-disable no-alert */
 
 odoo.define("pos_sale_order_load.pos_sale_order_load", function (require) {
     "use strict";
-    var tools = require("pos_backend_communication.tools");
-    var chrome = require("point_of_sale.chrome");
     var models = require("point_of_sale.models");
-    var PosBaseWidget = require("point_of_sale.BaseWidget");
+    var tools = require("pos_backend_communication.tools");
+    var core = require("web.core");
+    var _t = core._t;
+    var {posbus} = require("point_of_sale.utils");
 
     function set_so(message) {
         var data = message.data;
@@ -39,55 +44,11 @@ odoo.define("pos_sale_order_load.pos_sale_order_load", function (require) {
             order.sequence_number = posmodel.pos_session.sequence_number++;
             posmodel.get("orders").add(order);
         }
-
-        posmodel.set("selectedOrder", order);
+        posmodel.set_order(order);
+        // Force reprint of ticket btn (# of orders)
+        posbus.trigger("order-deleted");
         // Try to get the focus back
         alert(_t("SO Loaded"));
     }
     tools.callbacks["sale_order.sale_selected"] = set_so;
-
-    var SaleOrderLoadWidget = PosBaseWidget.extend({
-        template: "SaleOrderLoadWidget",
-        renderElement: function () {
-            this._super();
-        },
-    });
-
-    chrome.Chrome.include({
-        // Put the button in the view
-        init: function (parent, options) {
-            this.SaleOrderLoadWidget = new SaleOrderLoadWidget(parent, options);
-            this._super(parent, options);
-        },
-        build_widgets: function () {
-            this._super();
-            this.SaleOrderLoadWidget.insertBefore(this.$(".order-selector"));
-        },
-    });
-
-    var order_initialize_original = models.Order.prototype.initialize;
-    var export_as_JSON_original = models.Order.prototype.export_as_JSON;
-    var init_from_JSON_original = models.Order.prototype.init_from_JSON;
-    models.Order = models.Order.extend({
-        initialize: function (attributes, options) {
-            this.set("sale_order_id", null);
-            this.set("only_payment", null);
-            this.set("sale_order_name", null);
-            return order_initialize_original.call(this, attributes, options);
-        },
-        init_from_JSON: function (json) {
-            var res = init_from_JSON_original.call(this, json);
-            this.sale_order_id = json.sale_order_id;
-            this.only_payment = json.only_payment;
-            this.sale_order_name = json.sale_order_name;
-            return res;
-        },
-        export_as_JSON: function () {
-            var res = export_as_JSON_original.call(this);
-            var order = this;
-            res.sale_order_id = order.sale_order_id;
-            res.sale_order_name = order.sale_order_name;
-            return res;
-        },
-    });
 });

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="assets" inherit_id="point_of_sale.assets">
+        <xpath expr=".">
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_delivery/static/src/js/models.js"
+            />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_delivery/static/src/js/DeliveryNowOrLaterButton.js"
+            />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_delivery/static/src/js/DeliveryNowOrLaterPopup.js"
+            />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_delivery/static/src/js/PaymentScreen.js"
+            />
+            <link
+                rel="stylesheet"
+                href="/pos_sale_order_delivery/static/src/css/pos_sale_order_delivery.css"
+            />
+
+        </xpath>
+    </template>
+</odoo>

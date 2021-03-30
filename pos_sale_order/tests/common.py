@@ -3,139 +3,82 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 
-import uuid
+from datetime import datetime
+from random import randint
 
-from odoo import fields
-from odoo.tests import SavepointCase
-
-
-def now():
-    return fields.Datetime.to_string(fields.Datetime.now())
+from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 
 
-class CommonCase(SavepointCase):
-    @classmethod
-    def _get_pos_line(cls):
-        res = []
-        for line in cls.lines:
-            res.append(
-                [
-                    0,
-                    0,
-                    {
-                        # "price_subtotal_incl": 1.2,
-                        "price_unit": line["price_unit"],
-                        # "price_subtotal": 1.2,
-                        # "id": 7,
-                        "product_id": line["product_id"],
-                        "tax_ids": [[6, 0, []]],
-                        # "discount": 0,
-                        # "pack_lot_ids": [],
-                        "qty": line["qty"],
-                    },
-                ]
-            )
-        amount = sum([line["qty"] * line["price_unit"] for line in cls.lines])
-        return res, amount
-
-    @classmethod
-    def _get_payment(cls, amount):
-        return [
-            [
-                0,
-                0,
-                {
-                    "amount": amount,
-                    "statement_id": cls.cash_statement.id,
-                    "account_id": cls.cash_statement.account_id.id,
-                    "name": now(),
-                    "journal_id": cls.cash_statement.journal_id.id,
-                },
-            ]
-        ]
-
-    @classmethod
-    def _get_pos_data(
-        cls, to_invoice=False, partner_id=None, pricelist_id=None, amount_return=0
-    ):
-
-        if not pricelist_id:
-            pricelist_id = cls.pos.pricelist_id.id
-
-        lines, amount = cls._get_pos_line()
-        amount_paid = amount
-        if amount_return:
-            amount_paid += amount_return
-
-        payments = cls._get_payment(amount_paid)
-
-        # commented key are send by the pos but ignored by this module
-        # so I comment them to track what we ignore
-        sale_uuid = str(uuid.uuid4())
-        return {
-            "to_invoice": to_invoice,
-            "data": {
-                "sequence_number": 2,
-                "amount_tax": 0,  # not used
-                "name": "Order {}".format(sale_uuid),
-                "uid": sale_uuid,
-                "amount_paid": amount_paid,
-                "statement_ids": payments,
-                "fiscal_position_id": False,
-                "partner_id": partner_id,
-                "to_invoice": to_invoice,
-                "pricelist_id": pricelist_id,
-                "lines": lines,
-                "amount_return": amount_return,
-                "amount_total": amount,
-                "creation_date": fields.Datetime.to_string(fields.Datetime.now()),
-                "pos_session_id": cls.pos.current_session_id.id,
-                "user_id": cls.pos.current_session_id.user_id.id,
-            },
-            "id": sale_uuid,
-        }
-
+class CommonCase(TestPoSCommon):
     @classmethod
     def _create_sale(cls, data):
         res = cls.env["sale.order"].create_from_ui(data)
         return cls.env["sale.order"].browse(res["ids"])
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.env = cls.env(context={"test_partner_mismatch": True})
+    def create_random_uid(cls):
+        return "%05d-%03d-%04d" % (randint(1, 99999), randint(1, 999), randint(1, 9999))
 
-        # Open a session and extract cashregirster
-        cls.pos = cls.env.ref("point_of_sale.pos_config_main")
-        cls.pos.warehouse_id = cls.env.ref("stock.warehouse0")
-        journal_obj = cls.env["account.journal"]
-        cls.check_journal = journal_obj.create({"name": "Check", "type": "bank"})
-        cls.card_journal = journal_obj.create({"name": "Card", "type": "bank"})
-        cls.cash_journal = journal_obj.search([("code", "=", "CSH1")])
-        cls.pos.journal_ids = cls.check_journal + cls.card_journal + cls.cash_journal
-        cls.pos.open_session_cb()
-        cls.session = cls.pos.current_session_id
-        cls.cash_statement = cls.session.statement_ids.filtered(
-            lambda s: s.journal_id.code == "CSH1"
+    @classmethod
+    def _get_pos_data(
+        cls,
+        pos_session=None,
+        partner=False,
+        to_invoice=False,
+        amount_return=0,
+        payments=None,
+    ):
+        if payments and amount_return:
+            raise NotImplementedError
+
+        if amount_return:
+            payments = [(cls.cash_pm, 65 + amount_return)]
+
+        data = cls.create_ui_order_data(
+            cls, cls.lines, customer=partner, is_invoiced=to_invoice, payments=payments
         )
+        if pos_session:
+            data["data"]["pos_session_id"] = pos_session.id
+        if amount_return:
+            data["data"]["amount_return"] = amount_return
+        data["data"]["creation_date"] = datetime.now().isoformat()[0:23] + "Z"
+        return data
+
+    @classmethod
+    def setUpClass(cls, chart_template_ref=None):
+        super().setUpClass(chart_template_ref=chart_template_ref)
+        ctx = {"test_partner_mismatch": True}
+        cls.env = cls.env(context=ctx)
+
+        # Create product
+        cls.product0 = cls.create_product("Product 0", cls.categ_basic, 10.0)
+        cls.product1 = cls.create_product("Product 1", cls.categ_basic, 5)
+        cls.product2 = cls.create_product("Product 2", cls.categ_basic, 15)
+
         cls.lines = [
-            {
-                "product_id": cls.env.ref("product.product_product_1").id,
-                "qty": 3.0,
-                "price_unit": 10.0,
-            },
-            {
-                "product_id": cls.env.ref("product.product_product_3").id,
-                "qty": 1.0,
-                "price_unit": 5.0,
-            },
-            {
-                "product_id": cls.env.ref("product.product_product_5").id,
-                "qty": 2.0,
-                "price_unit": 15.0,
-            },
+            (cls.product0, 3.0),
+            (cls.product1, 1.0),
+            (cls.product2, 2.0),
         ]
+        cash = cls.basic_config.payment_method_ids.filtered(
+            lambda pm: pm.is_cash_count and not pm.split_transactions
+        )[:1]
+        cash.receivable_account_id = cls.env["account.account"].search(
+            [
+                ("name", "=", "Account Receivable"),
+                ("company_id", "=", cls.company.id),
+            ]
+        )
+        cls.config = cls.basic_config.with_context(**ctx)
+        cls.open_new_session(cls)  # open_new_session is not a class method, hack it
         cls.partner_2 = cls.env.ref("base.res_partner_2")
         cls.partner_3 = cls.env.ref("base.res_partner_3")
         cls.partner_4 = cls.env.ref("base.res_partner_4")
         cls.partner_anonymous = cls.env.ref("pos_sale_order.res_partner_anonymous")
+
+    def _close_session(self):
+        self.pos_session.cash_register_id.balance_end_real = (
+            self.pos_session.cash_register_id.balance_start
+            + self.pos_session.total_payments_amount
+        )
+        self.pos_session.action_pos_session_validate()

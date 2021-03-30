@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="assets" inherit_id="point_of_sale.assets">
+        <xpath expr=".">
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_load/static/src/js/pos_sale_order_load.js"
+            />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_load/static/src/js/models.js"
+            />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order_load/static/src/js/SaleOrderLoadWidget.js"
+            />
+        </xpath>
+    </template>
+</odoo>

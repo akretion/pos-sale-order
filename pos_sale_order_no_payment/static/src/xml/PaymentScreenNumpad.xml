@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <t
+        t-name="PaymentScreenNumpad"
+        t-inherit="point_of_sale.PaymentScreenNumpad"
+        t-inherit-mode="extension"
+        owl="1"
+    >
+        <xpath expr="//div[contains(@class, 'numpad')]" position="attributes">
+            <attribute
+                name="t-att-class"
+            >{ "psonpHide": !currentOrder.is_payment_allowed()}</attribute>
+        </xpath>
+    </t>
+
+</odoo>

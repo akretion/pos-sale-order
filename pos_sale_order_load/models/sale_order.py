@@ -8,7 +8,6 @@ from odoo import api, fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    @api.multi
     def select_in_pos_current_order(self):
         """
         Action called from view with self.id = a res.partner.
@@ -36,26 +35,24 @@ class SaleOrder(models.Model):
         }
 
     @api.model
-    def create_from_ui(self, orders):
-        order = orders[0]["data"]
-        sale_id = order.get("sale_order_id")
+    def import_one_pos_order(self, order, draft=False):
+        sale_id = order["data"].get("sale_order_id")
         if sale_id:
             self = self.with_context(update_pos_sale_order_id=sale_id)
-        return super().create_from_ui(orders)
+        return super().import_one_pos_order(order, draft=draft)
 
     @api.model_create_multi
-    def create(self, vals):
+    def create(self, vals_list):
         pos_sale_order_id = self._context.get("update_pos_sale_order_id")
         if pos_sale_order_id:
-            if len(vals) == 1:
-                # In case the we update the data from the POS we only update the line
+            if len(vals_list) == 1:
                 sale = self.browse(pos_sale_order_id)
                 sale.order_line.unlink()
-                sale.write({"order_line": vals[0]["order_line"]})
+                sale.write(vals_list[0])
             else:
                 raise NotImplementedError
             return sale
-        return super().create(vals)
+        return super().create(vals_list)
 
     def _pos_json(self):
         data = {

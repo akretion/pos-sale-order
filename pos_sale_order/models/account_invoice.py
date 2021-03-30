@@ -5,8 +5,8 @@
 from odoo import fields, models
 
 
-class AccountInvoice(models.Model):
-    _inherit = "account.invoice"
+class AccountMove(models.Model):
+    _inherit = "account.move"
 
     pos_anonyme_invoice = fields.Boolean()
     session_id = fields.Many2one(

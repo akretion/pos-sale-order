@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <t t-name="SaleOrderWidget" owl="1">
+        <div class="ticket-button">
+            <a
+                class="fa fa-home"
+                style="color:white"
+                href="/web#view_type=list&amp;model=sale.order&amp;action=pos_sale_order.action_sale_order_pos"
+                target="backoffice"
+            > Delivery</a>
+        </div>
+    </t>
+
+    <t
+        t-name="Chrome"
+        t-inherit="point_of_sale.Chrome"
+        t-inherit-mode="extension"
+        owl="1"
+    >
+        <xpath expr="//div[@class='pos-branding']" position="inside">
+            <SaleOrderWidget />
+        </xpath>
+    </t>
+
+</odoo>

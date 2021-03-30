@@ -6,6 +6,7 @@ import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import float_is_zero
 
 from odoo.addons.point_of_sale.models.pos_order import PosOrder
 
@@ -24,11 +25,8 @@ SaleOrderPatched.create_from_ui = PosOrder.create_from_ui
 SaleOrderPatched._process_order = PosOrder._process_order
 SaleOrderPatched.add_payment = PosOrder.add_payment
 SaleOrderPatched._payment_fields = PosOrder._payment_fields
-SaleOrderPatched._prepare_bank_statement_line_payment_values = (
-    PosOrder._prepare_bank_statement_line_payment_values
-)
-SaleOrderPatched._match_payment_to_invoice = PosOrder._match_payment_to_invoice
 SaleOrderPatched._get_valid_session = PosOrder._get_valid_session
+SaleOrderPatched._process_payment_lines = PosOrder._process_payment_lines
 
 
 class SaleOrder(models.Model):
@@ -53,16 +51,15 @@ class SaleOrder(models.Model):
         copy=False,
         readonly=True,
     )
-    statement_ids = fields.One2many(
-        "account.bank.statement.line",
+    payment_ids = fields.One2many(
+        "pos.payment",
         "pos_sale_order_id",
         string="Payments",
-        states={"draft": [("readonly", False)]},
         readonly=True,
-        copy=False,
     )
-    invoice_id = fields.Many2one(
-        "account.invoice", "Invoice", compute="_compute_invoice_id"
+    to_invoice = fields.Boolean("To invoice")
+    account_move = fields.Many2one(
+        "account.move", "Invoice", compute="_compute_account_move"
     )
     picking_id = fields.Many2one(
         "stock.picking", "Picking", compute="_compute_picking_id"
@@ -71,12 +68,37 @@ class SaleOrder(models.Model):
     pos_payment_state = fields.Selection(
         [("none", "Not needed"), ("pending", "Pending Payment"), ("done", "Done")],
         compute="_compute_pos_payment",
+        store=True,
     )
     pos_amount_to_pay = fields.Monetary(
         string="POS amount to pay", compute="_compute_pos_payment", store=True
     )
+    amount_paid = fields.Float(
+        string="Paid",
+        states={"draft": [("readonly", False)]},
+        readonly=True,
+        digits=0,
+        default=0,
+    )
+    is_invoiced = fields.Boolean("Is Invoiced", compute="_compute_is_invoiced")
 
-    @api.depends("amount_total", "statement_ids.amount", "state")
+    @api.model
+    def _payment_fields(self, order, ui_paymentline):
+        res = super()._payment_fields(order, ui_paymentline)
+        res["session_id"] = order.session_id.id
+        res["pos_sale_order_id"] = res.pop("pos_order_id")
+        return res
+
+    @property
+    def lines(self):
+        return self.order_line
+
+    @api.depends("account_move")
+    def _compute_is_invoiced(self):
+        for order in self:
+            order.is_invoiced = bool(order.account_move)
+
+    @api.depends("amount_total", "payment_ids.amount", "state")
     def _compute_pos_payment(self):
         for record in self:
             if record.state in ("draft", "cancel", "sent") or not record.amount_total:
@@ -84,7 +106,7 @@ class SaleOrder(models.Model):
                 record.pos_payment_state = "none"
             else:
                 residual = record.amount_total - sum(
-                    record.mapped("statement_ids.amount")
+                    record.mapped("payment_ids.amount")
                 )
                 record.pos_amount_to_pay = residual
                 if residual == 0:
@@ -92,9 +114,10 @@ class SaleOrder(models.Model):
                 else:
                     record.pos_payment_state = "pending"
 
-    def _compute_invoice_id(self):
+    @api.depends("invoice_ids")
+    def _compute_account_move(self):
         for record in self:
-            record.invoice_id = record.invoice_ids and record.invoice_ids[0]
+            record.account_move = fields.first(record.invoice_ids)
 
     def _compute_picking_id(self):
         for record in self:
@@ -107,9 +130,10 @@ class SaleOrder(models.Model):
         # if it's not a unit then it have no meaning
         # maybe you should adapt this to your case
         for record in self:
-            record.unit_to_deliver = sum(
-                record.mapped("order_line.product_uom_qty")
-            ) - sum(record.mapped("order_line.qty_delivered"))
+            lines = record.order_line.filtered(lambda s: s.product_id.type != "service")
+            record.unit_to_deliver = sum(lines.mapped("product_uom_qty")) - sum(
+                lines.mapped("qty_delivered")
+            )
 
     def open_pos_payment_wizard(self):
         self.ensure_one()
@@ -147,15 +171,14 @@ class SaleOrder(models.Model):
             "order_line": lines,
             "pos_reference": ui_order["name"],
             "partner_id": ui_order["partner_id"] or False,
-            "date_order": ui_order["creation_date"],
+            # date order same implementation as odoo
+            "date_order": ui_order["creation_date"].replace("T", " ")[:19],
             "fiscal_position_id": ui_order["fiscal_position_id"],
             "pricelist_id": ui_order["pricelist_id"],
+            "to_invoice": ui_order.get("to_invoice"),
+            "invoice_policy": "order",
+            "warehouse_id": ui_order.get("warehouse_id") or config.warehouse_id.id,
         }
-
-    def _prepare_bank_statement_line_payment_values(self, data):
-        res = super()._prepare_bank_statement_line_payment_values(data)
-        res["pos_sale_order_id"] = res.pop("pos_statement_id")
-        return res
 
     def action_pos_order_paid(self):
         """ We do nothing, not needed in sale_order case"""
@@ -166,8 +189,8 @@ class SaleOrder(models.Model):
             if order.partner_id == order.session_id.config_id.anonymous_partner_id:
                 raise UserError(_("Partner is required if you want an invoice"))
             order.action_confirm()
-            order.action_invoice_create()
-            order.invoice_id.action_invoice_open()
+            order._create_invoices()
+            order.invoice_ids.action_post()
         return True
 
     @api.model
@@ -178,46 +201,98 @@ class SaleOrder(models.Model):
 
     def _build_pos_error_message(self, failed):
         return _("Fail to sync the following order\n - {}").format(
-            "\n - ".join([order["id"] for order in failed])
+            "\n - ".join([str(order["id"]) for order in failed])
         )
 
-    def _get_receipt(self):
+    def _get_receipts(self):
         """Inherit to generate your own ticket"""
         return []
 
+    def _process_order(self, order, draft, existing_order):
+        sale_id = super()._process_order(order, draft, existing_order)
+        sale = self.browse(sale_id)
+        # native code will print the invoice when state is "paid"
+        # this state do not exist on sale order
+        if sale.to_invoice:
+            sale.action_pos_order_invoice()
+        else:
+            sale._confirm_pos_order(order)
+        return sale.id
+
+    def _confirm_pos_order(self, order):
+        return self.with_delay().action_job_confirm()
+
+    def action_job_confirm(self):
+        for record in self:
+            if record.state in ("draft", "sent"):
+                record.action_confirm()
+
     @api.model
-    def create_from_ui(self, orders):
+    def import_one_pos_order(self, order, draft=False):
+        sale = self.search([("pos_reference", "=", order["data"]["name"])])
+        # For update support, see pos_sale_order_load
+        if not sale:
+            sale_id = self._process_order(order, draft, None)
+            sale = self.browse(sale_id)
+        return sale
+
+    @api.model
+    def create_from_ui(self, orders, draft=False):
         result = {"ids": [], "uuids": [], "receipts": [], "error": False}
         failed = []
         for order in orders:
+            # Copy to keep a clean version for logging
+            original_order = order.copy()
             try:
                 with self.env.cr.savepoint():
-                    ids = super().create_from_ui([order])
-                    if ids:
-                        sale = self.browse(ids)
-                    else:
-                        sale = self.search(
-                            [("pos_reference", "=", order["data"]["name"])]
-                        )
+                    sale = self.import_one_pos_order(order, draft=draft)
                     result["ids"] += sale.ids
-                    result["receipts"] += sale._get_receipt()
+                    result["receipts"] += sale._get_receipts()
                     result["uuids"].append(order["id"])
             except Exception as e:
-                failed.append(order)
+                failed.append(original_order)
                 _logger.error(
                     "Sync POS Order failed order id {} data: {} error: {}".format(
-                        order["id"], order, e
+                        original_order["id"], original_order, e
                     )
                 )
         if failed:
             result["error"] = self._build_pos_error_message(failed)
         return result
 
-    def write(self, vals):
-        super().write(vals)
-        if "partner_invoice_id" in vals:
-            for record in self:
-                for statement in record.statement_ids:
-                    if statement.partner_id != record.partner_invoice_id:
-                        statement.partner_id = record.partner_invoice_id
+    def _create_order_picking(self):
         return True
+
+    def _prepare_return_amount_payment(self, pos_order, order, pos_session, draft):
+        cash_payment_method = pos_session.payment_method_ids.filtered("is_cash_count")[
+            :1
+        ]
+        if not cash_payment_method:
+            raise UserError(
+                _(
+                    "No cash statement found for this session. "
+                    "Unable to record returned cash."
+                )
+            )
+        return {
+            "name": _("return"),
+            "session_id": pos_session.id,
+            "pos_sale_order_id": order.id,
+            "amount": -pos_order["amount_return"],
+            "payment_date": fields.Datetime.now(),
+            "payment_method_id": cash_payment_method.id,
+            "is_change": True,
+        }
+
+    def _process_payment_lines(self, pos_order, order, pos_session, draft):
+        pos_order_without_return = pos_order.copy()
+        pos_order_without_return["amount_return"] = 0
+        super()._process_payment_lines(
+            pos_order_without_return, order, pos_session, draft
+        )
+        prec_acc = order.pricelist_id.currency_id.decimal_places
+        if not draft and not float_is_zero(pos_order["amount_return"], prec_acc):
+            vals = self._prepare_return_amount_payment(
+                pos_order, order, pos_session, draft
+            )
+            order.add_payment(vals)

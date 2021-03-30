@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="DeliveryNowOrLaterPopUp" owl="1">
+        <div role="dialog" class="modal-dialog">
+            <Draggable>
+                <div class="popup popup-selection">
+                    <header class="title drag-handle">
+                        <t t-esc="props.title" />
+                    </header>
+                    <article t-if="!state.loaded">
+                        Loading, please wait
+                    </article>
+                    <article t-if="state.loaded">
+                        <div class="deliveryLater">
+                            <div t-if="props.askWarehouse">
+                                <div>
+                                    <label for="warehouse">Warehouse : </label>
+                                </div>
+                                <div>
+                                    <select
+                                        id="warehouse"
+                                        name="warehouse"
+                                        t-model="state.warehouse_id"
+                                    >
+                                        <t
+                                            t-foreach="state.warehouses"
+                                            t-as="warehouse"
+                                            t-key="warehouse.id"
+                                        >
+                                            <option
+                                                t-att-value="warehouse.id"
+                                                t-att-selected="warehouse.selected"
+                                            >
+                                                <t t-esc="warehouse.name" />
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="noDelivery" t-if="state.no_delivery_message">
+                                <div>
+                                    <span t-esc="state.no_delivery_message" />
+                                </div>
+                                <div>
+                                    <button
+                                        class="pos-delivery-button"
+                                        t-on-click="clickNoDelivery"
+                                    >Confirm</button>
+                                </div>
+
+                            </div>
+                            <div t-else="">
+                                <span
+                                    t-if="!state.allow_delivery_later"
+                                >Delivery not available for this order</span>
+                                <t t-if="state.allow_delivery_later">
+                                    <div>
+                                        <label for="deliveryDate">Delivery date</label>
+                                    </div>
+                                    <div>
+                                        <input
+                                            id="deliveryDate"
+                                            type="date"
+                                            t-model="state.date"
+                                        />
+                                    </div>
+                                    <div>
+                                        <button
+                                            class="pos-delivery-button"
+                                            t-on-click="clickDeliveryLater"
+                                        >Deliver later</button>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="deliveryNow" t-if="!state.no_delivery_message">
+                            <span
+                                t-if="!state.allow_delivery_now"
+                            >Delivery now not available for this order</span>
+                            <button
+                                class="pos-delivery-button"
+                                t-on-click="clickDeliveryNow"
+                                t-if="state.allow_delivery_now"
+                            >Deliver now</button>
+                        </div>
+                    </article>
+
+                    <footer class="footer">
+                        <div class="button cancel" t-on-click="cancel">
+                            Cancel
+                        </div>
+                    </footer>
+                </div>
+            </Draggable>
+        </div>
+    </t>
+
+</templates>

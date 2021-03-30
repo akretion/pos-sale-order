@@ -1,0 +1,20 @@
+button.pos-delivery-button {
+    font-size: 25px;
+    margin: 15px;
+}
+
+div.deliveryLater div {
+    margin: 15px;
+}
+
+div.deliveryLater div label {
+    font-size: 25px;
+}
+
+div.deliveryLater div input {
+    font-size: 25px;
+}
+
+div.deliveryLater div select {
+    font-size: 25px;
+}

@@ -1,3 +1,6 @@
-odoo12-addon-sale-delivery-state @ git+https://github.com/akretion/sale-workflow@9f806500c2ef8ee00169a537198a2720dd1f2905#subdirectory=setup/sale_delivery_state
-odoo12-addon-pos_backend_communication @ git+https://github.com/akretion/pos@e490112ff40de8500e0b390cf8f9dbcf0cd7a34f#subdirectory=setup/pos_backend_communication
-odoo12-addon-pos_backend_partner @ git+https://github.com/akretion/pos@32b1e914776c8c4c62262d0e8a0cce6093ab22af#subdirectory=setup/pos_backend_partner
+odoo14-addon-sale-delivery-state @ git+https://github.com/oca/sale-workflow@refs/pull/1372/head#subdirectory=setup/sale_delivery_state
+odoo14-addon-pos_backend_communication @ git+https://github.com/oca/pos@refs/pull/574/head#subdirectory=setup/pos_backend_communication
+odoo14-addon-pos_backend_partner @ git+https://github.com/oca/pos@refs/pull/575/head#subdirectory=setup/pos_backend_partner
+odoo14-addon-sale_invoice_policy @ git+https://github.com/oca/sale-workflow@refs/pull/1385/head#subdirectory=setup/sale_invoice_policy
+openupgradelib @ git+https://github.com/OCA/openupgradelib.git
+odoo14-addon-account_reconcile_restrict_partner_mismatch @ git+https://github.com/oca/account-reconcile@refs/pull/360/head#subdirectory=setup/account_reconcile_restrict_partner_mismatch

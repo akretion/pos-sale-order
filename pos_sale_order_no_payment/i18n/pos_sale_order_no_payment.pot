@@ -1,0 +1,105 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pos_sale_order_no_payment
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pos_sale_order_no_payment
+#. openerp-web
+#: code:addons/pos_sale_order_no_payment/static/src/js/QuotationButton.js:0
+#, python-format
+msgid "Confirm Quotation"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_product_pricelist__display_name
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_sale_order__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_product_pricelist__id
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_sale_order__id
+msgid "ID"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_sale_order__is_pos_quotation
+msgid "Is Pos Quotation"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_pos_session____last_update
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_product_pricelist____last_update
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_sale_order____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#. openerp-web
+#: code:addons/pos_sale_order_no_payment/static/src/xml/QuotationButton.xml:0
+#, python-format
+msgid "Order"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#: model:ir.model,name:pos_sale_order_no_payment.model_pos_session
+msgid "Point of Sale Session"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#: model:ir.model.fields,field_description:pos_sale_order_no_payment.field_product_pricelist__pos_allow_payment
+msgid "Pos Allow Payment"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#: model:ir.model,name:pos_sale_order_no_payment.model_product_pricelist
+msgid "Pricelist"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#. openerp-web
+#: code:addons/pos_sale_order_no_payment/static/src/xml/QuotationButton.xml:0
+#, python-format
+msgid "Quotation"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#: model:ir.model,name:pos_sale_order_no_payment.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#. openerp-web
+#: code:addons/pos_sale_order_no_payment/static/src/js/QuotationButton.js:0
+#, python-format
+msgid "You will need to confirm the sale in the backend"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#. openerp-web
+#: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0
+#: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0
+#: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreen.xml:0
+#: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreenStatus.xml:0
+#, python-format
+msgid "currentOrder.is_payment_allowed()"
+msgstr ""
+
+#. module: pos_sale_order_no_payment
+#. openerp-web
+#: code:addons/pos_sale_order_no_payment/static/src/xml/PaymentScreenNumpad.xml:0
+#, python-format
+msgid "{ \"psonpHide\": !currentOrder.is_payment_allowed()}"
+msgstr ""
