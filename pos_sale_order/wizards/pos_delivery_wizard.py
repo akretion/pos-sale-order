@@ -22,7 +22,10 @@ class PosDeliveryWizard(models.TransientModel):
     def create_wizard(self, sale):
         vals = []
         for picking in sale.picking_ids:
-            if picking.picking_type_id.code == "outgoing" and picking.state != "done":
+            if picking.picking_type_id.code == "outgoing" and picking.state not in (
+                "done",
+                "cancel",
+            ):
                 for line in picking.move_lines:
                     if line.state != "done":
                         vals.append([0, 0, self._prepare_line(line)])
