@@ -123,6 +123,9 @@ class SaleOrder(models.Model):
         for record in self:
             record.picking_id = record.picking_ids and record.picking_ids[0]
 
+    def _get_lines_to_deliver(self):
+        return self.order_line.filtered(lambda s: s.product_id.type != "service")
+
     @api.depends("order_line.product_uom_qty", "order_line.qty_delivered")
     def _compute_unit_to_deliver(self):
         # be carefull here the qty total is the sum of item
@@ -130,7 +133,7 @@ class SaleOrder(models.Model):
         # if it's not a unit then it have no meaning
         # maybe you should adapt this to your case
         for record in self:
-            lines = record.order_line.filtered(lambda s: s.product_id.type != "service")
+            lines = record._get_lines_to_deliver()
             record.unit_to_deliver = sum(lines.mapped("product_uom_qty")) - sum(
                 lines.mapped("qty_delivered")
             )
