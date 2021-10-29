@@ -6,6 +6,7 @@ odoo.define("pos_partial_payment.hijack_model_load", function (require) {
     "use strict";
     var pos_models = require("point_of_sale.models");
     var posPaymentMethodLoadedOriginal = null;
+    var posConfigLoadedOriginal = null;
     var core = require("web.core");
     var _t = core._t;
 
@@ -28,10 +29,20 @@ odoo.define("pos_partial_payment.hijack_model_load", function (require) {
         self.payment_methods.push(fake_method);
     }
 
+    function posConfigLoaded(self, configs) {
+        posConfigLoadedOriginal(self, configs);
+        for (var i = 0; i < configs.length; i++) {
+            configs[i].payment_method_ids.push(-1);
+        }
+    }
+
     pos_models.PosModel.prototype.models.forEach(function (m) {
         if (m.model === "pos.payment.method") {
             posPaymentMethodLoadedOriginal = m.loaded;
             m.loaded = posPaymentMethodLoaded;
+        } else if (m.model === "pos.config") {
+            posConfigLoadedOriginal = m.loaded;
+            m.loaded = posConfigLoaded;
         }
     });
 });
