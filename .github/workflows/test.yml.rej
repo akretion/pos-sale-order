@@ -1,0 +1,15 @@
+diff a/.github/workflows/test.yml b/.github/workflows/test.yml	(rejected hunks)
+@@ -20,3 +20,2 @@ jobs:
+             makepot: "true"
+-          - container: ghcr.io/sbidoul/oca-ci/py3.6-ocb14.0:latest
+     services:
+@@ -40,5 +39,5 @@ jobs:
+       - uses: codecov/codecov-action@v1
+-      - run: |
+-          oca_export_and_commit_pot
+-          git push https://x-access-token:${{ secrets.GIT_PUSH_TOKEN }}@github.com/${{ github.repository }}
+-        if: ${{ matrix.makepot == 'true' && github.event_name == 'push' && github.repository_owner == 'akretion' && startsWith(github.ref, 'refs/heads/14.0') }}
++#      - run: |
++#          oca_export_and_commit_pot
++#          git push https://x-access-token:${{ secrets.GIT_PUSH_TOKEN }}@github.com/${{ github.repository }}
++#        if: ${{ matrix.makepot == 'true' && github.event_name == 'push' && github.repository_owner == 'akretion' && startsWith(github.ref, 'refs/heads/14.0') }}
