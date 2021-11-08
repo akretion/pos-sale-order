@@ -7,6 +7,26 @@ from collections import defaultdict
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from odoo.addons.point_of_sale.models.pos_session import PosSession
+
+
+# TODO V16 we should add a hook in odoo native
+# Monkey patch native action_pos_session_closing_control
+# to allow draft order
+def action_pos_session_closing_control(self):
+    self._check_pos_session_balance()
+    for session in self:
+        # if any(order.state == 'draft' for order in session.order_ids):
+        #    raise UserError(_("You cannot close the POS when orders are still in draft"))
+        if session.state == "closed":
+            raise UserError(_("This session is already closed."))
+        session.write({"state": "closing_control", "stop_at": fields.Datetime.now()})
+        if not session.config_id.cash_control:
+            session.action_pos_session_close()
+
+
+PosSession.action_pos_session_closing_control = action_pos_session_closing_control
+
 
 class PosSession(models.Model):
     _inherit = "pos.session"
