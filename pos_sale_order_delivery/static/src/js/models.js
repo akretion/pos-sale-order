@@ -2,7 +2,7 @@
  * @author Raphaël Reverdy <raphael.reverdy@akretion.com>
  * License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). */
 
-odoo.define("pos_sale_order_reference.models", function (require) {
+odoo.define("pos_sale_order_delivery.models", function (require) {
     "use strict";
 
     var models = require("point_of_sale.models");
