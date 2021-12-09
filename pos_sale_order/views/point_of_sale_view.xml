@@ -50,6 +50,20 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="view_pos_config_kanban">
+            <field name="model">pos.config</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban" />
+            <field name="arch" type="xml">
+                <!-- mask pos.order reporting as there are no pos.order created with this module -->
+                <xpath
+                expr="//a[@name='%(point_of_sale.action_report_pos_order_all_filtered)d']/.."
+                position="attributes"
+            >
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="view_pos_config_search">
             <field name="model">pos.config</field>
             <field name="inherit_id" ref="point_of_sale.view_pos_config_search" />
