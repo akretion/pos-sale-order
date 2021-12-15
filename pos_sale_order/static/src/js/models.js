@@ -68,7 +68,7 @@ odoo.define("pos_sale_order.models", function (require) {
                         });
                     }
                     self.set("failed", false);
-                    return res.ids;
+                    return res.orders;
                 })
                 .catch(function (reason) {
                     var error = reason.message;

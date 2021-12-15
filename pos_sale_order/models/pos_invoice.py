@@ -12,9 +12,15 @@ class PosInvoiceReport(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         sales = self.env["sale.order"].browse(docids)
-        missings = sales.filtered(lambda o: not o.invoice_id)
+        missings = sales.filtered(lambda o: not o.invoice_ids)
         if missings:
             raise UserError(
                 _("No link to an invoice for %s.") % ", ".join(missings.mapped("name"))
             )
-        return {"docs": sales.mapped("invoice_id")}
+        ids_to_print = sales.mapped("invoice_ids").ids
+        return {
+            "docs": self.env["account.move"].sudo().browse(ids_to_print),
+            "qr_code_urls": self.env["report.account.report_invoice"]
+            .sudo()
+            ._get_report_values(ids_to_print)["qr_code_urls"],
+        }

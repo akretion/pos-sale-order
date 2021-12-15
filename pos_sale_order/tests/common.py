@@ -13,7 +13,7 @@ class CommonCase(TestPoSCommon):
     @classmethod
     def _create_sale(cls, data):
         res = cls.env["sale.order"].create_from_ui(data)
-        return cls.env["sale.order"].browse(res["ids"])
+        return cls.env["sale.order"].browse([order["id"] for order in res["orders"]])
 
     @classmethod
     def create_random_uid(cls):

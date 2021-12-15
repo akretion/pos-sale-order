@@ -241,7 +241,7 @@ class SaleOrder(models.Model):
 
     @api.model
     def create_from_ui(self, orders, draft=False):
-        result = {"ids": [], "uuids": [], "receipts": [], "error": False}
+        result = {"orders": [], "uuids": [], "receipts": [], "error": False}
         failed = []
         for order in orders:
             # Copy to keep a clean version for logging
@@ -249,7 +249,9 @@ class SaleOrder(models.Model):
             try:
                 with self.env.cr.savepoint():
                     sale = self.import_one_pos_order(order, draft=draft)
-                    result["ids"] += sale.ids
+                    result["orders"].append(
+                        {"id": sale.id, "pos_reference": sale.pos_reference}
+                    )
                     result["receipts"] += sale._get_receipts()
                     result["uuids"].append(order["id"])
             except Exception as e:
