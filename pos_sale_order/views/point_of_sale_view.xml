@@ -56,11 +56,20 @@
             <field name="arch" type="xml">
                 <!-- mask pos.order reporting as there are no pos.order created with this module -->
                 <xpath
-                expr="//a[@name='%(point_of_sale.action_report_pos_order_all_filtered)d']/.."
+                expr="//a[@name='%(point_of_sale.action_report_pos_order_all_filtered)d']/../.."
                 position="attributes"
             >
                     <attribute name="invisible">True</attribute>
                 </xpath>
+                <xpath
+                expr="//a[@name='%(point_of_sale.action_pos_order_filtered)d']"
+                position="attributes"
+            >
+                    <attribute
+                    name="name"
+                >%(action_sale_order_search_config)d</attribute>
+                </xpath>
+
             </field>
         </record>
 
