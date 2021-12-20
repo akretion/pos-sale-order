@@ -42,6 +42,9 @@ class SaleOrder(models.Model):
     pos_reference = fields.Char(
         string="Receipt Ref", readonly=True, copy=False, default=""
     )
+    config_id = fields.Many2one(
+        "pos.config", related="session_id.config_id", string="Point of Sale", store=True
+    )
     session_id = fields.Many2one(
         "pos.session",
         string="Session",
