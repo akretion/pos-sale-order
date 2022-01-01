@@ -113,7 +113,10 @@ class PosSession(models.Model):
                 )
         self.statement_ids.button_post()
         for lines in to_reconcile:
-            lines.reconcile()
+            # TODO FIXME sometime odoo create a line with an amount of 0
+            # as the amout is 0 this line are auto-reconciled
+            # skip them from reconciliation
+            lines.filtered(lambda s: not s.reconciled).reconcile()
 
     def _create_account_move(self):
         self.ensure_one()
