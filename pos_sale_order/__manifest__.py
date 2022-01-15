@@ -33,6 +33,7 @@
         "views/pos_payment_method_views.xml",
         "views/point_of_sale_view.xml",
         "views/menu.xml",
+        "views/pos_payment_view.xml",
         "data/res_partner_data.xml",
         "data/pos_config_data.xml",
         "templates/assets.xml",

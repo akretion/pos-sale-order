@@ -9,10 +9,15 @@ class PosPayment(models.Model):
     _inherit = "pos.payment"
 
     pos_sale_order_id = fields.Many2one(
-        "sale.order", string="Sale Order", ondelete="cascade", required=True
+        "sale.order",
+        string="Sale Order",
+        ondelete="cascade",
+        required=True,
+        readonly=True,
     )
+    payment_method_id = fields.Many2one(readonly=True)
     pos_order_id = fields.Many2one(required=False)
-    session_id = fields.Many2one(related=False)
+    session_id = fields.Many2one(related=False, readonly=True)
     partner_id = fields.Many2one(related="pos_sale_order_id.partner_id")
     company_id = fields.Many2one(related="pos_sale_order_id.company_id")
     currency_id = fields.Many2one(related="pos_sale_order_id.currency_id")
