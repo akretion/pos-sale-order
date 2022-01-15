@@ -112,6 +112,7 @@ class PosSession(models.Model):
                     self._create_bank_statement_line(statement, payments)
                 )
         self.statement_ids.button_post()
+        self.statement_ids.button_validate()
         for lines in to_reconcile:
             lines.reconcile()
 
