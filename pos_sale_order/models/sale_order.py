@@ -205,9 +205,9 @@ class SaleOrder(models.Model):
         res["session_id"] = self.session_id.id
         return res
 
-    def _build_pos_error_message(self, failed):
+    def _build_pos_error_message(self, failed, result):
         return _("Fail to sync the following order\n - {}").format(
-            "\n - ".join([str(order["id"]) for order in failed])
+            "\n - ".join([str(order["id"]) for order, _exception in failed])
         )
 
     def _get_receipts(self):
@@ -258,14 +258,14 @@ class SaleOrder(models.Model):
                     result["receipts"] += sale._get_receipts()
                     result["uuids"].append(order["id"])
             except Exception as e:
-                failed.append(original_order)
+                failed.append((original_order, e))
                 _logger.error(
                     "Sync POS Order failed order id {} data: {} error: {}".format(
                         original_order["id"], original_order, e
                     )
                 )
         if failed:
-            result["error"] = self._build_pos_error_message(failed)
+            result["error"] = self._build_pos_error_message(failed, result)
         return result
 
     def _create_order_picking(self):
