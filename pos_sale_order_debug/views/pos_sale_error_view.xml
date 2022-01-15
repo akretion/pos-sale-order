@@ -5,12 +5,12 @@
     <field name="model">pos.sale.error</field>
     <field name="arch" type="xml">
         <tree string="Label">
+            <field name="create_date" />
             <field name="name" />
             <field name="pos_config_id" />
             <field name="pos_session_id" />
             <field name="user_id" />
             <field name="company_id" />
-            <button name="run" type="object" />
         </tree>
     </field>
 </record>
@@ -19,14 +19,31 @@
     <field name="model">pos.sale.error</field>
     <field name="arch" type="xml">
         <form string="Label">
-            <group>
-                <field name="name" />
-                <field name="pos_config_id" />
-                <field name="pos_session_id" />
-                <field name="user_id" />
-                <field name="company_id" />
-            </group>
-            <field name="data" colspan="4" />
+            <header>
+                <button
+                        name="run"
+                        type="object"
+                        string="Run"
+                        attrs="{'invisible': [('state', '!=', 'pending')]}"
+                    />
+                <field name="state" widget="statusbar" options="{'clickable': '1'}" />
+            </header>
+            <sheet>
+                <group>
+                    <field name="name" />
+                    <field name="order_id" />
+                    <field name="pos_config_id" />
+                    <field name="pos_session_id" />
+                    <field name="user_id" />
+                    <field name="company_id" />
+                </group>
+                <group name="error" string="Error" colspan="4">
+                    <field name="error" colspan="4" nolabel="1" />
+                </group>
+                <group name="data" string="Data" colspan="4">
+                    <field name="data_display" colspan="4" nolabel="1" />
+                </group>
+            </sheet>
         </form>
     </field>
 </record>
@@ -35,11 +52,40 @@
     <field name="model">pos.sale.error</field>
     <field name="arch" type="xml">
         <search string="Label">
+            <filter name="pending" domain="[('state', '=', 'pending')]" />
+            <filter name="done" domain="[('state', '=', 'done')]" />
+            <filter name="cancel" domain="[('state', '=', 'cancel')]" />
             <field name="name" />
             <field name="pos_config_id" />
             <field name="pos_session_id" />
             <field name="user_id" />
             <field name="company_id" />
+            <group expand="0" string="Group By">
+                <filter
+                        string="State"
+                        name="state"
+                        domain="[]"
+                        context="{'group_by': 'state'}"
+                    />
+                <filter
+                        string="Date"
+                        name="date"
+                        domain="[]"
+                        context="{'group_by': 'create_date'}"
+                    />
+                <filter
+                        string="Company"
+                        name="company"
+                        domain="[]"
+                        context="{'group_by': 'company_id'}"
+                    />
+                <filter
+                        string="Pos Config"
+                        name="pos_config_id"
+                        domain="[]"
+                        context="{'group_by': 'pos_config_id'}"
+                    />
+            </group>
         </search>
     </field>
 </record>
@@ -51,7 +97,7 @@
     <field name="view_mode">tree,form</field>
     <field name="search_view_id" ref="pos_sale_error_view_search" />
     <field name="domain">[]</field>
-    <field name="context">{}</field>
+    <field name="context">{'search_default_pending': 1}</field>
 </record>
 
 <menuitem

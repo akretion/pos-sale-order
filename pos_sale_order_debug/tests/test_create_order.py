@@ -46,5 +46,5 @@ class TestCreateOrder(CommonCase):
         data = error.data
         data["data"]["pricelist_id"] = self.ori_pricelist_id
         error.data = data
-        sales = error.run()
-        self.assertEqual(len(sales), 1)
+        error.run()
+        self.assertEqual(len(error.order_id), 1)
