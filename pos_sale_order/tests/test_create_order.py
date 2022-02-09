@@ -60,3 +60,9 @@ class TestCreateOrder(CommonCase):
         self.assertEqual(len(invoice.invoice_line_ids), 3)
         self.assertEqual(invoice.partner_id, partner)
         self.assertEqual(invoice.state, "posted")
+
+    def test_create_sale_with_discount(self):
+        data = self._get_pos_data()
+        data["data"]["lines"][0][2]["discount"] = 20
+        sale = self._create_sale([data])
+        self.assertEqual(sale.order_line[0].discount, 20)

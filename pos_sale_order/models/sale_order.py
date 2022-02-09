@@ -161,6 +161,7 @@ class SaleOrder(models.Model):
             "product_uom_qty": line["qty"],
             "price_unit": line["price_unit"],
             "tax_id": line["tax_ids"],
+            "discount": line["discount"],
         }
 
     @api.model
