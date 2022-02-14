@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <t t-name="SaleOrderLoadButton" owl="1">
+        <div class="ticket-button" t-on-click="onClick">
+            <div class="with-badge">
+                <i class="fa fa-upload" aria-hidden="true" />
+            </div>
+            <div>Load Order</div>
+        </div>
+    </t>
+
+    <t
+        t-name="Chrome"
+        t-inherit="point_of_sale.Chrome"
+        t-inherit-mode="extension"
+        owl="1"
+    >
+        <xpath expr="//div[@class='pos-branding']" position="inside">
+             <SaleOrderLoadButton />
+        </xpath>
+    </t>
+</odoo>

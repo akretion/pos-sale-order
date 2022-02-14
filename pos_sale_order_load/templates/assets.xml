@@ -12,7 +12,7 @@
             />
             <script
                 type="text/javascript"
-                src="/pos_sale_order_load/static/src/js/SaleOrderLoadWidget.js"
+                src="/pos_sale_order_load/static/src/js/SaleOrderLoadButton.js"
             />
         </xpath>
     </template>
