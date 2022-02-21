@@ -15,11 +15,11 @@
         "pos_backend_communication",
     ],
     "data": [
-        "templates/assets.xml",
-        "views/sale_order.xml",
+        #        "templates/assets.xml",
+        #        "views/sale_order.xml",
     ],
     "qweb": [
-        "static/src/xml/SaleOrderLoadWidget.xml",
+        #        "static/src/xml/SaleOrderLoadWidget.xml",
     ],
     "demo": [],
     "installable": True,
