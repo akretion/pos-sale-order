@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <t t-name="SaleOrderWidget" owl="1">
+    <t t-name="SaleOrderButton" owl="1">
         <div class="ticket-button">
             <a
                 class="fa fa-home"
@@ -18,7 +18,7 @@
         owl="1"
     >
         <xpath expr="//div[@class='pos-branding']" position="inside">
-            <SaleOrderWidget />
+            <SaleOrderButton />
         </xpath>
     </t>
 

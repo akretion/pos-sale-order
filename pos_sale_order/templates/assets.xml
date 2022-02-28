@@ -17,7 +17,7 @@
             />
             <script
                 type="text/javascript"
-                src="/pos_sale_order/static/src/js/SaleOrderWidget.js"
+                src="/pos_sale_order/static/src/js/SaleOrderButton.js"
             />
         </xpath>
     </template>
