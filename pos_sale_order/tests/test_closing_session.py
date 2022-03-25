@@ -3,11 +3,15 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 
+from odoo.exceptions import UserError
+from odoo.tests.common import tagged
+
 from odoo.addons.queue_job.job import Job
 
 from .common import CommonCase
 
 
+@tagged("-at_install", "post_install")
 class TestClosingSession(CommonCase):
     @classmethod
     def _create_session_sale(cls, pos_session=None):
@@ -226,12 +230,48 @@ class TestClosingSession(CommonCase):
         session = self.env["pos.session"].search([("rescue", "=", True)])
         self.assertFalse(session)
 
+    def test_backoffice_draft_invoice(self):
+        sale = self.sales[0]
+        sale.action_confirm()
+        sale._create_invoices()
+        # Do not post the invoice and close the session
+
+        with self.assertRaises(UserError):
+            self._close_session()
+
+    def test_backoffice_paid_sale_without_invoice(self):
+        # create a backoffice order without payment
+        sale = self.env["sale.order"].create(
+            {
+                "partner_id": self.partner_2.id,
+                "order_line": [(0, 0, {"product_id": self.product0.id})],
+            }
+        )
+        sale.action_confirm()
+
+        # Register payment on the sale order
+        # The payment is linked to a pos session
+        wizard = self.env["pos.payment.wizard"].create_wizard(sale)
+        self.assertEqual(
+            wizard.available_payment_method_ids, self.config.payment_method_ids
+        )
+        wizard.payment_method_id = self.cash_pm
+
+        wizard.pay()
+        self.assertEqual(len(sale.payment_ids), 1)
+
+        # Close the session and check the invoice linked to the sale order
+        with self.assertRaises(UserError):
+            self._close_session()
+
     def test_job(self):
         self.assertEqual(
             self.sales.mapped("state"),
             ["draft", "draft", "draft", "draft", "draft", "sale"],
         )
-        jobs = self.env["queue.job"].search([])
+        jobs = self.env["queue.job"].search(
+            [("name", "=", "sale.order.action_job_confirm")]
+        )
         self.assertEqual(len(jobs), 5)
         for job in jobs:
             Job.load(self.env, job.uuid).perform()
@@ -244,7 +284,9 @@ class TestClosingSession(CommonCase):
             self.sales.mapped("state"),
             ["draft", "draft", "draft", "draft", "draft", "sale"],
         )
-        jobs = self.env["queue.job"].search([])
+        jobs = self.env["queue.job"].search(
+            [("name", "=", "sale.order.action_job_confirm")]
+        )
         self.assertEqual(len(jobs), 5)
         for job in jobs[:4]:
             Job.load(self.env, job.uuid).perform()

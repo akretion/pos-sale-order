@@ -2,11 +2,13 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+from odoo.tests.common import tagged
 from odoo.tools import mute_logger
 
 from odoo.addons.pos_sale_order.tests.common import CommonCase
 
 
+@tagged("-at_install", "post_install")
 class TestCreateOrder(CommonCase):
     @classmethod
     def setUpClass(cls):
