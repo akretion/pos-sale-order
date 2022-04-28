@@ -179,3 +179,13 @@ class PosSession(models.Model):
     def _compute_total_payments_amount(self):
         for session in self:
             session.total_payments_amount = sum(session.mapped("payment_ids.amount"))
+
+    def _check_invoices_are_posted(self):
+        unposted_invoices = self.order_ids.account_move.filtered(
+            lambda x: x.state != "posted"
+        )
+        if unposted_invoices:
+            raise UserError(
+                _("You cannot close the POS when invoices are not posted.\nOrders: %s")
+                % "\n".join(unposted_invoices.sale_ids.mapped("name"))
+            )
