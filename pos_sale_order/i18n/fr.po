@@ -221,6 +221,11 @@ msgid "Journal Entry"
 msgstr ""
 
 #. module: pos_sale_order
+#: model:ir.model.fields,help:pos_sale_order.field_pos_payment_method__cash_journal_id
+msgid "Journal used for generating payment"
+msgstr ""
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config____last_update
@@ -298,6 +303,7 @@ msgstr "Commandes"
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/pos_session.py:0
+#: model:ir.actions.act_window,name:pos_sale_order.action_sale_order_search_config
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_session__order_ids
 #: model:ir.ui.menu,name:pos_sale_order.menu_sale_order
 #, python-format
@@ -337,6 +343,12 @@ msgid "Payment"
 msgstr "Paiement"
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__payment_method_id
+#, fuzzy
+msgid "Payment Method"
+msgstr "Mode de paiement"
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__payment_method_id
 #, fuzzy
 msgid "Payment method"
@@ -372,6 +384,7 @@ msgid "PoS Session"
 msgstr "Session"
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__config_id
 #: model:ir.ui.menu,name:pos_sale_order.menu_pos_dashboard
 #: model:ir.ui.menu,name:pos_sale_order.menu_pos_sale_order_root
 msgid "Point of Sale"
@@ -509,10 +522,8 @@ msgid "Split Transactions"
 msgstr ""
 
 #. module: pos_sale_order
-#: model:ir.model.fields,help:pos_sale_order.field_pos_payment_method__cash_journal_id
-msgid ""
-"The payment method is of type cash. A cash statement will be automatically "
-"generated."
+#: model:ir.model.fields,help:pos_sale_order.field_sale_order__config_id
+msgid "The physical point of sale you will use."
 msgstr ""
 
 #. module: pos_sale_order
@@ -536,7 +547,13 @@ msgstr ""
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:0
 #, python-format
-msgid "There is no session Opened, please open one"
+msgid "There is no session Opened with payment method, please open one"
+msgstr "Il n'y a pas de session de point de vente ouverte avec des méthodes de paiements, merci d'en ouvrir une"
+
+#. module: pos_sale_order
+#: code:addons/pos_sale_order/models/pos_session.py:0
+#, python-format
+msgid "This session is already closed."
 msgstr ""
 
 #. module: pos_sale_order

@@ -25,10 +25,13 @@ class PosPaymentWizard(models.TransientModel):
                 ("state", "=", "opened"),
                 ("user_id", "=", self._uid),
                 ("rescue", "=", False),
+                ("payment_method_ids", "!=", False),
             ]
         )
         if not session:
-            raise UserError(_("There is no session Opened, please open one"))
+            raise UserError(
+                _("There is no session Opened with payment method, please open one")
+            )
         return session
 
     def create_wizard(self, sale):
