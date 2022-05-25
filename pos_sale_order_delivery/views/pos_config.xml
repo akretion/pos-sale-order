@@ -7,12 +7,29 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@id='inventory_location']/div" position="inside">
                 <div class="o_setting_left_pane">
+                    <field
+                        name="iface_mandatory_ask_delivery"
+                        id="iface_mandatory_ask_delivery"
+                    />
                     <field name="iface_ask_warehouse" id="iface_ask_warehouse" />
+                    <field name="force_delivery" id="force_delivery" />
+                </div>
+                <div class="o_setting_right_pane">
+                    <label for="iface_mandatory_ask_delivery" />
+                    <div class="text-muted">
+                        Always ask for delivery date
+                    </div>
                 </div>
                 <div class="o_setting_right_pane">
                     <label for="iface_ask_warehouse" />
                     <div class="text-muted">
                         Propose to change warehouse delivery
+                    </div>
+                </div>
+                <div class="o_setting_right_pane">
+                    <label for="force_delivery" />
+                    <div class="text-muted">
+                        Force delivery even if product has no stock
                     </div>
                 </div>
             </xpath>
