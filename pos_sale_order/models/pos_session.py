@@ -114,6 +114,21 @@ class PosSession(models.Model):
         self.statement_ids.button_post()
         self.statement_ids.button_validate()
         payments_not_reconciled = self.env["account.move.line"].browse()
+        # Becareful, if we have done cash return we try to reconcile first the
+        # negatif amount in order to avoid the case where the total amount is
+        # reconciled before reconciling all entries
+        to_reconcile.sort(key=lambda s: s[0].debit, reverse=True)
+
+        # Ensure that nothing is already reconciled
+        for lines in to_reconcile:
+            reconciled = lines.filtered("reconciled")
+            if reconciled:
+                if reconciled.move_id.move_type == "out_invoice":
+                    message = _("The invoice %s is already paid, please remove it")
+                else:
+                    message = _("The move %s is already reconciled")
+                raise UserError(message % ", ".join(reconciled.mapped("name")))
+
         for lines in to_reconcile:
             lines.reconcile()
             # All payments should be reconciled but invoices may not have been paid
@@ -125,7 +140,8 @@ class PosSession(models.Model):
                 _(
                     "Impossible to reconcile all the entries.\n"
                     "Please check that the following ones are invoiced:\n\n"
-                    "{}".format(
+                    "%s"
+                    % (
                         "\n".join(
                             [
                                 "{} - {} - amount: {}".format(

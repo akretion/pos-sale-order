@@ -194,6 +194,20 @@ msgid "If ticked, each payment will generate a separated journal item."
 msgstr ""
 
 #. module: pos_sale_order
+#: code:addons/pos_sale_order/models/pos_session.py:0
+#, python-format
+msgid ""
+"Impossible to reconcile all the entries.\n"
+"Please check that the following ones are invoiced:\n"
+"\n"
+"%s"
+msgstr ""
+"Impossible de lettrer les écritures.\n"
+"Veuillez vérifier que les commandes suivantes sont bien facturé:\n"
+"\n"
+"%s"
+
+#. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_account_invoice
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__account_move
 msgid "Invoice"
@@ -522,6 +536,18 @@ msgid "Split Transactions"
 msgstr ""
 
 #. module: pos_sale_order
+#: code:addons/pos_sale_order/models/pos_session.py:0
+#, python-format
+msgid "The invoice %s is already paid, please remove it"
+msgstr "La facture %s est déjà payé, veuiller supprimer le paiement"
+
+#. module: pos_sale_order
+#: code:addons/pos_sale_order/models/pos_session.py:0
+#, python-format
+msgid "The move %s is already reconciled"
+msgstr "L'écriture % est déjà lettré, veuillez corriger"
+
+#. module: pos_sale_order
 #: model:ir.model.fields,help:pos_sale_order.field_sale_order__config_id
 msgid "The physical point of sale you will use."
 msgstr ""
@@ -548,7 +574,9 @@ msgstr ""
 #: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:0
 #, python-format
 msgid "There is no session Opened with payment method, please open one"
-msgstr "Il n'y a pas de session de point de vente ouverte avec des méthodes de paiements, merci d'en ouvrir une"
+msgstr ""
+"Il n'y a pas de session de point de vente ouverte avec des méthodes de "
+"paiements, merci d'en ouvrir une"
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/pos_session.py:0
