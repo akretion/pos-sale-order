@@ -74,6 +74,14 @@ class PosSession(models.Model):
         vals = self._prepare_sale_statement(payments)
         vals["statement_id"] = statement.id
         bk_line = self.env["account.bank.statement.line"].create(vals)
+        sale_missing_invoice = payments.pos_sale_order_id.filtered(
+            lambda s: not s.invoice_ids
+        )
+        if sale_missing_invoice:
+            raise UserError(
+                _("Following sales are not invoiced, please invoice it: \n- %s")
+                % ("\n- ".join(sale_missing_invoice.mapped("name")))
+            )
         move_lines = (
             bk_line.move_id.line_ids + payments.pos_sale_order_id.invoice_ids.line_ids
         )
@@ -113,7 +121,7 @@ class PosSession(models.Model):
                 )
         self.statement_ids.button_post()
         self.statement_ids.button_validate()
-        payments_not_reconciled = self.env["account.move.line"].browse()
+
         # Becareful, if we have done cash return we try to reconcile first the
         # negatif amount in order to avoid the case where the total amount is
         # reconciled before reconciling all entries
@@ -131,30 +139,6 @@ class PosSession(models.Model):
 
         for lines in to_reconcile:
             lines.reconcile()
-            # All payments should be reconciled but invoices may not have been paid
-            payments_not_reconciled |= lines.filtered(
-                lambda s: not s.reconciled and s.journal_id.type != "sale"
-            )
-        if payments_not_reconciled:
-            raise UserError(
-                _(
-                    "Impossible to reconcile all the entries.\n"
-                    "Please check that the following ones are invoiced:\n\n"
-                    "%s"
-                    % (
-                        "\n".join(
-                            [
-                                "{} - {} - amount: {}".format(
-                                    line.display_name,
-                                    line.partner_id.name,
-                                    line.amount_currency,
-                                )
-                                for line in payments_not_reconciled
-                            ]
-                        )
-                    )
-                )
-            )
 
     def _create_account_move(self):
         self.ensure_one()
