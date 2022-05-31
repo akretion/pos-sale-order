@@ -113,8 +113,32 @@ class PosSession(models.Model):
                 )
         self.statement_ids.button_post()
         self.statement_ids.button_validate()
+        payments_not_reconciled = self.env["account.move.line"].browse()
         for lines in to_reconcile:
             lines.reconcile()
+            # All payments should be reconciled but invoices may not have been paid
+            payments_not_reconciled |= lines.filtered(
+                lambda s: not s.reconciled and s.journal_id.type != "sale"
+            )
+        if payments_not_reconciled:
+            raise UserError(
+                _(
+                    "Impossible to reconcile all the entries.\n"
+                    "Please check that the following ones are invoiced:\n\n"
+                    "{}".format(
+                        "\n".join(
+                            [
+                                "{} - {} - amount: {}".format(
+                                    line.display_name,
+                                    line.partner_id.name,
+                                    line.amount_currency,
+                                )
+                                for line in payments_not_reconciled
+                            ]
+                        )
+                    )
+                )
+            )
 
     def _create_account_move(self):
         self.ensure_one()

@@ -4,9 +4,12 @@
 
 from datetime import date, timedelta
 
+from odoo.tests.common import tagged
+
 from odoo.addons.pos_sale_order.tests.common import CommonCase
 
 
+@tagged("-at_install", "post_install")
 class TestOrder(CommonCase):
     def test_compute_commitment_date(self):
         data = self._get_pos_data()

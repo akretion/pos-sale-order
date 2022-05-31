@@ -3,9 +3,12 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 
+from odoo.tests.common import tagged
+
 from odoo.addons.pos_sale_order.tests.common import CommonCase
 
 
+@tagged("-at_install", "post_install")
 class TestClosingSession(CommonCase):
     @classmethod
     def _create_session_sale(cls, pos_session=None):

@@ -188,7 +188,7 @@ class SaleOrder(models.Model):
         }
 
     def action_pos_order_paid(self):
-        """ We do nothing, not needed in sale_order case"""
+        """We do nothing, not needed in sale_order case"""
         return True
 
     def action_pos_order_invoice(self):
