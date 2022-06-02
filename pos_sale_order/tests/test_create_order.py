@@ -37,6 +37,16 @@ class TestCreateOrder(CommonCase):
         self.assertEqual(len(sale.payment_ids), 1)
         self.assertEqual(sale.payment_ids.amount, 65)
 
+    def test_create_sale_with_useless_payment(self):
+        data = self._get_pos_data(
+            payments=[
+                (self.cash_pm, 65),
+                (self.bank_pm, 0),
+            ]
+        )
+        sale = self._create_sale([data])
+        self.assertEqual(len(sale.payment_ids), 1)
+
     def test_create_existing_sale(self):
         data = self._get_pos_data()
         sales = self._create_sale([data])

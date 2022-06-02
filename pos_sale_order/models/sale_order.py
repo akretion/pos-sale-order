@@ -305,3 +305,8 @@ class SaleOrder(models.Model):
                 pos_order, order, pos_session, draft
             )
             order.add_payment(vals)
+
+    def add_payment(self, data):
+        # skip useless 0 payment that will bloc closing the session
+        if data.get("amount"):
+            return super().add_payment(data)
