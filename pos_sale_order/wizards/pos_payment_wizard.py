@@ -61,6 +61,8 @@ class PosPaymentWizard(models.TransientModel):
         }
 
     def pay(self):
+        if not self.amount:
+            raise UserError(_("Amount must be superior to 0"))
         vals = self._prepare_payment()
         self.env["pos.payment"].create(vals)
         return True
