@@ -80,6 +80,25 @@ class TestClosingSession(CommonCase):
         self.assertEqual(len(move), 3)
         self.assertEqual(sum(move.mapped("amount_total")), 390)
 
+    def test_payment_sum_zero(self):
+        self.sales.action_cancel()
+        self.sales[1:].unlink()
+        data = self._get_pos_data(
+            lines=[
+                (self.product0, -3.0),
+                (self.product1, -1.0),
+                (self.product2, -2.0),
+            ]
+        )
+        sale = self._create_sale([data])
+        self._close_session()
+        move = self.env["account.move"].search(
+            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+        )
+        self.assertEqual(len(move), 0)
+        self.assertEqual(len(sale.invoice_ids), 1)
+        self.assertEqual(sale.invoice_ids.amount_total, 0)
+
     def test_split_transaction_payment(self):
         """Ensure that payment are generated even for no cash payment"""
         # use _write as write is forbidden with open session
