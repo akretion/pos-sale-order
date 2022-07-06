@@ -220,6 +220,9 @@ class SaleOrder(models.Model):
     def _process_order(self, order, draft, existing_order):
         sale_id = super()._process_order(order, draft, existing_order)
         sale = self.browse(sale_id)
+        # This onchange is on sale.order and therefore is not
+        # called by "pos.order"._process_order()
+        sale._compute_tax_id()
         # native code will print the invoice when state is "paid"
         # this state do not exist on sale order
         if sale.to_invoice:
