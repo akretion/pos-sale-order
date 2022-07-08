@@ -107,7 +107,7 @@ msgstr ""
 
 #. module: pos_sale_order
 #. openerp-web
-#: code:addons/pos_sale_order/static/src/xml/SaleOrderWidget.xml:0
+#: code:addons/pos_sale_order/static/src/xml/SaleOrderButton.xml:0
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__delivery_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_form
 #, python-format

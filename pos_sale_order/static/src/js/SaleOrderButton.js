@@ -3,12 +3,12 @@
     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 */
 
-odoo.define("pos_sale_order.SaleOrderWidget", function (require) {
+odoo.define("pos_sale_order.SaleOrderButton", function (require) {
     "use strict";
     // Display a link to backend's sale order tree view
     const PosComponent = require("point_of_sale.PosComponent");
     const Registries = require("point_of_sale.Registries");
 
-    class SaleOrderWidget extends PosComponent {}
-    Registries.Component.add(SaleOrderWidget);
+    class SaleOrderButton extends PosComponent {}
+    Registries.Component.add(SaleOrderButton);
 });
