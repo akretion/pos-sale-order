@@ -163,7 +163,7 @@ class PosSession(models.Model):
                     default_journal_id=self.config_id.journal_id.id
                 )
             orders._create_invoices(final=True)
-            orders.invoice_ids.action_post()
+            orders.invoice_ids.filtered(lambda s: s.state == "draft").action_post()
         self._create_bank_statement_line_and_reconcile()
         return True
 
