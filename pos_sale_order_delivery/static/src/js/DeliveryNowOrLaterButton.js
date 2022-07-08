@@ -15,7 +15,7 @@ odoo.define("pos_sale_order_delivery.ClientOrderRefButton", function (require) {
             useListener("click", this.onClick);
         }
         async onClick() {
-            var ret = await this.showPopup("DeliveryNowOrLaterPopUp", {
+            var ret = await this.showPopup("DeliveryNowOrLaterPopup", {
                 warehouses: [],
             });
             if (ret.confirmed) {

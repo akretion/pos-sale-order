@@ -2,14 +2,14 @@
  * @author Raphaël Reverdy <raphael.reverdy@akretion.com>
  * License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). */
 
-odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopUp", function (require) {
+odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopup", function (require) {
     "use strict";
     /* global owl */
-    var AbstractAwaitablePopup = require("point_of_sale.AbstractAwaitablePopup");
-    var {useState} = owl.hooks;
-    var Registries = require("point_of_sale.Registries");
+    const AbstractAwaitablePopup = require("point_of_sale.AbstractAwaitablePopup");
+    const {useState} = owl.hooks;
+    const Registries = require("point_of_sale.Registries");
 
-    class DeliveryNowOrLaterPopUp extends AbstractAwaitablePopup {
+    class DeliveryNowOrLaterPopup extends AbstractAwaitablePopup {
         constructor(parent, props) {
             super(parent, props);
             this.state = useState({
@@ -66,5 +66,8 @@ odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopUp", function (require
             });
         }
     }
-    Registries.Component.add(DeliveryNowOrLaterPopUp);
+    DeliveryNowOrLaterPopup.template = "DeliveryNowOrLaterPopup";
+    Registries.Component.add(DeliveryNowOrLaterPopup);
+
+    return DeliveryNowOrLaterPopup;
 });
