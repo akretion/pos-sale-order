@@ -6,6 +6,7 @@ from collections import defaultdict
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import float_is_zero
 
 from odoo.addons.point_of_sale.models.pos_session import PosSession
 
@@ -116,9 +117,13 @@ class PosSession(models.Model):
                     }
                 )
             for _key, payments in payment_per_key.items():
-                to_reconcile.append(
-                    self._create_bank_statement_line(statement, payments)
-                )
+                if not float_is_zero(
+                    sum(payments.mapped("amount")),
+                    precision_rounding=statement.currency_id.rounding,
+                ):
+                    to_reconcile.append(
+                        self._create_bank_statement_line(statement, payments)
+                    )
         self.statement_ids.button_post()
         self.statement_ids.button_validate()
 
@@ -129,9 +134,10 @@ class PosSession(models.Model):
 
         # Ensure that nothing is already reconciled
         for lines in to_reconcile:
-            reconciled = lines.filtered("reconciled")
-            if reconciled:
-                if reconciled.move_id.move_type == "out_invoice":
+            for reconciled in lines.filtered("reconciled"):
+                if reconciled.debit == 0 and reconciled.credit == 0:
+                    continue
+                elif reconciled.move_id.move_type == "out_invoice":
                     message = _("The invoice %s is already paid, please remove it")
                 else:
                     message = _("The move %s is already reconciled")
@@ -156,7 +162,7 @@ class PosSession(models.Model):
                 orders = orders.with_context(
                     default_journal_id=self.config_id.journal_id.id
                 )
-            orders._create_invoices()
+            orders._create_invoices(final=True)
             orders.invoice_ids.action_post()
         self._create_bank_statement_line_and_reconcile()
         return True

@@ -112,7 +112,9 @@ class SaleOrder(models.Model):
                     record.mapped("payment_ids.amount")
                 )
                 record.pos_amount_to_pay = residual
-                if residual == 0:
+                if float_is_zero(
+                    residual, precision_rounding=record.currency_id.rounding
+                ):
                     record.pos_payment_state = "done"
                 else:
                     record.pos_payment_state = "pending"

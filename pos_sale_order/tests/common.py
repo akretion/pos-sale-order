@@ -27,15 +27,17 @@ class CommonCase(TestPoSCommon):
         to_invoice=False,
         amount_return=0,
         payments=None,
+        lines=None,
     ):
         if payments and amount_return:
             raise NotImplementedError
 
         if amount_return:
             payments = [(cls.cash_pm, 65 + amount_return)]
-
+        if lines is None:
+            lines = cls.lines
         data = cls.create_ui_order_data(
-            cls, cls.lines, customer=partner, is_invoiced=to_invoice, payments=payments
+            cls, lines, customer=partner, is_invoiced=to_invoice, payments=payments
         )
         if pos_session:
             data["data"]["pos_session_id"] = pos_session.id
