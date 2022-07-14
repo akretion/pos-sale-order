@@ -76,7 +76,7 @@ class PosSession(models.Model):
         vals["statement_id"] = statement.id
         bk_line = self.env["account.bank.statement.line"].create(vals)
         sale_missing_invoice = payments.pos_sale_order_id.filtered(
-            lambda s: not s.invoice_ids
+            lambda s: not s.invoice_ids.filtered(lambda s: s.state == "posted")
         )
         if sale_missing_invoice:
             raise UserError(
@@ -84,7 +84,10 @@ class PosSession(models.Model):
                 % ("\n- ".join(sale_missing_invoice.mapped("name")))
             )
         move_lines = (
-            bk_line.move_id.line_ids + payments.pos_sale_order_id.invoice_ids.line_ids
+            bk_line.move_id.line_ids
+            + payments.pos_sale_order_id.invoice_ids.filtered(
+                lambda s: s.state == "posted"
+            ).line_ids
         )
         return move_lines.filtered(
             lambda s: s.account_id == payments.payment_method_id.receivable_account_id
