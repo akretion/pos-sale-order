@@ -20,7 +20,7 @@ Available addons
 addon | version | maintainers | summary
 --- | --- | --- | ---
 [pos_partial_payment](pos_partial_payment/) | 14.0.1.0.0 |  | POS Partial Payment
-[pos_sale_order](pos_sale_order/) | 14.0.1.0.0 |  | POS Only Sale Order
+[pos_sale_order](pos_sale_order/) | 14.0.1.0.1 |  | POS Only Sale Order
 [pos_sale_order_debug](pos_sale_order_debug/) | 14.0.1.0.0 |  | In case a sync error a item is stored on backend to replay it easily
 [pos_sale_order_delivery](pos_sale_order_delivery/) | 14.0.1.0.0 |  | POS Sale Order Delivery
 [pos_sale_order_load](pos_sale_order_load/) | 14.0.1.0.0 |  | POS Sale Order Load
