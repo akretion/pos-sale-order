@@ -6,6 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-02-14 15:31+0000\n"
+"PO-Revision-Date: 2022-02-14 15:31+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,6 +18,13 @@ msgstr ""
 #. module: pos_sale_order_load
 #: model_terms:ir.ui.view,arch_db:pos_sale_order_load.view_order_tree
 msgid "Choose"
+msgstr ""
+
+#. module: pos_sale_order_load
+#. openerp-web
+#: code:addons/pos_sale_order_load/static/src/js/SaleOrderLoadButton.js:0
+#, python-format
+msgid "Confirm Sale Order Load"
 msgstr ""
 
 #. module: pos_sale_order_load
@@ -35,7 +44,7 @@ msgstr ""
 
 #. module: pos_sale_order_load
 #. openerp-web
-#: code:addons/pos_sale_order_load/static/src/xml/SaleOrderLoadWidget.xml:0
+#: code:addons/pos_sale_order_load/static/src/xml/SaleOrderLoadButton.xml:0
 #, python-format
 msgid "Load Order"
 msgstr ""
@@ -58,6 +67,10 @@ msgid "Sales Order"
 msgstr ""
 
 #. module: pos_sale_order_load
-#: model:ir.actions.act_window,name:pos_sale_order_load.action_select_sale_order_pos
-msgid "Ventes Webspec"
+#. openerp-web
+#: code:addons/pos_sale_order_load/static/src/js/SaleOrderLoadButton.js:0
+#, python-format
+msgid ""
+"Warning, you are going to load and edit an existing order.\n"
+"Once saved, the content of the initial order will be lost."
 msgstr ""

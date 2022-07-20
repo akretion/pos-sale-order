@@ -19,7 +19,7 @@
         "views/sale_order.xml",
     ],
     "qweb": [
-        "static/src/xml/SaleOrderLoadWidget.xml",
+        "static/src/xml/SaleOrderLoadButton.xml",
     ],
     "demo": [],
     "installable": True,
