@@ -12,7 +12,7 @@ from .common import CommonCase
 
 
 @tagged("-at_install", "post_install")
-class TestClosingSession(CommonCase):
+class GeneralCase(CommonCase):
     @classmethod
     def _create_session_sale(cls, pos_session=None):
         datas = [
@@ -56,8 +56,8 @@ class TestClosingSession(CommonCase):
         move = self.env["account.move"].search(
             [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
         )
-        # we expect 3 payment (one per partner)
-        self.assertEqual(len(move), 3)
+        # we expect 4 payment (one per invoice)
+        self.assertEqual(len(move), 4)
         self.assertEqual(sum(move.mapped("amount_total")), 390)
 
     def test_close_session(self):
@@ -76,8 +76,8 @@ class TestClosingSession(CommonCase):
         move = self.env["account.move"].search(
             [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
         )
-        # we expect 3 payment (one per partner)
-        self.assertEqual(len(move), 3)
+        # we expect 4 payment (one per invoice)
+        self.assertEqual(len(move), 4)
         self.assertEqual(sum(move.mapped("amount_total")), 390)
 
     def test_payment_sum_zero(self):
@@ -243,6 +243,12 @@ class TestClosingSession(CommonCase):
         self._close_session()
         self.assertEqual(sale.invoice_ids.state, "posted")
         self.assertEqual(sale.invoice_ids.payment_state, "paid")
+        # Check that we have splitted the cash payment
+        # We except to have 5 payments line
+        # 2 for partner_anonymous (as one payment have been done on a "old sale")
+        # 2 for partner 2 (as one invoice have been generated immediately)
+        # 1 for partner 3
+        self.assertEqual(len(self.pos_session.statement_ids.line_ids), 5)
 
         # Odoo can create rescue session if we do something wrong
         # Ensure that is not the case
@@ -317,3 +323,32 @@ class TestClosingSession(CommonCase):
         self._check_closing_session()
 
         Job.load(self.env, jobs[0].uuid).perform()
+
+
+@tagged("-at_install", "post_install")
+class SpecialCase(CommonCase):
+    def test_with_refund_sale_and_split_payment(self):
+        self.cash_pm.split_transactions = True
+        refund_lines = [
+            (self.product0, -3.0),
+            (self.product1, -1.0),
+            (self.product2, -2.0),
+        ]
+        datas = [
+            self._get_pos_data(lines=refund_lines),
+            self._get_pos_data(),
+            self._get_pos_data(),
+        ]
+        self._create_sale(datas)
+        self._close_session()
+        move = self.env["account.move"].search(
+            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+        )
+        # we expect 3 payments and all must be reconciled, and reconciled together
+        lines = move.line_ids.filtered(
+            lambda s: s.account_id == self.cash_pm.receivable_account_id
+        )
+        self.assertEqual(len(lines), 3)
+        for line in lines:
+            self.assertTrue(line.reconcile)
+        self.assertEqual(len(lines.full_reconcile_id), 1)

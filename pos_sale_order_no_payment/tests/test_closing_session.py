@@ -68,6 +68,6 @@ class TestClosingSession(CommonCase):
         move = self.env["account.move"].search(
             [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
         )
-        # we expect 3 payment (one per partner)
-        self.assertEqual(len(move), 3)
+        # we expect 4 payment (one per invoice)
+        self.assertEqual(len(move), 4)
         self.assertEqual(sum(move.mapped("amount_total")), 325)
