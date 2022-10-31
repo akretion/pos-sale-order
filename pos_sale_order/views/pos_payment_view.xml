@@ -23,6 +23,7 @@
         </field>
         <field name="pos_order_id" position="after">
             <field name="pos_sale_order_id" />
+            <field name="partner_id" />
         </field>
     </field>
 </record>
