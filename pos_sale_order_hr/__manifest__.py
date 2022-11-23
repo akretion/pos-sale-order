@@ -13,7 +13,7 @@
         "pos_sale_order",
         "pos_hr",
     ],
-    "data": [],
+    "data": ["views/sale_order_views.xml"],
     "demo": [],
     "qweb": [],
 }
