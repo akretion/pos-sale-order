@@ -1,0 +1,1 @@
+Glue module between pos_sale_order and pos_gift_card
