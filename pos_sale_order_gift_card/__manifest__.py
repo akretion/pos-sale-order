@@ -7,7 +7,7 @@
     "summary": "Gift cards in pos with pos-sale-order",
     "version": "14.0.1.0.0",
     "category": "Point of Sale",
-    "website": "https://github.com/OCA/pos",
+    "website": "https://github.com/akretion/pos-sale-order",
     "author": "Akretion, Odoo Community Association (OCA)",
     "license": "AGPL-3",
     "application": False,
@@ -15,5 +15,5 @@
     "depends": [
         "pos_gift_card",
         "pos_sale_order",
-    ],   
+    ],
 }
