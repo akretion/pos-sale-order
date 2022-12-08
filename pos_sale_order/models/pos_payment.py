@@ -18,7 +18,9 @@ class PosPayment(models.Model):
     payment_method_id = fields.Many2one(readonly=True)
     pos_order_id = fields.Many2one(required=False)
     session_id = fields.Many2one(related=False, readonly=True)
-    partner_id = fields.Many2one(related="pos_sale_order_id.partner_id")
+    partner_id = fields.Many2one(
+        related="pos_sale_order_id.partner_invoice_id.commercial_partner_id"
+    )
     company_id = fields.Many2one(related="pos_sale_order_id.company_id")
     currency_id = fields.Many2one(related="pos_sale_order_id.currency_id")
     currency_rate = fields.Float(related="pos_sale_order_id.currency_rate")
