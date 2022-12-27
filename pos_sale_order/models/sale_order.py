@@ -206,6 +206,8 @@ class SaleOrder(models.Model):
     def _prepare_invoice(self):
         res = super()._prepare_invoice()
         res["session_id"] = self.session_id.id
+        if self.config_id and self.config_id.rounding_method:
+            res["invoice_cash_rounding_id"] = self.config_id.rounding_method.id
         return res
 
     def _build_pos_error_message(self, failed, result):
