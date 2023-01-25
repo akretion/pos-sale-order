@@ -16,4 +16,10 @@
         "pos_gift_card",
         "pos_sale_order",
     ],
+    "qweb": [
+        "static/src/xml/OrderReceipt.xml",
+    ],
+    "data": [
+        "templates/assets.xml",
+    ],
 }

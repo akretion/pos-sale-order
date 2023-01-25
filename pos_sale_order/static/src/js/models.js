@@ -11,6 +11,9 @@ odoo.define("pos_sale_order.models", function (require) {
     });
 
     models.PosModel = models.PosModel.extend({
+        _after_orders_received: function(res) {
+            //pass
+        },
         // Redefine the method save_to_server
         _save_to_server: function (orders, options) {
             if (!orders || !orders.length) {
@@ -49,6 +52,8 @@ odoo.define("pos_sale_order.models", function (require) {
                     res.uuids.forEach(function (order_id) {
                         self.db.remove_order(order_id);
                     });
+
+                    self._after_orders_received(res)
                     if (self.proxy.printer !== undefined) {
                         if (typeof self.proxy.printer.print_receipts === "function") {
                             await self.proxy.printer.print_receipts(res.receipts);

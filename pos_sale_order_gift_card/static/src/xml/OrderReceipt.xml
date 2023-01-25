@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[@class='before-footer']" position="before">
+            <t t-if="giftcards != undefined">
+                <t t-foreach="giftcards" t-as="card" t-key="card.code">
+                    <div>
+                        GIFT CARD:
+                        <t t-esc="card.code" />
+                        <span t-esc="env.pos.format_currency_no_symbol(card.available_amount)" class="pos-receipt-right-align"/>
+                    </div>
+                    <br/>
+                </t>
+            </t>
+        </xpath>
+    </t>
+
+</templates>
