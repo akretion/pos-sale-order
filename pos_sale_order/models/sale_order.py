@@ -27,6 +27,8 @@ SaleOrderPatched.add_payment = PosOrder.add_payment
 SaleOrderPatched._payment_fields = PosOrder._payment_fields
 SaleOrderPatched._get_valid_session = PosOrder._get_valid_session
 SaleOrderPatched._process_payment_lines = PosOrder._process_payment_lines
+SaleOrderPatched.action_receipt_to_customer = PosOrder.action_receipt_to_customer
+SaleOrderPatched._prepare_mail_values = PosOrder._prepare_mail_values
 
 
 class SaleOrder(models.Model):
