@@ -26,9 +26,6 @@ odoo.define("pos_sale_order_gift_card.models", function (require) {
             var self = this;
             res.orders.forEach(function (order) {
                 if ("Order " + self.get_order().uid === order.pos_reference) {
-                    // TODO: do not do it here
-                    self.get_order().name = order.name;
-                    // end TODO
                     self.get_order().bought_gift_cards = order.bought_gift_cards;
                 }
             });

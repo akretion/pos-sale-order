@@ -38,7 +38,7 @@
         "data/pos_config_data.xml",
         "templates/assets.xml",
     ],
-    "qweb": ["static/src/xml/SaleOrderButton.xml"],
+    "qweb": ["static/src/xml/SaleOrderButton.xml", "static/src/xml/OrderReceipt.xml"],
     "demo": [],
     "installable": True,
     "post_init_hook": "post_init_hook",

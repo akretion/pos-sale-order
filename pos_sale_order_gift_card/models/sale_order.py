@@ -24,7 +24,6 @@ class SaleOrder(models.Model):
         for order in res["orders"]:
             gift_cards = self.env["gift.card"].browse()
             for line in self.env["sale.order"].browse(order["id"]).order_line:
-                order["name"] = line.order_id.name
                 if line.gift_card_ids:
                     gift_cards |= line.gift_card_ids
             order["bought_gift_cards"] = [self._pos_return_gift_cards(g) for g in gift_cards]
