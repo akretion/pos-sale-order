@@ -76,6 +76,7 @@
         <record model="ir.ui.view" id="view_pos_config_search">
             <field name="model">pos.config</field>
             <field name="inherit_id" ref="point_of_sale.view_pos_config_search" />
+            <field name="priority">100</field>
             <field name="arch" type="xml">
                 <field name="picking_type_id" position="replace">
                     <field name="warehouse_id" />
