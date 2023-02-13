@@ -73,12 +73,16 @@ class GeneralCase(CommonCase):
         # use _write as write is forbidden with open session
         self.cash_pm._write({"is_cash_count": False})
         self._close_session()
-        move = self.env["account.move"].search(
+        moves = self.env["account.move"].search(
             [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
         )
         # we expect 4 payment (one per invoice)
-        self.assertEqual(len(move), 4)
-        self.assertEqual(sum(move.mapped("amount_total")), 390)
+        self.assertEqual(len(moves), 4)
+        # The invoice name is set in payment move ref
+        self.assertEqual(
+            set(moves.mapped("ref")), set(self.sales.invoice_ids.mapped("name"))
+        )
+        self.assertEqual(sum(moves.mapped("amount_total")), 390)
 
     def test_payment_sum_zero(self):
         self.sales.action_cancel()
@@ -104,12 +108,19 @@ class GeneralCase(CommonCase):
         # use _write as write is forbidden with open session
         self.cash_pm._write({"split_transactions": True})
         self._close_session()
-        move = self.env["account.move"].search(
+        moves = self.env["account.move"].search(
             [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
         )
         # we expect 6 payment (one per sale)
-        self.assertEqual(len(move), 6)
-        self.assertEqual(sum(move.mapped("amount_total")), 390)
+        self.assertEqual(len(moves), 6)
+        for move in moves:
+            self.assertTrue(move.ref)
+            # The move should look like "{sale_order_name} - {invoice_name}"
+            sale_name, invoice_name = move.ref.split(" - ")
+            self.assertIn(sale_name, self.sales.mapped("name"))
+            self.assertIn(invoice_name, self.sales.invoice_ids.mapped("name"))
+
+        self.assertEqual(sum(moves.mapped("amount_total")), 390)
 
     def test_change_partner_and_close(self):
         # We expect 5 invoices
