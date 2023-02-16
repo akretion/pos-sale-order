@@ -67,5 +67,10 @@ class SaleOrder(models.Model):
     def action_deliver_all(self):
         for picking in self.picking_ids:
             for line in picking.move_lines:
-                line.quantity_done = line.product_uom_qty
+                if len(line.move_line_ids) > 1:
+                    # Handle multiple move lines
+                    for move_line in line.move_line_ids:
+                        move_line.qty_done = move_line.product_uom_qty
+                else:
+                    line.quantity_done = line.product_uom_qty
             picking.button_validate()
