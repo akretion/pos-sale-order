@@ -69,7 +69,12 @@ class SaleOrder(models.Model):
             if self.session_id.config_id.force_delivery:
                 # Set qty done everywhere
                 for line in picking.move_lines:
-                    line.quantity_done = line.product_uom_qty
+                    if len(line.move_line_ids) > 1:
+                        # Handle multiple move lines
+                        for move_line in line.move_line_ids:
+                            move_line.qty_done = move_line.product_uom_qty
+                    else:
+                        line.quantity_done = line.product_uom_qty
             else:
                 # Set qty = done where possible
                 wizard_transfer = self.env["stock.immediate.transfer"].create(
