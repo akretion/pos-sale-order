@@ -206,7 +206,10 @@ class SaleOrder(models.Model):
     def _prepare_invoice(self):
         res = super()._prepare_invoice()
         res["session_id"] = self.session_id.id
-        if self.config_id and self.config_id.rounding_method:
+        if self.config_id.cash_rounding and (
+            not self.config_id.only_round_cash_method
+            or any(p.payment_method_id.is_cash_count for p in self.payment_ids)
+        ):
             res["invoice_cash_rounding_id"] = self.config_id.rounding_method.id
         return res
 
