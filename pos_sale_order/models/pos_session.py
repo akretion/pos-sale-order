@@ -60,21 +60,30 @@ class PosSession(models.Model):
             "domain": [("session_id", "in", self.ids)],
         }
 
-    def _prepare_sale_statement(self, payments):
+    def _prepare_sale_statement(self, payments, record_ref):
+        # Payment can be group by sale order or per invoice
+        # in case that their are grouped by sale order the payment ref
+        # should be the sale order ref + the invoice ref
+        # In case that their are grouped by invoice the payment ref
+        # should be the invoice ref
+        ref = None
+        if record_ref._name == "sale.order":
+            ref = " - ".join([record_ref.name] + record_ref.invoice_ids.mapped("name"))
+        elif record_ref._name == "account.move":
+            ref = record_ref.name
         method = payments.payment_method_id
         return {
             "date": fields.Date.context_today(self),
             "amount": sum(payments.mapped("amount")),
             "payment_ref": self.name,
+            "ref": ref,
             "journal_id": method.cash_journal_id.id,
             "counterpart_account_id": method.receivable_account_id.id,
             "partner_id": payments.partner_id.id,
         }
 
-    def _create_bank_statement_line(self, statement, payments):
-        vals = self._prepare_sale_statement(payments)
-        vals["statement_id"] = statement.id
-        bk_line = self.env["account.bank.statement.line"].create(vals)
+    def _get_receivable_line(self, payments):
+        # Ensure that everything is invoiced
         sale_missing_invoice = payments.pos_sale_order_id.filtered(
             lambda s: not s.invoice_ids.filtered(lambda s: s.state == "posted")
         )
@@ -83,29 +92,43 @@ class PosSession(models.Model):
                 _("Following sales are not invoiced, please invoice it: \n- %s")
                 % ("\n- ".join(sale_missing_invoice.mapped("name")))
             )
-        move_lines = (
-            bk_line.move_id.line_ids
-            + payments.pos_sale_order_id.invoice_ids.filtered(
-                lambda s: s.state == "posted"
-            ).line_ids
+        return payments.pos_sale_order_id.invoice_ids.filtered(
+            # skip canceled invoice
+            lambda s: s.state
+            == "posted"
+        ).line_ids.filtered(
+            # get receivable line
+            lambda s: s.account_id
+            == payments.payment_method_id.receivable_account_id
         )
-        return move_lines.filtered(
+
+    def _create_bank_statement_line(self, statement, payments, record_ref):
+        vals = self._prepare_sale_statement(payments, record_ref)
+        vals["statement_id"] = statement.id
+        bk_line = self.env["account.bank.statement.line"].create(vals)
+        return bk_line.line_ids.filtered(
             lambda s: s.account_id == payments.payment_method_id.receivable_account_id
         )
 
     def _create_bank_statement_line_and_reconcile(self):
-        to_reconcile = []
         self.ensure_one()
         payments = self.env["pos.payment"].search([("session_id", "=", self.id)])
         grouped_payments = defaultdict(
             lambda: defaultdict(lambda: self.env["pos.payment"])
         )
+        # Depending of the configuration we split the payment per sale order
+        # or by invoice
+        # Grouping by invoice make it easier to reconcile and to understand what
+        # have been reconciled with
         for payment in payments:
             if payment.payment_method_id.split_transactions:
                 key = payment.pos_sale_order_id
             else:
-                key = payment.partner_id
+                key = payment.pos_sale_order_id.invoice_ids
             grouped_payments[payment.payment_method_id][key] |= payment
+
+        inv2payment = defaultdict(lambda: self.env["account.move.line"])
+
         for method, payment_per_key in grouped_payments.items():
             statement = self.statement_ids.filtered(
                 lambda s: s.journal_id == method.cash_journal_id
@@ -119,24 +142,23 @@ class PosSession(models.Model):
                         "name": self.name,
                     }
                 )
-            for _key, payments in payment_per_key.items():
+            for record_ref, payments in payment_per_key.items():
                 if not float_is_zero(
                     sum(payments.mapped("amount")),
                     precision_rounding=statement.currency_id.rounding,
                 ):
-                    to_reconcile.append(
-                        self._create_bank_statement_line(statement, payments)
+                    inv_receivable_line = self._get_receivable_line(payments)
+                    payment_receivable_line = self._create_bank_statement_line(
+                        statement, payments, record_ref
                     )
+                    inv2payment[inv_receivable_line] |= payment_receivable_line
+
         self.statement_ids.button_post()
         self.statement_ids.button_validate()
 
-        # Becareful, if we have done cash return we try to reconcile first the
-        # negatif amount in order to avoid the case where the total amount is
-        # reconciled before reconciling all entries
-        to_reconcile.sort(key=lambda s: s[0].debit, reverse=True)
-
-        # Ensure that nothing is already reconciled
-        for lines in to_reconcile:
+        # Ensure that nothing is already reconciled, and do it
+        for inv_line, pay_line in inv2payment.items():
+            lines = inv_line | pay_line
             for reconciled in lines.filtered("reconciled"):
                 if reconciled.debit == 0 and reconciled.credit == 0:
                     continue
@@ -145,8 +167,6 @@ class PosSession(models.Model):
                 else:
                     message = _("The move %s is already reconciled")
                 raise UserError(message % ", ".join(reconciled.mapped("name")))
-
-        for lines in to_reconcile:
             lines.reconcile()
 
     def _create_account_move(self):
