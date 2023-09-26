@@ -208,7 +208,7 @@ class SaleOrder(models.Model):
         res["session_id"] = self.session_id.id
         if self.config_id.cash_rounding and (
             not self.config_id.only_round_cash_method
-            or all(p.payment_method_id.is_cash_count for p in self.payment_ids)
+            or self.payment_ids[-1:].payment_method_id.is_cash_count
         ):
             # there is a bug in odoo <=16, cash_rounding_id is set on the invoice
             # when you have payment_methods = cash, bank
@@ -216,8 +216,9 @@ class SaleOrder(models.Model):
             # the rounding is applied twice.
             # all() catches the case where there is one cash payment only
             # cash only : rounding
-            # cash + bank : no rounding
-            # bank + cash : not implemented here
+            # cash then bank : no rounding
+            # bank then cash : rounding
+            # no payment: no rounding (is_cash_count is False by default)
             res["invoice_cash_rounding_id"] = self.config_id.rounding_method.id
         return res
 
