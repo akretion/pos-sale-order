@@ -260,8 +260,8 @@ class SaleOrder(models.Model):
             "sequence": 9999,
             "name": rounding_method.name,
             "account_id": account_id,
-            "price_unit": -diff_amount_currency,
-            "quantity": 1.0,
+            "price_unit": diff_amount_currency,
+            "quantity": -1.0,
         }
 
     def _build_pos_error_message(self, failed, result):
