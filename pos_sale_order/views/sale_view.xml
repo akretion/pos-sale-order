@@ -20,7 +20,7 @@
                     name="payment_ids"
                     readonly="True"
                     nolabel="1"
-                    attrs="{'invisible': [('payment_ids', '=', False)]}"
+                    attrs="{'invisible': [('payment_ids', '=', [])]}"
                 >
                     <tree>
                         <field name="payment_method_id" />
