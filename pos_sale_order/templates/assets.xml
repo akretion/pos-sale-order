@@ -19,6 +19,10 @@
                 type="text/javascript"
                 src="/pos_sale_order/static/src/js/SaleOrderButton.js"
             />
+            <script
+                type="text/javascript"
+                src="/pos_sale_order/static/src/js/ReceiptScreen.js"
+            />
         </xpath>
     </template>
 
