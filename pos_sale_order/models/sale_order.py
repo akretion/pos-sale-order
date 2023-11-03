@@ -198,7 +198,7 @@ class SaleOrder(models.Model):
             if order.partner_id == order.session_id.config_id.anonymous_partner_id:
                 raise UserError(_("Partner is required if you want an invoice"))
             order.action_confirm()
-            order._create_invoices()
+            order._create_invoices(final=True)
             order.invoice_ids.action_post()
         return True
 
