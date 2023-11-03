@@ -70,7 +70,7 @@ class PosSession(models.Model):
         if record_ref._name == "sale.order":
             ref = " - ".join([record_ref.name] + record_ref.invoice_ids.mapped("name"))
         elif record_ref._name == "account.move":
-            ref = record_ref.name
+            ref = " - ".join(record_ref.mapped("name"))
         method = payments.payment_method_id
         return {
             "date": fields.Date.context_today(self),
