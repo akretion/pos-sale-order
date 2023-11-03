@@ -256,7 +256,7 @@ class SaleOrder(models.Model):
                 with self.env.cr.savepoint():
                     sale = self.import_one_pos_order(order, draft=draft)
                     result["orders"].append(
-                        {"id": sale.id, "pos_reference": sale.pos_reference}
+                            {"id": sale.id, "pos_reference": sale.pos_reference, "name": sale.name}
                     )
                     result["receipts"] += sale._get_receipts()
                     result["uuids"].append(order["id"])

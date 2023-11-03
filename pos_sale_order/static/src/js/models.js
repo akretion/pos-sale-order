@@ -3,7 +3,17 @@ odoo.define("pos_sale_order.models", function (require) {
 
     var models = require("point_of_sale.models");
 
+    var order_super = models.Order.prototype;
     models.Order = models.Order.extend({
+        initialize: function(attributes,options){
+            order_super.initialize.apply(this, arguments);
+            this.sale_order_name = undefined;
+        },
+        export_for_printing: function() {
+            var receipt = order_super.export_for_printing.apply(this, arguments);
+            receipt["sale_order_name"] = this.sale_order_name;
+            return receipt;
+        },
         generate_unique_id: function () {
             // eslint-disable-next-line no-undef
             return uuidv4();
@@ -11,6 +21,15 @@ odoo.define("pos_sale_order.models", function (require) {
     });
 
     models.PosModel = models.PosModel.extend({
+        _after_orders_received: function(res) {
+            var self = this;
+            res.orders.forEach(function (order) {
+                if ("Order " + self.get_order().uid === order.pos_reference) {
+                    // set SO name on order to show it on the receipt
+                    self.get_order().sale_order_name = order.name;
+                }
+            });
+        },
         // Redefine the method save_to_server
         _save_to_server: function (orders, options) {
             if (!orders || !orders.length) {
@@ -49,6 +68,8 @@ odoo.define("pos_sale_order.models", function (require) {
                     res.uuids.forEach(function (order_id) {
                         self.db.remove_order(order_id);
                     });
+
+                    self._after_orders_received(res)
                     if (self.proxy.printer !== undefined) {
                         if (typeof self.proxy.printer.print_receipts === "function") {
                             await self.proxy.printer.print_receipts(res.receipts);
