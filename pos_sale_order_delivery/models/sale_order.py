@@ -66,6 +66,29 @@ class SaleOrder(models.Model):
 
     def action_deliver_all(self):
         for picking in self.picking_ids:
-            for line in picking.move_lines:
-                line.quantity_done = line.product_uom_qty
-            picking.button_validate()
+            if self.session_id.config_id.force_delivery:
+                # Set qty done everywhere
+                for line in picking.move_lines:
+                    line.quantity_done = line.product_uom_qty
+            else:
+                # Set qty = done where possible
+                wizard_transfer = self.env["stock.immediate.transfer"].create(
+                    {
+                        "immediate_transfer_line_ids": [
+                            (0, 0, {"picking_id": picking.id, "to_immediate": True})
+                        ]
+                    }
+                )
+                wizard_transfer.process()
+                # Create backorder if necessary
+                wizard_backorder = self.env["stock.backorder.confirmation"].create(
+                    {
+                        "backorder_confirmation_line_ids": [
+                            (0, 0, {"picking_id": picking.id, "to_backorder": True})
+                        ]
+                    }
+                )
+                wizard_backorder.process()
+            picking.with_context(
+                skip_immediate=True, skip_backorder=True
+            ).button_validate()
