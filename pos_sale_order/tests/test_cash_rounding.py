@@ -316,3 +316,40 @@ class TestCashRounding(CommonCase):
         self.assertEqual(invoice.amount_total, 40.02)
         self.assertEqual(len(invoice.invoice_line_ids), 6)
         self.assertEqual(invoice.partner_id, self.partner)
+
+    def test_cash_rounding_in_grouped_invoices_two_products(self):
+        self.rounding_product_1 = self.create_product(
+            "Rounding Product 1", self.categ_basic, 13.97
+        )
+        self.rounding_product_2 = self.create_product(
+            "Rounding Product 2", self.categ_basic, 138.87
+        )
+
+        data = self._get_pos_data(
+            partner=self.partner,
+            payments=[
+                (self.cash_pm, 13.95),
+            ],
+            lines=[(self.rounding_product_1, 1)],
+        )
+        sale1 = self._create_sale([data])
+        data = self._get_pos_data(
+            partner=self.partner,
+            payments=[
+                (self.bank_pm, 100),
+                (self.cash_pm, 38.85),
+            ],
+            lines=[(self.rounding_product_2, 1)],
+        )
+        sale2 = self._create_sale([data])
+
+        self.env["sale.order"].browse([sale1.id, sale2.id])._create_invoices()
+
+        self.assertEqual(len(sale1.invoice_ids), 1)
+        invoice = sale1.invoice_ids
+        self.assertEqual(
+            invoice.amount_total,
+            152.80,
+        )
+        self.assertEqual(len(invoice.invoice_line_ids), 4)
+        self.assertEqual(invoice.partner_id, self.partner)

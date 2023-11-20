@@ -208,7 +208,7 @@ class SaleOrder(models.Model):
         res["session_id"] = self.session_id.id
         if self.config_id.cash_rounding and (
             not self.config_id.only_round_cash_method
-            or self.payment_ids[-1:].payment_method_id.is_cash_count
+            or self.payment_ids.sorted('id')[-1:].payment_method_id.is_cash_count
         ):
             # there is a bug in odoo <=16, cash_rounding_id is set on the invoice
             # when you have payment_methods = cash, bank
