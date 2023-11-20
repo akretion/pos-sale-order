@@ -208,7 +208,7 @@ class SaleOrder(models.Model):
         res["session_id"] = self.session_id.id
         if self.config_id.cash_rounding and (
             not self.config_id.only_round_cash_method
-            or self.payment_ids[-1:].payment_method_id.is_cash_count
+            or self.payment_ids.sorted('id')[-1:].payment_method_id.is_cash_count
         ):
             # there is a bug in odoo <=16, cash_rounding_id is set on the invoice
             # when you have payment_methods = cash, bank
@@ -219,8 +219,50 @@ class SaleOrder(models.Model):
             # cash then bank : no rounding
             # bank then cash : rounding
             # no payment: no rounding (is_cash_count is False by default)
-            res["invoice_cash_rounding_id"] = self.config_id.rounding_method.id
+
+            # If the strategy is add_invoice_line, we directly add a line to
+            # the invoice to avoid rounding issues on grouped invoices
+            # The invoice line will not be is_rounding_line though
+            if self.config_id.rounding_method.strategy == "add_invoice_line":
+                res["invoice_cash_rounding_id"] = False
+                res["invoice_line_ids"] += [
+                    (
+                        0,
+                        0,
+                        self._prepare_invoice_line_cash_rounding(),
+                    )
+                ]
+            else:
+                res["invoice_cash_rounding_id"] = self.config_id.rounding_method.id
         return res
+
+    def _prepare_invoice_line_cash_rounding(self):
+        rounding_method = self.config_id.rounding_method
+
+        difference = rounding_method.compute_difference(
+            self.currency_id, self.amount_paid - self.amount_total
+        )
+        if self.currency_id == self.company_id.currency_id:
+            diff_amount_currency = diff_balance = difference
+        else:
+            diff_amount_currency = difference
+            diff_balance = self.currency_id._convert(
+                diff_amount_currency,
+                self.company_id.currency_id,
+                self.company_id,
+                self.date,
+            )
+        if diff_balance > 0.0 and rounding_method.loss_account_id:
+            account_id = rounding_method.loss_account_id.id
+        else:
+            account_id = rounding_method.profit_account_id.id
+        return {
+            "sequence": 9999,
+            "name": rounding_method.name,
+            "account_id": account_id,
+            "price_unit": diff_amount_currency,
+            "quantity": -1.0,
+        }
 
     def _build_pos_error_message(self, failed, result):
         return _("Fail to sync the following order\n - {}").format(
