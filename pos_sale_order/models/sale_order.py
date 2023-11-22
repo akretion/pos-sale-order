@@ -25,7 +25,6 @@ SaleOrderPatched.create_from_ui = PosOrder.create_from_ui
 SaleOrderPatched._process_order = PosOrder._process_order
 SaleOrderPatched.add_payment = PosOrder.add_payment
 SaleOrderPatched._payment_fields = PosOrder._payment_fields
-SaleOrderPatched._get_valid_session = PosOrder._get_valid_session
 SaleOrderPatched._process_payment_lines = PosOrder._process_payment_lines
 
 
@@ -312,3 +311,6 @@ class SaleOrder(models.Model):
         # skip useless 0 payment that will bloc closing the session
         if data.get("amount"):
             return super().add_payment(data)
+
+    def _get_valid_session(self, order):
+        return self.env["pos.order"]._get_valid_session(order)
