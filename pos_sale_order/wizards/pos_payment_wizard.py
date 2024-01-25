@@ -52,6 +52,10 @@ class PosPaymentWizard(models.TransientModel):
     def _prepare_payment(self):
         session = self._get_session()
         sale = self.sale_order_id
+        # We need to attach the sale order to the session to be able to
+        # close the session if the sale order is not invoiced
+        if not sale.is_invoiced:
+            sale.write({"session_id": session.id})
         return {
             "amount": self.amount,
             "name": _("Manual payment {}").format(sale.name),
