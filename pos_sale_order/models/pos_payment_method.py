@@ -14,3 +14,10 @@ class PosPaymentMethod(models.Model):
     split_transactions = fields.Boolean(
         help="If ticked, each payment will generate a separated journal item."
     )
+
+    def _is_write_forbidden(self, fields):
+        # Avoid deadlock when closing a session on a payment method without
+        # cash journal
+        if fields == {"cash_journal_id"} and not self.cash_journal_id:
+            return False
+        return super()._is_write_forbidden(fields)
