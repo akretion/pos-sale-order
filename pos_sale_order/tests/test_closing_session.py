@@ -5,6 +5,7 @@
 
 from odoo.exceptions import UserError
 from odoo.tests.common import tagged
+from odoo.tools import float_compare, float_is_zero
 
 from odoo.addons.queue_job.job import Job
 
@@ -85,8 +86,13 @@ class GeneralCase(CommonCase):
         self.assertEqual(sum(moves.mapped("amount_total")), 390)
 
     def test_payment_sum_zero(self):
-        self.sales.action_cancel()
-        self.sales[1:].unlink()
+        for sale in self.sales[1:]:
+            sale.with_context(
+                disable_pos_cancel_warning=True,
+                pos_cancel_payment_method_id=self.cash_pm.id,
+            ).action_cancel()
+            sale.unlink()
+
         data = self._get_pos_data(
             lines=[
                 (self.product0, -3.0),
@@ -334,6 +340,238 @@ class GeneralCase(CommonCase):
         self._check_closing_session()
 
         Job.load(self.env, jobs[0].uuid).perform()
+
+    def test_close_session_with_cancelled_orders(self):
+        # We cancel an anonymous order and two partner 3 orders
+        anonymous_so = self.sales[0]
+        partner_3_so = self.sales.filtered(lambda s: s.partner_id == self.partner_3)
+        cancelled_so = anonymous_so | partner_3_so
+        not_cancelled_so = self.sales - cancelled_so
+
+        for so in cancelled_so:
+            rv = so.action_cancel()
+            self.assertEqual(rv["type"], "ir.actions.act_window")
+            self.assertEqual(rv["res_model"], "pos.sale.order.cancel.wizard")
+
+            rv = so.with_context(
+                disable_pos_cancel_warning=True,
+                pos_cancel_payment_method_id=self.cash_pm.id,
+            ).action_cancel()
+            self.assertEqual(rv, True)
+
+        # Each cancelled order should have an invoice and a refund
+        # and the to_invoice order should have an invoice
+        invoices = self.sales.invoice_ids.filtered(
+            lambda invoice: invoice.move_type == "out_invoice"
+        )
+        refunds = self.sales.invoice_ids.filtered(
+            lambda invoice: invoice.move_type == "out_refund"
+        )
+
+        self.assertEqual(len(invoices), 4)
+        self.assertEqual(len(refunds), 3)
+
+        self._close_session()
+
+        # We should now have the 2 more invoice, one for the anonymous SO
+        # and one for the non to_invoice partner 2 SO
+
+        invoices = self.sales.invoice_ids.filtered(
+            lambda invoice: invoice.move_type == "out_invoice"
+        )
+        refunds = self.sales.invoice_ids.filtered(
+            lambda invoice: invoice.move_type == "out_refund"
+        )
+        self.assertEqual(len(invoices), 6)
+        self.assertEqual(len(refunds), 3)
+
+        precision = self.env["decimal.precision"].precision_get(
+            "Product Unit of Measure"
+        )
+
+        self.assertTrue(
+            all(
+                [
+                    float_compare(
+                        sol.qty_invoiced,
+                        sol.product_uom_qty,
+                        precision_digits=precision,
+                    )
+                    >= 0
+                    for sale in not_cancelled_so
+                    for sol in sale.order_line
+                ]
+            ),
+            "All the not cancelled sale order lines should be invoiced",
+        )
+
+        self.assertTrue(
+            all(
+                [
+                    float_is_zero(
+                        sol.qty_invoiced,
+                        precision_digits=precision,
+                    )
+                    for sale in cancelled_so
+                    for sol in sale.order_line
+                ]
+            ),
+            "All the cancelled sale order lines should be invoiced and refunded",
+        )
+
+        self.assertEquals(
+            sum([sale.amount_total for sale in self.sales]),
+            sum([invoice.amount_total for invoice in invoices]),
+            "All sales should be fully invoiced",
+        )
+
+        self.assertEquals(
+            sum([sale.amount_total for sale in cancelled_so]),
+            sum([invoice.amount_total for invoice in refunds]),
+            "All cancelled sales should be fully refunded",
+        )
+
+        self.assertEqual(self.pos_session.invoice_ids, self.sales.invoice_ids)
+        self.assertEqual(len(self.sales.invoice_ids), 6 + 3)
+
+        self.assertEqual(set(invoices.mapped("state")), {"posted"})
+        self.assertEqual(set(refunds.mapped("state")), {"posted"})
+
+        self.assertEqual(set(invoices.mapped("payment_state")), {"paid", "reversed"})
+        # The cancelled orders should have been refunded
+        self.assertEqual(set(refunds.mapped("payment_state")), {"paid"})
+
+        move = self.env["account.move"].search(
+            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+        )
+        # we now have only 3 payments (one per non refunded invoice)
+        self.assertEqual(len(move), 3)
+        self.assertEqual(sum(move.mapped("amount_total")), 195)
+
+    def test_cancel_order_after_session_close(self):
+        # Close session
+        self._close_session()
+        # Cancel first order of partner 3
+        partner_3_so = self.sales.filtered(lambda s: s.partner_id == self.partner_3)[0]
+        # We have one invoice one payment
+        self.assertEqual(len(partner_3_so.invoice_ids), 1)
+        self.assertEqual(len(partner_3_so.payment_ids), 1)
+
+        # Without session, we can't cancel the order
+        with self.assertRaisesRegex(UserError, "There is no session opened"):
+            partner_3_so.action_cancel()
+
+        # Open a new session
+        self.config.open_session_cb(check_coa=False)
+        self.pos_session = self.config.current_session_id
+        self._create_session_sale(pos_session=self.pos_session)
+
+        # Cancel the order
+        rv = partner_3_so.action_cancel()
+        self.assertEqual(rv["type"], "ir.actions.act_window")
+        self.assertEqual(rv["res_model"], "pos.sale.order.cancel.wizard")
+
+        rv = partner_3_so.with_context(
+            disable_pos_cancel_warning=True,
+            pos_cancel_payment_method_id=self.cash_pm.id,
+        ).action_cancel()
+        self.assertEqual(rv, True)
+
+        partner_3_so.action_cancel()
+
+        # We should now have 2 invoices 2 payments for the partner 3 sale order
+        self.assertEqual(len(partner_3_so.invoice_ids), 2)
+        self.assertEqual(len(partner_3_so.payment_ids), 2)
+        self.assertEqual(set(partner_3_so.invoice_ids.mapped("state")), {"posted"})
+        # An invoice and a refund
+        self.assertEqual(
+            set(partner_3_so.invoice_ids.mapped("move_type")),
+            {"out_invoice", "out_refund"},
+        )
+
+        # Close the current session
+        self._close_session()
+        # The sale order should still have 2 invoices and 2 payments
+        self.assertEqual(len(partner_3_so.invoice_ids), 2)
+        self.assertEqual(len(partner_3_so.payment_ids), 2)
+        # The refund should have been reconciled
+        self.assertEqual(
+            set(partner_3_so.invoice_ids.mapped("payment_state")), {"paid"}
+        )
+
+    def test_close_session_with_cancelled_orders_with_different_payment_method(self):
+        # We cancel an anonymous order with bank payment
+        so = self.sales[0]
+        rv = so.with_context(
+            disable_pos_cancel_warning=True,
+            pos_cancel_payment_method_id=self.bank_pm.id,
+        ).action_cancel()
+
+        self.assertEqual(rv, True)
+        self.assertEqual(len(so.invoice_ids), 2)
+        self.assertEqual(
+            set(so.invoice_ids.mapped("move_type")),
+            {"out_invoice", "out_refund"},
+        )
+        self._close_session()
+        self.assertEqual(len(so.invoice_ids), 2)
+        self.assertEqual(
+            set(so.invoice_ids.mapped("move_type")),
+            {"out_invoice", "out_refund"},
+        )
+        self.assertEqual(set(so.invoice_ids.mapped("state")), {"posted"})
+        # The invoices should have been reconciled anyway
+        self.assertEqual(
+            set(so.invoice_ids.mapped("payment_state")), {"paid", "reversed"}
+        )
+
+    def test_cancel_order_after_session_close_with_different_payment_method(self):
+        # Close session
+        self._close_session()
+
+        # Open a new session
+        self.config.open_session_cb(check_coa=False)
+        self.pos_session = self.config.current_session_id
+        self._create_session_sale(pos_session=self.pos_session)
+        # We cancel an anonymous order with bank payment
+
+        so = self.sales[0]
+        rv = so.with_context(
+            disable_pos_cancel_warning=True,
+            pos_cancel_payment_method_id=self.bank_pm.id,
+        ).action_cancel()
+
+        self.assertEqual(rv, True)
+        self.assertEqual(len(so.invoice_ids), 2)
+        self.assertEqual(
+            set(so.invoice_ids.mapped("move_type")),
+            {"out_invoice", "out_refund"},
+        )
+        self._close_session()
+        self.assertEqual(len(so.invoice_ids), 2)
+        self.assertEqual(
+            set(so.invoice_ids.mapped("move_type")),
+            {"out_invoice", "out_refund"},
+        )
+        self.assertEqual(set(so.invoice_ids.mapped("state")), {"posted"})
+        # The invoices should have been reconciled anyway
+        self.assertEqual(set(so.invoice_ids.mapped("payment_state")), {"paid"})
+
+    def test_reinvoicing(self):
+        self._close_session()
+        so = self.sales[0]
+        self.assertEqual(len(so.invoice_ids), 1)
+        self.assertEqual(so.invoice_status, "invoiced")
+        self.assertEqual(so.invoice_ids.state, "posted")
+        self.assertEqual(so.invoice_ids.payment_state, "paid")
+        self.assertEqual(so.invoice_ids.move_type, "out_invoice")
+        so.action_reinvoice_pos_order()
+        self.assertEqual(len(so.invoice_ids), 3)
+        self.assertEqual(so.invoice_status, "invoiced")
+        self.assertEqual(set(so.invoice_ids.mapped("state")), {"posted"})
+        self.assertEqual(so.invoice_ids[1].move_type, "out_refund")
+        self.assertEqual(so.invoice_ids[2].move_type, "out_invoice")
+        self.assertEqual(set(so.invoice_ids.mapped("payment_state")), {"paid"})
 
 
 @tagged("-at_install", "post_install")
