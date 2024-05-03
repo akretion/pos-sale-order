@@ -228,6 +228,17 @@ class GeneralCase(CommonCase):
         self.assertEqual(set(invoices.mapped("state")), {"posted"})
         self.assertEqual(set(invoices.mapped("payment_state")), {"paid"})
 
+    def _add_backoffice_payment(self, sale):
+        # Register a backoffice payment on sale order
+        wizard = self.env["pos.payment.wizard"].create_wizard(sale)
+        self.assertEqual(
+            wizard.available_payment_method_ids, self.config.payment_method_ids
+        )
+        wizard.payment_method_id = self.cash_pm
+
+        wizard.pay()
+        self.assertEqual(len(sale.payment_ids), 1)
+
     def test_backoffice_payment_sale_order(self):
         # create an order without payment
         data = self._get_pos_data()
@@ -240,15 +251,7 @@ class GeneralCase(CommonCase):
         self.pos_session = self.config.current_session_id
         self._create_session_sale(pos_session=self.pos_session)
 
-        # Register a backoffice payment on sale order
-        wizard = self.env["pos.payment.wizard"].create_wizard(sale)
-        self.assertEqual(
-            wizard.available_payment_method_ids, self.config.payment_method_ids
-        )
-        wizard.payment_method_id = self.cash_pm
-
-        wizard.pay()
-        self.assertEqual(len(sale.payment_ids), 1)
+        self._add_backoffice_payment(sale)
 
         # Close the session and check the invoice linked to the sale order
         self._close_session()
@@ -265,6 +268,24 @@ class GeneralCase(CommonCase):
         # Ensure that is not the case
         session = self.env["pos.session"].search([("rescue", "=", True)])
         self.assertFalse(session)
+
+    def test_backoffice_payment_sale_order_session_without_order(self):
+        # create an order without payment
+        data = self._get_pos_data()
+        data["data"]["statement_ids"] = []
+        sale = self._create_sale([data])
+        self._close_session()
+
+        # Open a new session
+        self.config.open_session_cb(check_coa=False)
+        self.pos_session = self.config.current_session_id
+
+        self._add_backoffice_payment(sale)
+
+        # Close the session and check the invoice linked to the sale order
+        self._close_session()
+        self.assertEqual(sale.invoice_ids.state, "posted")
+        self.assertEqual(sale.invoice_ids.payment_state, "paid")
 
     def test_backoffice_draft_invoice(self):
         sale = self.sales[0]
