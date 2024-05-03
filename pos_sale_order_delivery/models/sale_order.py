@@ -65,7 +65,9 @@ class SaleOrder(models.Model):
         return res
 
     def action_deliver_all(self):
-        for picking in self.picking_ids:
+        for picking in self.picking_ids.filtered(
+            lambda s: s.state in ("assigned", "confirmed", "waiting")
+        ):
             for line in picking.move_lines:
                 line.quantity_done = line.product_uom_qty
             picking.button_validate()
