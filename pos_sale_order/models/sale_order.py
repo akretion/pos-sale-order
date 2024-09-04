@@ -104,7 +104,11 @@ class SaleOrder(models.Model):
     @api.depends("amount_total", "payment_ids.amount", "state")
     def _compute_pos_payment(self):
         for record in self:
-            if record.state in ("draft", "cancel", "sent") or not record.amount_total:
+            if (
+                record.state in ("draft", "cancel", "sent")
+                or not record.amount_total
+                or isinstance(record.id, fields.NewId)
+            ):
                 record.pos_amount_to_pay = 0
                 record.pos_payment_state = "none"
             else:
