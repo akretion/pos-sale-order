@@ -112,8 +112,17 @@ class SaleOrder(models.Model):
                 record.pos_amount_to_pay = 0
                 record.pos_payment_state = "none"
             else:
-                residual = record.amount_total - sum(
-                    record.mapped("payment_ids.amount")
+                residual = (
+                    record.amount_total
+                    # Substract the amount already paid on order
+                    - sum(record.mapped("payment_ids.amount"))
+                    # Substract the amount already paid on invoice
+                    - sum(
+                        record.invoice_ids.filtered(
+                            lambda move: move.state == "posted"
+                            and move.payment_state == "paid"
+                        ).mapped("amount_total")
+                    )
                 )
                 record.pos_amount_to_pay = residual
                 if float_is_zero(
