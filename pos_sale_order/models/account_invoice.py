@@ -13,16 +13,20 @@ class AccountMove(models.Model):
         comodel_name="pos.session",
         compute="_compute_session_id",
         string="PoS Session",
-        readonly=True,
     )
 
-    @api.depends("statement_line_id.statement_id.pos_session_id")
+    @api.depends(
+        "statement_line_id.statement_id.pos_session_id",
+        "invoice_line_ids.sale_line_ids.order_id.session_id",
+    )
     def _compute_session_id(self):
         for record in self:
-            if record.statement_line_id:
-                record.session_id = record.statement_line_id.statement_id.pos_session_id
-            else:
-                record.session_id = None
+            record.session_id = (
+                record.statement_line_id.statement_id.pos_session_id
+                or fields.first(
+                    record.invoice_line_ids.sale_line_ids.order_id.session_id
+                )
+            )
 
     def _reconcile_with_pos_payment(self):
         for record in self:
