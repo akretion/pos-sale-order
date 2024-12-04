@@ -101,7 +101,13 @@ class SaleOrder(models.Model):
         for order in self:
             order.is_invoiced = bool(order.account_move)
 
-    @api.depends("amount_total", "payment_ids.amount", "state")
+    @api.depends(
+        "state",
+        "amount_total",
+        "payment_ids.amount",
+        "invoice_ids.state",
+        "invoice_ids.payment_state",
+    )
     def _compute_pos_payment(self):
         for record in self:
             if (

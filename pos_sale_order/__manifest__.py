@@ -29,6 +29,7 @@
         "security/ir.model.access.csv",
         "wizards/pos_payment_wizard_view.xml",
         "wizards/pos_delivery_wizard_view.xml",
+        "wizards/account_payment_register_views.xml",
         "views/sale_view.xml",
         "views/pos_payment_method_views.xml",
         "views/point_of_sale_view.xml",

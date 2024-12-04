@@ -6,6 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-11-20 08:39+0000\n"
+"PO-Revision-Date: 2024-11-20 08:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -14,8 +16,19 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_account_move
+msgid "Account Move"
+msgstr ""
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__amount
 msgid "Amount"
+msgstr ""
+
+#. module: pos_sale_order
+#: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:0
+#, python-format
+msgid "Amount must be superior to 0"
 msgstr ""
 
 #. module: pos_sale_order
@@ -52,6 +65,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_delivery_wizard_view_form
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_payment_wizard_view_form
 msgid "Cancel"
+msgstr ""
+
+#. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_cash_box_out
+msgid "Cash Box Out"
 msgstr ""
 
 #. module: pos_sale_order
@@ -117,6 +135,8 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment_register__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_cash_box_out__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__display_name
@@ -158,13 +178,30 @@ msgid "Following order have a draft invoice, please fix it %s"
 msgstr ""
 
 #. module: pos_sale_order
+#: code:addons/pos_sale_order/models/pos_session.py:0
+#, python-format
+msgid ""
+"Following sales are not invoiced, please invoice it: \n"
+"- %s"
+msgstr ""
+
+#. module: pos_sale_order
 #: model:res.groups,name:pos_sale_order.group_show_pos_order
 msgid "Group to show pos order (do not use)"
 msgstr ""
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment_register__pos_warning_confirmed
+msgid ""
+"I read and understood the above warning and I confirm that I want to proceed"
+" with the payment anyway."
+msgstr ""
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment_register__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_cash_box_out__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__id
@@ -181,16 +218,6 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,help:pos_sale_order.field_pos_payment_method__split_transactions
 msgid "If ticked, each payment will generate a separated journal item."
-msgstr ""
-
-#. module: pos_sale_order
-#: code:addons/pos_sale_order/models/pos_session.py:0
-#, python-format
-msgid ""
-"Impossible to reconcile all the entries.\n"
-"Please check that the following ones are invoiced:\n"
-"\n"
-"%s"
 msgstr ""
 
 #. module: pos_sale_order
@@ -215,11 +242,6 @@ msgid "Journal"
 msgstr ""
 
 #. module: pos_sale_order
-#: model:ir.model,name:pos_sale_order.model_account_move
-msgid "Journal Entry"
-msgstr ""
-
-#. module: pos_sale_order
 #: model:ir.model.fields,help:pos_sale_order.field_pos_payment_method__cash_journal_id
 msgid "Journal used for generating payment"
 msgstr ""
@@ -227,6 +249,8 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment_register____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_cash_box_out____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line____last_update
@@ -468,17 +492,18 @@ msgid "Receipt Ref"
 msgstr ""
 
 #. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_account_payment_register
+msgid "Register Payment"
+msgstr ""
+
+#. module: pos_sale_order
 #: model:ir.actions.act_window,name:pos_sale_order.action_sale_order_pos
+#: model:ir.model,name:pos_sale_order.model_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__pos_sale_order_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__pos_sale_order_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__sale_order_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_tree
 msgid "Sale Order"
-msgstr ""
-
-#. module: pos_sale_order
-#: model:ir.model,name:pos_sale_order.model_sale_order
-msgid "Sales Order"
 msgstr ""
 
 #. module: pos_sale_order
@@ -495,6 +520,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__session_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__session_id
 msgid "Session"
+msgstr ""
+
+#. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment_register__should_display_pos_warning
+msgid "Should Display Pos Warning"
 msgstr ""
 
 #. module: pos_sale_order
@@ -549,6 +579,7 @@ msgstr ""
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/pos_session.py:0
+#: code:addons/pos_sale_order/models/pos_session.py:0
 #, python-format
 msgid "This session is already closed."
 msgstr ""
@@ -566,6 +597,18 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__warehouse_id
 msgid "Warehouse"
+msgstr ""
+
+#. module: pos_sale_order
+#: model_terms:ir.ui.view,arch_db:pos_sale_order.view_account_payment_register_form
+msgid ""
+"Warning: This invoice comes from a point of sale order.\n"
+"                        Normally you should not register a payment on the invoice\n"
+"                        but on the order (except for bank transfers that are handled\n"
+"                        by bank statements import).\n"
+"                        Please preferably register the payment on the related\n"
+"                        order or check that no payment is in progress on the\n"
+"                        order."
 msgstr ""
 
 #. module: pos_sale_order
