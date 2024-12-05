@@ -13,6 +13,7 @@ class AccountMove(models.Model):
         comodel_name="pos.session",
         compute="_compute_session_id",
         string="PoS Session",
+        store=True,
     )
 
     @api.depends(
