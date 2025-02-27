@@ -14,6 +14,7 @@ class PosPayment(models.Model):
         ondelete="cascade",
         required=True,
         readonly=True,
+        index=True,
     )
     payment_method_id = fields.Many2one(readonly=True)
     pos_order_id = fields.Many2one(required=False)
