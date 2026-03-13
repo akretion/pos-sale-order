@@ -69,9 +69,14 @@ class SaleOrder(models.Model):
             lambda s: s.state in ("assigned", "confirmed", "waiting")
         ):
             for line in picking.move_lines:
-                # If there is reservation we drop them so we can directly set the
-                # qty done on the line
                 if line.move_line_ids:
-                    line.move_line_ids.unlink()
-                line.quantity_done = line.product_uom_qty
+                    for move_line in line.move_line_ids:
+                        move_line.qty_done = move_line.product_qty
+                    if line.quantity_done != line.product_uom_qty:
+                        # Force picking to be done even if quantity is not fully available
+                        line.move_line_ids[-1].qty_done += (
+                            line.product_uom_qty - line.quantity_done
+                        )
+                else:
+                    line.quantity_done = line.product_uom_qty
             picking.button_validate()
