@@ -51,6 +51,11 @@ class PosPaymentWizard(models.TransientModel):
 
     def _prepare_payment(self):
         session = self._get_session()
+        if len(session) > 1:
+            raise UserError(
+                f"User {session.user_id.name} has multiple active sessions. "
+                "Please close the other sessions before continuing."
+            )
         sale = self.sale_order_id
         # We need to attach the sale order to the session to be able to
         # close the session if the sale order is not invoiced
