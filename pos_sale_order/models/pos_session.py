@@ -89,7 +89,12 @@ class PosSession(models.Model):
     _inherit = "pos.session"
 
     order_ids = fields.One2many("sale.order", "session_id", string="Orders")
-    invoice_ids = fields.One2many("account.move", "session_id", string="Invoices")
+    invoice_ids = fields.One2many(
+        "account.move",
+        "session_id",
+        domain=[("move_type", "in", ("out_invoice", "out_refund"))],
+        string="Invoices",
+    )
     payment_ids = fields.One2many("pos.payment", "session_id", string="Payments")
 
     def _compute_order_count(self):

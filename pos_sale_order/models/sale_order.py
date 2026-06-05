@@ -206,12 +206,6 @@ class SaleOrder(models.Model):
             order.invoice_ids.action_post()
         return True
 
-    @api.model
-    def _prepare_invoice(self):
-        res = super()._prepare_invoice()
-        res["session_id"] = self.session_id.id
-        return res
-
     def _build_pos_error_message(self, failed, result):
         return _("Fail to sync the following order\n - {}").format(
             "\n - ".join([str(order["id"]) for order, _exception in failed])

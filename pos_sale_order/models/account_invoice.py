@@ -2,7 +2,7 @@
 # @author Mourad EL HADJ MIMOUNE <mourad.elhadj.mimoune@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class AccountMove(models.Model):
@@ -10,8 +10,24 @@ class AccountMove(models.Model):
 
     pos_anonyme_invoice = fields.Boolean()
     session_id = fields.Many2one(
-        comodel_name="pos.session", string="PoS Session", readonly=True
+        comodel_name="pos.session",
+        compute="_compute_session_id",
+        string="PoS Session",
+        store=True,
     )
+
+    @api.depends(
+        "statement_line_id.statement_id.pos_session_id",
+        "invoice_line_ids.sale_line_ids.order_id.session_id",
+    )
+    def _compute_session_id(self):
+        for record in self:
+            record.session_id = (
+                record.statement_line_id.statement_id.pos_session_id
+                or fields.first(
+                    record.invoice_line_ids.sale_line_ids.order_id.session_id
+                )
+            )
 
     def _reconcile_with_pos_payment(self):
         for record in self:
