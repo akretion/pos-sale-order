@@ -101,7 +101,13 @@ class SaleOrder(models.Model):
         for order in self:
             order.is_invoiced = bool(order.account_move)
 
-    @api.depends("amount_total", "payment_ids.amount", "state")
+    @api.depends(
+        "state",
+        "amount_total",
+        "payment_ids.amount",
+        "invoice_ids.state",
+        "invoice_ids.payment_state",
+    )
     def _compute_pos_payment(self):
         for record in self:
             if (
@@ -112,8 +118,17 @@ class SaleOrder(models.Model):
                 record.pos_amount_to_pay = 0
                 record.pos_payment_state = "none"
             else:
-                residual = record.amount_total - sum(
-                    record.mapped("payment_ids.amount")
+                residual = (
+                    record.amount_total
+                    # Substract the amount already paid on order
+                    - sum(record.mapped("payment_ids.amount"))
+                    # Substract the amount already paid on invoice
+                    - sum(
+                        record.invoice_ids.filtered(
+                            lambda move: move.state == "posted"
+                            and move.payment_state == "paid"
+                        ).mapped("amount_total")
+                    )
                 )
                 record.pos_amount_to_pay = residual
                 if float_is_zero(
