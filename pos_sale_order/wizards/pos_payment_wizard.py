@@ -35,7 +35,17 @@ class PosPaymentWizard(models.TransientModel):
         return session
 
     def create_wizard(self, sale):
-        payment_methods = self._get_session().payment_method_ids
+        session = self._get_session()
+        if len(session) > 1:
+            raise UserError(
+                _(
+                    "You have several active sessions. "
+                    "Please close any unnecessary sessions before proceeding. "
+                    "List of open sessions: \n- %s"
+                )
+                % "\n- ".join(session.mapped("name"))
+            )
+        payment_methods = session.payment_method_ids
         default_method = payment_methods[0]
         for method in payment_methods:
             if method.is_cash_count:
@@ -51,11 +61,6 @@ class PosPaymentWizard(models.TransientModel):
 
     def _prepare_payment(self):
         session = self._get_session()
-        if len(session) > 1:
-            raise UserError(
-                f"User {session.user_id.name} has multiple active sessions. "
-                "Please close the other sessions before continuing."
-            )
         sale = self.sale_order_id
         # We need to attach the sale order to the session to be able to
         # close the session if the sale order is not invoiced
