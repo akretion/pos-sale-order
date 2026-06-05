@@ -1,8 +1,8 @@
 # Do NOT update manually; changes here will be overwritten by Copier
-_commit: v1.21.1
+_commit: v1.43
 _src_path: https://github.com/oca/oca-addons-repo-template.git
-ci: GitHub
 convert_readme_fragments_to_markdown: false
+enable_checklog_odoo: false
 generate_requirements_txt: true
 github_check_license: false
 github_ci_extra_env: {}
@@ -15,6 +15,7 @@ odoo_test_flavor: Both
 odoo_version: 14.0
 org_name: Akretion
 org_slug: akretion
+postgres_image: ''
 rebel_module_groups: []
 repo_description: Replace Pos Order by Sale Order
 repo_name: Replace POS order by Sale Order

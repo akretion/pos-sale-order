@@ -317,9 +317,11 @@ class GeneralCase(CommonCase):
         wizard.pay()
         self.assertEqual(len(sale.payment_ids), 1)
 
-        # Close the session and check the invoice linked to the sale order
-        with self.assertRaises(UserError):
-            self._close_session()
+        # When we close the session the order is automatically linked
+        # to the current session and invoiced
+        self._close_session()
+        self.assertEqual(sale.session_id, self.pos_session)
+        self.assertTrue(sale.invoice_ids)
 
     def test_job(self):
         self.assertEqual(
