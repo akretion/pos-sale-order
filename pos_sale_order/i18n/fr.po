@@ -18,9 +18,20 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_account_move
+msgid "Account Move"
+msgstr ""
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__amount
 msgid "Amount"
 msgstr "Montant"
+
+#. module: pos_sale_order
+#: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:0
+#, python-format
+msgid "Amount must be superior to 0"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__anonymous_partner_id
@@ -57,6 +68,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_payment_wizard_view_form
 msgid "Cancel"
 msgstr "Annuler"
+
+#. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_cash_box_out
+msgid "Cash Box Out"
+msgstr ""
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__company_id
@@ -121,6 +137,8 @@ msgstr "Retrait"
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:pos_sale_order.field_cash_box_out__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__display_name
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__display_name
@@ -167,6 +185,15 @@ msgstr ""
 "Les commandes suivant ont des factures brouillons, merci de corriger %s"
 
 #. module: pos_sale_order
+#: code:addons/pos_sale_order/models/pos_session.py:0
+#, fuzzy, python-format
+msgid ""
+"Following sales are not invoiced, please invoice it: \n"
+"- %s"
+msgstr ""
+"Les commandes suivant ont des factures brouillons, merci de corriger %s"
+
+#. module: pos_sale_order
 #: model:res.groups,name:pos_sale_order.group_show_pos_order
 msgid "Group to show pos order (do not use)"
 msgstr ""
@@ -175,6 +202,8 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move_line__id
+#: model:ir.model.fields,field_description:pos_sale_order.field_cash_box_out__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard__id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line__id
@@ -192,20 +221,6 @@ msgstr ""
 #: model:ir.model.fields,help:pos_sale_order.field_pos_payment_method__split_transactions
 msgid "If ticked, each payment will generate a separated journal item."
 msgstr ""
-
-#. module: pos_sale_order
-#: code:addons/pos_sale_order/models/pos_session.py:0
-#, python-format
-msgid ""
-"Impossible to reconcile all the entries.\n"
-"Please check that the following ones are invoiced:\n"
-"\n"
-"%s"
-msgstr ""
-"Impossible de lettrer les écritures.\n"
-"Veuillez vérifier que les commandes suivantes sont bien facturé:\n"
-"\n"
-"%s"
 
 #. module: pos_sale_order
 #: model:ir.model,name:pos_sale_order.model_account_invoice
@@ -230,9 +245,10 @@ msgid "Journal"
 msgstr "Journal"
 
 #. module: pos_sale_order
-#: model:ir.model,name:pos_sale_order.model_account_move
-msgid "Journal Entry"
-msgstr ""
+#: model:ir.model,name:pos_sale_order.model_account_move_line
+#, fuzzy
+msgid "Journal Item"
+msgstr "Journal"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,help:pos_sale_order.field_pos_payment_method__cash_journal_id
@@ -242,6 +258,8 @@ msgstr ""
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move_line____last_update
+#: model:ir.model.fields,field_description:pos_sale_order.field_cash_box_out____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard____last_update
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_delivery_wizard_line____last_update
@@ -390,12 +408,24 @@ msgid "Please select the journal and the amount to paid"
 msgstr "Merci de choisir le journal et le saisir le montant à payer"
 
 #. module: pos_sale_order
+#: model_terms:ir.ui.view,arch_db:pos_sale_order.view_account_move_line_filter
+#, fuzzy
+msgid "PoS"
+msgstr "PdV"
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__session_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move__session_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_payment__session_id
 #, fuzzy
 msgid "PoS Session"
 msgstr "Session"
+
+#. module: pos_sale_order
+#: model_terms:ir.ui.view,arch_db:pos_sale_order.view_move_line_form
+#, fuzzy
+msgid "Point Of Sale"
+msgstr "Point de vente"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__config_id
@@ -468,6 +498,12 @@ msgid "Pos Payment Wizard"
 msgstr "Assitant de paiement"
 
 #. module: pos_sale_order
+#: model_terms:ir.ui.view,arch_db:pos_sale_order.view_account_move_line_filter
+#, fuzzy
+msgid "Pos Session"
+msgstr "Session"
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__iface_print_via_proxy
 msgid "Print via Proxy"
 msgstr ""
@@ -494,18 +530,13 @@ msgstr "Réf PdV"
 
 #. module: pos_sale_order
 #: model:ir.actions.act_window,name:pos_sale_order.action_sale_order_pos
+#: model:ir.model,name:pos_sale_order.model_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__pos_sale_order_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__pos_sale_order_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__sale_order_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_tree
 #, fuzzy
 msgid "Sale Order"
-msgstr "Commandes de Vente"
-
-#. module: pos_sale_order
-#: model:ir.model,name:pos_sale_order.model_sale_order
-#, fuzzy
-msgid "Sales Order"
 msgstr "Commandes de Vente"
 
 #. module: pos_sale_order
@@ -601,7 +632,32 @@ msgid "Warehouse"
 msgstr "Entrepots"
 
 #. module: pos_sale_order
+#: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:0
+#, fuzzy, python-format
+msgid ""
+"You have several active sessions. Please close any unnecessary sessions "
+"before proceeding. List of open sessions: \n"
+"- %s"
+msgstr "Vous avez plusieurs sessions actives. Veuillez fermer les sessions inutiles avant de continuer. Liste des sessions ouvertes: \n- %s "
+
+#. module: pos_sale_order
 #: code:addons/pos_sale_order/models/sale_order.py:0
 #, python-format
 msgid "return"
 msgstr ""
+
+#, python-format
+#~ msgid ""
+#~ "Impossible to reconcile all the entries.\n"
+#~ "Please check that the following ones are invoiced:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Impossible de lettrer les écritures.\n"
+#~ "Veuillez vérifier que les commandes suivantes sont bien facturé:\n"
+#~ "\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid "Sales Order"
+#~ msgstr "Commandes de Vente"

@@ -35,7 +35,17 @@ class PosPaymentWizard(models.TransientModel):
         return session
 
     def create_wizard(self, sale):
-        payment_methods = self._get_session().payment_method_ids
+        session = self._get_session()
+        if len(session) > 1:
+            raise UserError(
+                _(
+                    "You have several active sessions. "
+                    "Please close any unnecessary sessions before proceeding. "
+                    "List of open sessions: \n- %s"
+                )
+                % "\n- ".join(session.mapped("name"))
+            )
+        payment_methods = session.payment_method_ids
         default_method = payment_methods[0]
         for method in payment_methods:
             if method.is_cash_count:
