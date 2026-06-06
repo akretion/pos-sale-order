@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+<record id="pos_config_view_form" model="ir.ui.view">
+    <field name="model">pos.config</field>
+    <field name="inherit_id" ref="point_of_sale.pos_config_view_form" />
+    <field name="priority" eval="1000" />
+    <field name="arch" type="xml">
+        <sheet position="replace">
+            <sheet>
+                <h1><field name="name" /></h1>
+                <group>
+                    <group name="pricing" string="Prix">
+                        <field name="available_pricelist_ids" widget="many2many_tags" />
+                        <field name="pricelist_id" />
+                        <field name="anonymous_partner_id" />
+                    </group>
+                    <group name="payment" string="Paiement">
+                        <field name="journal_id" />
+                        <field name="payment_method_ids" widget="many2many_tags" />
+                        <field name="cash_control" />
+                    </group>
+                    <group name="logistic" string="Logistique">
+                        <field name="warehouse_id" string="Point Spec" />
+                        <field
+                                name="iface_ask_warehouse"
+                                string="Permet de choisir un autre point SPEC lors de la vente"
+                            />
+                    </group>
+                    <group name="print" string="Impression">
+                        <field name="iface_print_pause" />
+                    </group>
+                </group>
+            </sheet>
+        </sheet>
+    </field>
+</record>
+
+</odoo>
