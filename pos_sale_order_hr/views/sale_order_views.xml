@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="sale_order_view_form" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="pos_sale_order.sale_order_view_form" />
+        <field name="arch" type="xml">
+            <field name='user_id' position='after'>
+                <field string='Cashier' name="employee_id" readonly="1" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_sales_order_filter" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter" />
+        <field name="arch" type="xml">
+            <field name='user_id' position="after">
+                <field name="cashier" />
+            </field>
+            <filter name='salesperson' position="after">
+                <filter
+                    string="Cashier"
+                    name="by_cashier"
+                    domain="[]"
+                    context="{'group_by': 'cashier'}"
+                />
+            </filter>
+        </field>
+    </record>
+
+    <record id="view_order_tree" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree" />
+        <field name="arch" type="xml">
+            <field name='user_id' position="after">
+                <field name="employee_id" widget="many2one_avatar_employee" />
+            </field>
+        </field>
+    </record>
+</odoo>
