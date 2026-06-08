@@ -140,7 +140,7 @@ msgstr ""
 #: code:addons/pos_sale_order/wizards/pos_delivery_wizard.py:0
 #, python-format
 msgid ""
-"Fail to deliver picking have been split, please do it from delivery menu"
+"Operation %s cannot be validated automatically, please do it from delivery menu"
 msgstr ""
 
 #. module: pos_sale_order
