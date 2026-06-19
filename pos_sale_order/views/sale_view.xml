@@ -5,6 +5,15 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
+            <header position="inside">
+                <field name="pos_can_be_reinvoiced" invisible="1" />
+                <button
+                    name="action_reinvoice_pos_order"
+                    string="Reinvoice"
+                    type="object"
+                    attrs="{'invisible': [('pos_can_be_reinvoiced', '=', False)]}"
+                />
+            </header>
             <xpath
                 expr="//notebook/page[@name='other_information']/group"
                 position="inside"

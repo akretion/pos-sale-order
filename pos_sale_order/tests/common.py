@@ -71,6 +71,18 @@ class CommonCase(TestPoSCommon):
                 ("company_id", "=", cls.company.id),
             ]
         )
+        bank = cls.basic_config.payment_method_ids.filtered(
+            lambda pm: not pm.is_cash_count and not pm.split_transactions
+        )[:1]
+        bank.receivable_account_id = cls.env["account.account"].search(
+            [
+                ("name", "=", "Account Receivable"),
+                ("company_id", "=", cls.company.id),
+            ]
+        )
+        # Bank payment method should have a cash journal in pos sale order
+        bank.cash_journal_id = cls.company_data["default_journal_bank"]
+
         cls.config = cls.basic_config.with_context(**ctx)
         cls.open_new_session(cls)  # open_new_session is not a class method, hack it
         cls.partner_2 = cls.env.ref("base.res_partner_2")

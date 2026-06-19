@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+  <record id="pos_sale_order_cancel_wizard_view_form" model="ir.ui.view">
+    <field name="name">pos.sale.order.cancel.wizard.form</field>
+    <field name="model">pos.sale.order.cancel.wizard</field>
+    <field name="arch" type="xml">
+      <form>
+        <field name="available_payment_method_ids" invisible="1" />
+        <field name="has_payments" invisible="1" />
+        <p>
+          Are you sure you want to cancel this point of sale order?
+          A credit note will be generated for the order.
+        </p>
+        <div attrs="{'invisible': [('has_payments', '=', False)]}">
+          <p>
+            This order has payments and they will be refunded if you continue. <br />
+
+            Please choose a payment method for the refund:
+          </p>
+          <field
+                        name="payment_method_id"
+                        domain="[('id', 'in', available_payment_method_ids)]"
+                    />
+        </div>
+        <footer>
+          <button
+                        string="Confirm"
+                        name="action_cancel"
+                        type="object"
+                        class="oe_highlight"
+                    />
+          <button string="Cancel" class="btn btn-default" special="cancel" />
+        </footer>
+      </form>
+    </field>
+  </record>
+</odoo>
