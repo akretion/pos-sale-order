@@ -159,8 +159,10 @@ class PosSession(models.Model):
             == "posted"
         ).line_ids.filtered(
             # get receivable line
-            lambda s: s.account_id
-            == payments.payment_method_id.receivable_account_id
+            lambda s: s.account_id == payments.payment_method_id.receivable_account_id
+            # only not reconciled line, this can happen if the payment
+            # is a refund of a previous invoice
+            and not s.reconciled
         )
 
     def _create_bank_statement_line(self, statement, payments, record_ref):
@@ -203,6 +205,9 @@ class PosSession(models.Model):
                         "name": self.name,
                     }
                 )
+            if not statement:
+                # Should we raise?
+                continue
             for record_ref, payments in payment_per_key.items():
                 if not float_is_zero(
                     sum(payments.mapped("amount")),
@@ -250,7 +255,8 @@ class PosSession(models.Model):
         self._check_no_draft_invoice()
 
         partner_to_orders = defaultdict(lambda: self.env["sale.order"].browse(False))
-        for order in self._get_order_to_invoice():
+        orders_to_invoice = self._get_order_to_invoice()
+        for order in orders_to_invoice:
             partner_to_orders[order.partner_id] += order
 
         for partner, orders in partner_to_orders.items():
@@ -258,6 +264,9 @@ class PosSession(models.Model):
                 orders = orders.with_context(
                     default_journal_id=self.config_id.journal_id.id
                 )
+
+            # (final=True) is pass in order to create credit notes
+            # for invoiced cancelled orders
             orders._create_invoices(final=True)
             orders.invoice_ids.filtered(lambda s: s.state == "draft").action_post()
         self._create_bank_statement_line_and_reconcile()
