@@ -20,6 +20,7 @@
         "pos_backend_partner",
         "sale_invoice_policy",
         "queue_job",
+        "sale_order_qty_to_invoice_cancelled",
     ],
     "external_dependencies": {
         "python": ["openupgradelib"],
@@ -29,6 +30,7 @@
         "security/ir.model.access.csv",
         "wizards/pos_payment_wizard_view.xml",
         "wizards/pos_delivery_wizard_view.xml",
+        "wizards/pos_sale_order_cancel_wizard_view.xml",
         "views/sale_view.xml",
         "views/pos_payment_method_views.xml",
         "views/point_of_sale_view.xml",
