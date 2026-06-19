@@ -215,14 +215,26 @@ class PosSession(models.Model):
         # Ensure that nothing is already reconciled, and do it
         for inv_line, pay_line in inv2payment.items():
             lines = inv_line | pay_line
-            for reconciled in lines.filtered("reconciled"):
-                if reconciled.debit == 0 and reconciled.credit == 0:
-                    continue
-                elif reconciled.move_id.move_type == "out_invoice":
-                    message = _("The invoice %s is already paid, please remove it")
-                else:
-                    message = _("The move %s is already reconciled")
-                raise UserError(message % ", ".join(reconciled.mapped("name")))
+            error_lines = lines.filtered(
+                lambda ml: ml.reconciled and (ml.debit != 0 or ml.credit != 0)
+            )
+            if error_lines:
+                messages = []
+                for move in error_lines.mapped("move_id"):
+                    related_orders = move.line_ids.sale_line_ids.mapped("order_id")
+                    move_label = move.name
+                    if related_orders:
+                        move_label += f" ({', '.join(related_orders.mapped('name'))})"
+                    if move.move_type == "out_invoice":
+                        messages.append(
+                            _("The invoice %s is already paid, please remove it")
+                            % move_label
+                        )
+                    else:
+                        messages.append(
+                            _("The move %s is already reconciled") % move_label
+                        )
+                raise UserError("\n".join(messages))
             lines.reconcile()
 
     def _create_account_move(self):
