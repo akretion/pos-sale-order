@@ -32,10 +32,16 @@ class PosDeliveryWizard(models.TransientModel):
         return self.create({"line_ids": vals})
 
     def confirm(self):
+        wizard_moves = self.line_ids.move_line_id
+        moves_to_clear = wizard_moves.picking_id.move_lines - wizard_moves
+        moves_to_clear.move_line_ids.write({"qty_done": 0.0})
+
         for line in self.line_ids:
+            # Note: quantity_done writes on the first move_line only.
+            # Multi move_line case (lots/serial) is not handled here.
             line.move_line_id.quantity_done = line.qty
         res = None
-        for picking in self.mapped("line_ids.move_line_id.picking_id"):
+        for picking in wizard_moves.picking_id:
             result = picking.button_validate()
             if result:
                 if res is None:
