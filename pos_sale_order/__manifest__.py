@@ -5,7 +5,7 @@
 
 {
     "name": "POS Only Sale Order",
-    "version": "14.0.1.1.4",
+    "version": "14.0.1.1.5",
     "category": "Point Of Sale",
     "author": "Akretion",
     "website": "https://github.com/akretion/pos-sale-order",
