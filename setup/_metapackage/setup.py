@@ -14,6 +14,7 @@ setuptools.setup(
         'odoo14-addon-pos_sale_order_delivery',
         'odoo14-addon-pos_sale_order_load',
         'odoo14-addon-pos_sale_order_no_payment',
+        'odoo14-addon-pos_sale_order_optional_receipt',
         'odoo14-addon-pos_sale_order_reference',
     ],
     classifiers=[
