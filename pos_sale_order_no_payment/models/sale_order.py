@@ -11,9 +11,12 @@ class SaleOrder(models.Model):
 
     is_pos_quotation = fields.Boolean()
 
+    def _filtered_record_to_pay(self):
+        return self.filtered("pricelist_id.pos_allow_payment")
+
     @api.depends("pricelist_id.pos_allow_payment")
     def _compute_pos_payment(self):
-        record_with_payment = self.filtered("pricelist_id.pos_allow_payment")
+        record_with_payment = self._filtered_record_to_pay()
         record_without_payment = self - record_with_payment
         record_without_payment.update({"pos_payment_state": "none"})
         return super(SaleOrder, record_with_payment)._compute_pos_payment()
