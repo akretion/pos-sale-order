@@ -2,16 +2,17 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, models
+from odoo import _, models
 
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
-    @api.depends("order_id.session_id")
-    def _get_to_invoice_qty(self):
-        for record in self:
-            if record.order_id.session_id:
-                record.qty_to_invoice = record.product_uom_qty - record.qty_invoiced
-            else:
-                super(SaleOrderLine, record)._get_to_invoice_qty()
+    def _prepare_refund_data(self, refund_order):
+        self.ensure_one()
+        return {
+            "name": self.name + _(" REFUND"),
+            "product_uom_qty": -self.product_uom_qty,
+            "price_unit": self.price_unit,
+            "order_id": refund_order.id,
+        }
