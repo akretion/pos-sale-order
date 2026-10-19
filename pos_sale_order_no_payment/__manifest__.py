@@ -4,7 +4,7 @@
 
 {
     "name": "POS Sale Order No Payment",
-    "version": "14.0.1.0.1",
+    "version": "14.0.1.0.2",
     "category": "Point Of Sale",
     "author": "Akretion",
     "website": "https://github.com/akretion/pos-sale-order",
