@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_account_payment_register_form" model="ir.ui.view">
+        <field name="model">account.payment.register</field>
+        <field name="inherit_id" ref="account.view_account_payment_register_form" />
+        <field name="arch" type="xml">
+            <footer position="before">
+                <field name="should_display_pos_warning" invisible="1" />
+                <group
+                    attrs="{'invisible': [('should_display_pos_warning', '=', False)]}"
+                >
+                    <div>
+                        <p
+                            class="text-danger text-bf"
+                        >Warning: This invoice comes from a point of sale order.
+                        Normally you should not register a payment on the invoice
+                        but on the order (except for bank transfers that are handled
+                        by bank statements import).
+                        Please preferably register the payment on the related
+                        order or check that no payment is in progress on the
+                        order.</p>
+                        <field name="pos_warning_confirmed" nolabel="1" />
+                        <label
+                            for="pos_warning_confirmed"
+                            class="o_form_label text-bf"
+                        />
+                    </div>
+                </group>
+            </footer>
+            <button name="action_create_payments" position="attributes">
+                <attribute name="attrs">{
+                    'invisible': [
+                        ('should_display_pos_warning', '=', True),
+                        ('pos_warning_confirmed', '=', False),
+                    ]
+                }</attribute>
+            </button>
+        </field>
+    </record>
+</odoo>
