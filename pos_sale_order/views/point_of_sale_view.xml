@@ -1,91 +1,86 @@
 <?xml version="1.0" ?>
 <odoo>
-
-        <record id="view_sales_order_filter" model="ir.ui.view">
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale.view_sales_order_filter" />
-            <field name="arch" type="xml">
-                <filter name="my_sale_orders_filter" position="after">
-                    <separator />
-                    <filter
+    <record id="view_sales_order_filter" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter" />
+        <field name="arch" type="xml">
+            <filter name="my_sale_orders_filter" position="after">
+                <separator />
+                <filter
                     name="pos"
                     string="POS"
                     domain="[('pos_reference', '!=', '')]"
                 />
-                </filter>
+            </filter>
+        </field>
+    </record>
+
+    <record id="point_of_sale.action_pos_pos_form" model="ir.actions.act_window">
+        <field name="res_model">sale.order</field>
+        <field name="context">{'search_default_pos': 1}</field>
+    </record>
+
+    <record id="pos_config_view_form" model="ir.ui.view">
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form" />
+        <field name="arch" type="xml">
+            <field name="picking_type_id" position="attributes">
+                <attribute name="invisible">1</attribute>
             </field>
-        </record>
-
-        <record id="point_of_sale.action_pos_pos_form" model="ir.actions.act_window">
-            <field name="res_model">sale.order</field>
-            <field name="context">{'search_default_pos': 1}</field>
-        </record>
-
-        <record id="pos_config_view_form" model="ir.ui.view">
-            <field name="model">pos.config</field>
-            <field name="inherit_id" ref="point_of_sale.pos_config_view_form" />
-            <field name="arch" type="xml">
-                <field name="picking_type_id" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </field>
-                <field name="picking_type_id" position="before">
-                    <field name="warehouse_id" />
-                </field>
-                <field name="currency_id" position="after">
-                    <field name="anonymous_partner_id" />
-                </field>
-                <field name="picking_type_id" position="attributes">
-                    <attribute name="required">False</attribute>
-                </field>
+            <field name="picking_type_id" position="before">
+                <field name="warehouse_id" />
             </field>
-        </record>
-
-        <record model="ir.ui.view" id="view_pos_config_tree">
-            <field name="model">pos.config</field>
-            <field name="inherit_id" ref="point_of_sale.view_pos_config_tree" />
-            <field name="arch" type="xml">
-                <field name="name" position="after">
-                    <field name="warehouse_id" />
-                </field>
+            <field name="currency_id" position="after">
+                <field name="anonymous_partner_id" />
             </field>
-        </record>
+            <field name="picking_type_id" position="attributes">
+                <attribute name="required">False</attribute>
+            </field>
+        </field>
+    </record>
 
-        <record model="ir.ui.view" id="view_pos_config_kanban">
-            <field name="model">pos.config</field>
-            <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban" />
-            <field name="arch" type="xml">
-                <!-- mask pos.order reporting as there are no pos.order created with this module -->
-                <xpath
+    <record model="ir.ui.view" id="view_pos_config_tree">
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_config_tree" />
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="warehouse_id" />
+            </field>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_pos_config_kanban">
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban" />
+        <field name="arch" type="xml">
+            <!-- mask pos.order reporting as there are no pos.order created with this module -->
+            <xpath
                 expr="//a[@name='%(point_of_sale.action_report_pos_order_all_filtered)d']/../.."
                 position="attributes"
             >
-                    <attribute name="invisible">True</attribute>
-                </xpath>
-                <xpath
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath
                 expr="//a[@name='%(point_of_sale.action_pos_order_filtered)d']"
                 position="attributes"
             >
-                    <attribute
-                    name="name"
-                >%(action_sale_order_search_config)d</attribute>
-                </xpath>
+                <attribute name="name">%(action_sale_order_search_config)d</attribute>
+            </xpath>
+        </field>
+    </record>
 
+    <record model="ir.ui.view" id="view_pos_config_search">
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_config_search" />
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <field name="picking_type_id" position="replace">
+                <field name="warehouse_id" />
             </field>
-        </record>
-
-        <record model="ir.ui.view" id="view_pos_config_search">
-            <field name="model">pos.config</field>
-            <field name="inherit_id" ref="point_of_sale.view_pos_config_search" />
-            <field name="priority">100</field>
-            <field name="arch" type="xml">
-                <field name="picking_type_id" position="replace">
-                    <field name="warehouse_id" />
-                </field>
-            </field>
-        </record>
+        </field>
+    </record>
 
     <record id="point_of_sale.pos_invoice_report" model="ir.actions.report">
         <field name="model">sale.order</field>
     </record>
-
 </odoo>

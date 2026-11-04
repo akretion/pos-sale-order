@@ -12,7 +12,7 @@ class CashBoxOut(models.TransientModel):
     # it's just crazy: https://github.com/odoo/odoo/pull/82568
     def _calculate_values_for_statement_line(self, record):
         values = super()._calculate_values_for_statement_line(record)
-        values[
-            "counterpart_account_id"
-        ] = record.journal_id.company_id.transfer_account_id.id
+        values["counterpart_account_id"] = (
+            record.journal_id.company_id.transfer_account_id.id
+        )
         return values

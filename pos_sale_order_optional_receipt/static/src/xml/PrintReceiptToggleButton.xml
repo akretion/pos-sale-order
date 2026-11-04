@@ -5,7 +5,6 @@
   License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 -->
 <odoo>
-
     <t t-name="PrintReceiptToggleButton" owl="1">
         <div class="button" att-class="{ 'higlight': state.shouldHighlight }">
             <i
@@ -27,5 +26,4 @@
             <PrintReceiptToggleButton />
         </xpath>
     </t>
-
 </odoo>

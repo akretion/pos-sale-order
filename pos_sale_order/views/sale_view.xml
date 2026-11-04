@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
 <odoo>
-
     <record id="view_order_form" model="ir.ui.view">
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form" />
@@ -28,7 +27,7 @@
                     </tree>
                 </field>
             </field>
-         </field>
+        </field>
     </record>
 
     <record id="sale_order_view_form" model="ir.ui.view">
@@ -55,7 +54,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                              <button
+                                <button
                                     class="btn-primary btn-lg"
                                     string="Deliver"
                                     type="object"
@@ -74,8 +73,7 @@
                             <div class="card-body">
                                 <div class="card-title display-3">Done</div>
                             </div>
-                            <div class="card-footer">
-                            </div>
+                            <div class="card-footer" />
                         </div>
                     </div>
 
@@ -84,20 +82,20 @@
                         attrs="{'invisible': [('pos_payment_state', '!=', 'pending')]}"
                     >
                         <div class="card text-white bg-danger mb-3 text-center">
-                          <div class="card-header">Payment</div>
-                          <div class="card-body">
-                              <div class="card-title display-3">
-                                <field name="pos_amount_to_pay" />
-                              </div>
-                          </div>
-                          <div class="card-footer">
-                            <button
+                            <div class="card-header">Payment</div>
+                            <div class="card-body">
+                                <div class="card-title display-3">
+                                    <field name="pos_amount_to_pay" />
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button
                                     class="btn-primary btn-lg"
                                     string="Pay"
                                     type="object"
                                     name="open_pos_payment_wizard"
                                 />
-                          </div>
+                            </div>
                         </div>
                     </div>
 
@@ -110,8 +108,7 @@
                             <div class="card-body">
                                 <div class="card-title display-3">Done</div>
                             </div>
-                            <div class="card-footer">
-                            </div>
+                            <div class="card-footer" />
                         </div>
                     </div>
 
@@ -124,14 +121,12 @@
                             <div class="card-body">
                                 <div class="card-title display-3">Not needed</div>
                             </div>
-                            <div class="card-footer">
-                            </div>
+                            <div class="card-footer" />
                         </div>
                     </div>
-
                 </div>
             </div>
-          </field>
+        </field>
     </record>
 
     <record id="sale_order_view_tree" model="ir.ui.view">
@@ -194,5 +189,4 @@
             'default_config_id': active_id}
         </field>
     </record>
-
 </odoo>

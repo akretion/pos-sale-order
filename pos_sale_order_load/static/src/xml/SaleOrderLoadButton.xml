@@ -16,7 +16,7 @@
         owl="1"
     >
         <xpath expr="//div[@class='pos-branding']" position="inside">
-             <SaleOrderLoadButton />
+            <SaleOrderLoadButton />
         </xpath>
     </t>
 </odoo>

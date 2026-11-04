@@ -6,7 +6,8 @@
             name="POS Index POS helper"
             inherit_id="point_of_sale.assets"
         >
-            <xpath expr="." position="inside"> <!-- POS only -->
+            <xpath expr="." position="inside">
+                <!-- POS only -->
                 <script
                     type="text/javascript"
                     src="/pos_partial_payment/static/src/js/pos_partial_payment.js"

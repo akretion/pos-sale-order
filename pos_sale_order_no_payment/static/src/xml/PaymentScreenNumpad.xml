@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <t
         t-name="PaymentScreenNumpad"
         t-inherit="point_of_sale.PaymentScreenNumpad"
@@ -13,5 +12,4 @@
             >{ "psonpHide": !currentOrder.is_payment_allowed()}</attribute>
         </xpath>
     </t>
-
 </odoo>

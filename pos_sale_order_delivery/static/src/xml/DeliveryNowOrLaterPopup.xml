@@ -48,7 +48,6 @@
                                         t-on-click="clickNoDelivery"
                                     >Confirm</button>
                                 </div>
-
                             </div>
                             <div t-else="">
                                 <span

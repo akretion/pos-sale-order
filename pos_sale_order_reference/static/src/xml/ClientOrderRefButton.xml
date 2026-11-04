@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <t t-name="ClientOrderRefButton" owl="1">
         <div class="button">
             Order Reference <span t-esc="currentOrder.get('client_order_ref')" />
@@ -17,5 +16,4 @@
             <ClientOrderRefButton />
         </xpath>
     </t>
-
 </odoo>

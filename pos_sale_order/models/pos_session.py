@@ -155,12 +155,10 @@ class PosSession(models.Model):
             )
         return payments.pos_sale_order_id.invoice_ids.filtered(
             # skip canceled invoice
-            lambda s: s.state
-            == "posted"
+            lambda s: s.state == "posted"
         ).line_ids.filtered(
             # get receivable line
-            lambda s: s.account_id
-            == payments.payment_method_id.receivable_account_id
+            lambda s: s.account_id == payments.payment_method_id.receivable_account_id
         )
 
     def _create_bank_statement_line(self, statement, payments, record_ref):

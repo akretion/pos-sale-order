@@ -1,8 +1,6 @@
 <?xml version="1.0" ?>
 <odoo>
-
     <record model="pos.config" id="point_of_sale.pos_config_main">
         <field name="anonymous_partner_id" ref="res_partner_anonymous" />
     </record>
-
 </odoo>

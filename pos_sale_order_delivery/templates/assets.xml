@@ -22,7 +22,6 @@
                 rel="stylesheet"
                 href="/pos_sale_order_delivery/static/src/css/pos_sale_order_delivery.css"
             />
-
         </xpath>
     </template>
 </odoo>
