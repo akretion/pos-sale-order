@@ -1,7 +1,8 @@
 # Do NOT update manually; changes here will be overwritten by Copier
-_commit: v1.43
+_commit: v1.48
 _src_path: https://github.com/oca/oca-addons-repo-template.git
-convert_readme_fragments_to_markdown: false
+additional_ruff_rules: []
+convert_readme_fragments_to_markdown: true
 enable_checklog_odoo: false
 generate_requirements_txt: true
 github_check_license: false
@@ -12,7 +13,7 @@ github_enable_stale_action: false
 github_enforce_dev_status_compatibility: false
 include_wkhtmltopdf: false
 odoo_test_flavor: Both
-odoo_version: 14.0
+odoo_version: 18.0
 org_name: Akretion
 org_slug: akretion
 postgres_image: ''
@@ -21,6 +22,6 @@ repo_description: Replace Pos Order by Sale Order
 repo_name: Replace POS order by Sale Order
 repo_slug: pos-sale-order
 repo_website: https://github.com/akretion/pos-sale-order
-use_pyproject_toml: false
-use_ruff: false
+use_pyproject_toml: true
+use_ruff: true
 
