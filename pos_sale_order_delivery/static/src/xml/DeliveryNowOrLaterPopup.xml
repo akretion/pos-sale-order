@@ -58,6 +58,9 @@
                                     <div>
                                         <label for="deliveryDate">Delivery date</label>
                                     </div>
+                                    <div t-if="dateError">
+                                        <span t-esc="dateError" class="popup popup-error" />
+                                    </div>
                                     <div>
                                         <input
                                             id="deliveryDate"
@@ -69,6 +72,7 @@
                                         <button
                                             class="pos-delivery-button"
                                             t-on-click="clickDeliveryLater"
+                                            t-att-disabled="dateError"
                                         >Deliver later</button>
                                     </div>
                                 </t>
