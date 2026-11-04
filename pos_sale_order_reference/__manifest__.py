@@ -16,5 +16,5 @@
         "templates/assets.xml",
     ],
     "qweb": ["static/src/xml/ClientOrderRefButton.xml"],
-    "installable": True,
+    "installable": False,
 }

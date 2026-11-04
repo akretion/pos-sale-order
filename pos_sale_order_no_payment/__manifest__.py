@@ -22,5 +22,5 @@
         "static/src/xml/PaymentScreenStatus.xml",
         "static/src/xml/PaymentScreenNumpad.xml",
     ],
-    "installable": True,
+    "installable": False,
 }

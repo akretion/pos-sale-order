@@ -41,7 +41,7 @@
     ],
     "qweb": ["static/src/xml/SaleOrderButton.xml"],
     "demo": [],
-    "installable": True,
+    "installable": False,
     "post_init_hook": "post_init_hook",
     "pre_init_hook": "pre_init_hook",
 }

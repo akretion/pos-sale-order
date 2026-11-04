@@ -14,4 +14,5 @@
     "qweb": [
         "static/src/xml/PrintReceiptToggleButton.xml",
     ],
+    "installable": False,
 }

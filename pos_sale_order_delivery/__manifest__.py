@@ -20,5 +20,5 @@
         "static/src/xml/DeliveryNowOrLaterButton.xml",
         "static/src/xml/DeliveryNowOrLaterPopup.xml",
     ],
-    "installable": True,
+    "installable": False,
 }

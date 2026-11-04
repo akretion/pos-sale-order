@@ -22,5 +22,5 @@
         "static/src/xml/SaleOrderLoadButton.xml",
     ],
     "demo": [],
-    "installable": True,
+    "installable": False,
 }

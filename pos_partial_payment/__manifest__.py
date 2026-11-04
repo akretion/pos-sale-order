@@ -12,5 +12,5 @@
     "depends": ["pos_sale_order"],
     "data": ["views/pos_partial_payment.xml"],
     "demo": [],
-    "installable": True,
+    "installable": False,
 }
