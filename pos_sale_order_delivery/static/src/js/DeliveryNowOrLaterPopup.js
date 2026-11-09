@@ -50,6 +50,11 @@ odoo.define("pos_sale_order_delivery.DeliveryNowOrLaterPopup", function (require
         get currentOrder() {
             return this.env.pos.get_order();
         }
+        get dateError() {
+            if (new Date(`${this.state.date}T23:59:59`) < new Date()) {
+                return "Delivery date cannot be in the past";
+            }
+        }
         async fetchDate() {
             var payload = this.currentOrder.export_as_JSON();
             this.rpc({
