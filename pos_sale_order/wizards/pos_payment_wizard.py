@@ -21,10 +21,12 @@ class PosPaymentWizard(models.TransientModel):
     def _prepare_payment(self):
         session = self._get_session()
         sale = self.sale_order_id
-        # We need to attach the sale order to the session to be able to
-        # close the session if the sale order is not invoiced
+        # The payment must be reconcile with the invoice of the sale order
+        # during the session closing. So if the sale is not invoiced we need to
+        # - attach the sale order to the current pos session (so it will be invoiced)
+        # - force the invoice policy to "order" the all qty will be invoiced
         if not sale.is_invoiced:
-            sale.write({"session_id": session.id})
+            sale.write({"session_id": session.id, "invoice_policy": "order"})
         return {
             "amount": self.amount,
             "name": _("Manual payment {}").format(sale.name),
