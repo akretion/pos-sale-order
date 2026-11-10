@@ -1,15 +1,23 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version='1.0' encoding='utf-8'?>
 <odoo>
     <record id="pos_payment_method_view_form" model="ir.ui.view">
         <field name="model">pos.payment.method</field>
-        <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form" />
+        <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
         <field name="arch" type="xml">
             <field name="cash_journal_id" position="attributes">
-                <attribute name="attrs" />
+                <!--TODO: Result from converting 'attrs' attribute override without options for ['invisible', 'readonly', 'column_invisible'] to separate attributes
+                     Remove redundant empty tags below for any of those attributes that are not present in the field tag in any of the parent views
+                     If someone later adds one of these attributes in the parent views, they would likely be unaware it's still overridden in this view, resulting in unexpected behaviour, which should be avoided-->
+                <!--TODO: Result from 'attrs' -> 'invisible' conversion without also overriding 'states' attribute
+                     Check if this field tag contained a states attribute in any of the parent views, that should be combined into this 'invisible' attribute
+                     (If any states attributes existed in parent views, they'll also be marked with a TODO)-->
+                <attribute name="invisible"/>
+                <attribute name="readonly"/>
+                <attribute name="column_invisible"/>
                 <attribute name="required">True</attribute>
             </field>
             <field name="split_transactions" position="attributes">
-                <attribute name="groups" />
+                <attribute name="groups"/>
             </field>
         </field>
     </record>

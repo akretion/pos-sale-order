@@ -36,7 +36,7 @@ PosSession.action_pos_session_closing_control = action_pos_session_closing_contr
 # in test_closing_session.py
 def _validate_session(self):
     self.ensure_one()
-    sudo = self.user_has_groups("point_of_sale.group_pos_user")
+    sudo = self.env.user.has_group("point_of_sale.group_pos_user")
     # START HACK
     # if self.order_ids or self.statement_ids.line_ids:
     if self.order_ids or self.statement_ids.line_ids or self.payment_ids:
@@ -98,8 +98,8 @@ class PosSession(models.Model):
     payment_ids = fields.One2many("pos.payment", "session_id", string="Payments")
 
     def _compute_order_count(self):
-        orders_data = self.env["sale.order"].read_group(
-            [("session_id", "in", self.ids)], ["session_id"], ["session_id"]
+        orders_data = self.env["sale.order"]._read_group(
+            [("session_id", "in", self.ids)], ['session_id'], ['__count']
         )
         sessions_data = {
             order_data["session_id"][0]: order_data["session_id_count"]
@@ -112,9 +112,9 @@ class PosSession(models.Model):
         return {
             "name": _("Orders"),
             "res_model": "sale.order",
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "views": [
-                (self.env.ref("sale.view_order_tree").id, "tree"),
+                (self.env.ref("sale.view_order_tree").id, "list"),
                 (self.env.ref("sale.view_order_form").id, "form"),
             ],
             "type": "ir.actions.act_window",

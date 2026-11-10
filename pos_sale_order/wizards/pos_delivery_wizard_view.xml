@@ -8,14 +8,14 @@
             </p>
                 <group>
                     <field name="line_ids" nolabel="1">
-                        <tree editable="bottom" create="0">
+                        <list editable="bottom" create="0">
                             <field
                                 name="qty"
                                 widget="numeric_step"
                                 options="{'step': 1, 'min': 0}"
                             />
                             <field name="product_id" readonly="1" />
-                        </tree>
+                        </list>
                     </field>
                 </group>
                 <footer>
