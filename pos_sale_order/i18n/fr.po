@@ -10,6 +10,7 @@ msgstr ""
 "PO-Revision-Date: 2024-01-31 14:54+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
@@ -20,11 +21,6 @@ msgstr ""
 #, python-format
 msgid " REFUND"
 msgstr " REMBOURSEMENT"
-
-#. module: pos_sale_order
-#: model:ir.model,name:pos_sale_order.model_account_move
-msgid "Account Move"
-msgstr "Facture"
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__amount
@@ -50,7 +46,6 @@ msgid ""
 msgstr ""
 "Êtes-vous sûr de vouloir annuler cette commande de point de vente ?\n"
 "          Un avoir sera généré pour la commande."
-
 
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__iface_print_auto
@@ -120,7 +115,8 @@ msgstr "Taux de conversion"
 #. module: pos_sale_order
 #: model:ir.model.fields,help:pos_sale_order.field_pos_payment__currency_rate
 msgid "Conversion rate from company currency to order currency."
-msgstr "Taux de conversion de la devise de l'entreprise à la devise de la commande."
+msgstr ""
+"Taux de conversion de la devise de l'entreprise à la devise de la commande."
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/sale_order.py:0
@@ -197,15 +193,6 @@ msgid "Done"
 msgstr "Fait"
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/wizards/pos_delivery_wizard.py:0
-#, python-format
-msgid ""
-"Operation %s cannot be validated automatically, please do it from delivery menu"
-msgstr ""
-"L'opération %s ne peut pas être validée automatiquement, veuillez la traiter "
-"depuis le menu livraison"
-
-#. module: pos_sale_order
 #: code:addons/pos_sale_order/models/sale_order.py:0
 #, python-format
 msgid ""
@@ -268,7 +255,6 @@ msgid "If ticked, each payment will generate a separated journal item."
 msgstr "Si coché, chaque paiement générera une écriture séparée."
 
 #. module: pos_sale_order
-#: model:ir.model,name:pos_sale_order.model_account_invoice
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__account_move
 msgid "Invoice"
 msgstr "Facture"
@@ -286,6 +272,12 @@ msgstr "Facture"
 #. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_method__cash_journal_id
 msgid "Journal"
+msgstr "Journal"
+
+#. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_account_move
+#, fuzzy
+msgid "Journal Entry"
 msgstr "Journal"
 
 #. module: pos_sale_order
@@ -378,6 +370,16 @@ msgid "Not needed"
 msgstr "Non nécessaire"
 
 #. module: pos_sale_order
+#: code:addons/pos_sale_order/wizards/pos_delivery_wizard.py:0
+#, python-format
+msgid ""
+"Operation %s cannot be validated automatically, please do it from delivery "
+"menu"
+msgstr ""
+"L'opération %s ne peut pas être validée automatiquement, veuillez la traiter "
+"depuis le menu livraison"
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_config__picking_type_id
 msgid "Operation Type"
 msgstr "Type d'opération"
@@ -468,8 +470,15 @@ msgid "PoS"
 msgstr "PdV"
 
 #. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_pos_sale_order_cancel_wizard
+#, fuzzy
+msgid "PoS Sales Order Cancel"
+msgstr "Ligne de commandes de Vente"
+
+#. module: pos_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__session_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_move__session_id
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move_line__pos_session_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_payment__session_id
 msgid "PoS Session"
 msgstr "Session"
@@ -481,6 +490,7 @@ msgid "Point Of Sale"
 msgstr "Point de vente"
 
 #. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_move_line__pos_config_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__config_id
 #: model:ir.ui.menu,name:pos_sale_order.menu_pos_dashboard
 #: model:ir.ui.menu,name:pos_sale_order.menu_pos_sale_order_root
@@ -588,7 +598,6 @@ msgstr "Refacturer"
 
 #. module: pos_sale_order
 #: model:ir.actions.act_window,name:pos_sale_order.action_sale_order_pos
-#: model:ir.model,name:pos_sale_order.model_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__pos_sale_order_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__pos_sale_order_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment_wizard__sale_order_id
@@ -596,6 +605,12 @@ msgstr "Refacturer"
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_session_wizard_mixin__sale_order_id
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.sale_order_view_tree
 msgid "Sale Order"
+msgstr "Commandes de Vente"
+
+#. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_sale_order
+#, fuzzy
+msgid "Sales Order"
 msgstr "Commandes de Vente"
 
 #. module: pos_sale_order
@@ -637,6 +652,7 @@ msgid "The move %s is already reconciled"
 msgstr "L'écriture %s est déjà lettré, veuillez corriger"
 
 #. module: pos_sale_order
+#: model:ir.model.fields,help:pos_sale_order.field_account_move_line__pos_config_id
 #: model:ir.model.fields,help:pos_sale_order.field_sale_order__config_id
 msgid "The physical point of sale you will use."
 msgstr "Le point de vente physique que vous utiliserez."
@@ -653,8 +669,7 @@ msgid ""
 "The receipt screen will be skipped if the receipt can be printed "
 "automatically."
 msgstr ""
-"L'écran de reçu sera ignoré si le reçu peut être imprimé "
-"automatiquement."
+"L'écran de reçu sera ignoré si le reçu peut être imprimé automatiquement."
 
 #. module: pos_sale_order
 #: model:ir.model.fields,help:pos_sale_order.field_pos_config__iface_print_auto
@@ -665,7 +680,9 @@ msgstr "Le reçu sera automatiquement imprimé à la fin de chaque commande."
 #: code:addons/pos_sale_order/wizards/pos_session_wizard_mixin.py:0
 #, python-format
 msgid "There is no session opened with payment method, please open one"
-msgstr "Il n'y a pas de session ouverte avec un mode de paiement, veuillez en ouvrir une"
+msgstr ""
+"Il n'y a pas de session ouverte avec un mode de paiement, veuillez en ouvrir "
+"une"
 
 #. module: pos_sale_order
 #: model_terms:ir.ui.view,arch_db:pos_sale_order.pos_sale_order_cancel_wizard_view_form
@@ -674,7 +691,8 @@ msgid ""
 "\n"
 "            Please choose a payment method for the refund:"
 msgstr ""
-"Cette commande a des paiements et ils seront remboursés si vous continuez. <br/>\n"
+"Cette commande a des paiements et ils seront remboursés si vous continuez. "
+"<br/>\n"
 "\n"
 "            Veuillez choisir un mode de paiement pour le remboursement :"
 
@@ -700,32 +718,13 @@ msgid "Warehouse"
 msgstr "Entrepots"
 
 #. module: pos_sale_order
-#: code:addons/pos_sale_order/wizards/pos_payment_wizard.py:0
-#, fuzzy, python-format
-msgid ""
-"You have several active sessions. Please close any unnecessary sessions "
-"before proceeding. List of open sessions: \n"
-"- %s"
-msgstr "Vous avez plusieurs sessions actives. Veuillez fermer les sessions inutiles avant de continuer. Liste des sessions ouvertes: \n- %s "
+#: code:addons/pos_sale_order/models/sale_order.py:0
+#, python-format
+msgid "You can only cancel one POS order at a time."
+msgstr "Vous ne pouvez annuler qu'une seule commande de point de vente à la fois."
 
 #. module: pos_sale_order
 #: code:addons/pos_sale_order/models/sale_order.py:0
 #, python-format
 msgid "return"
 msgstr ""
-
-#, python-format
-#~ msgid ""
-#~ "Impossible to reconcile all the entries.\n"
-#~ "Please check that the following ones are invoiced:\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Impossible de lettrer les écritures.\n"
-#~ "Veuillez vérifier que les commandes suivantes sont bien facturé:\n"
-#~ "\n"
-#~ "%s"
-
-#, fuzzy
-#~ msgid "Sales Order"
-#~ msgstr "Commandes de Vente"
