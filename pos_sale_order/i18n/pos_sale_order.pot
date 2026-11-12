@@ -6,6 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-11-20 08:39+0000\n"
+"PO-Revision-Date: 2024-11-20 08:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -186,6 +188,13 @@ msgstr ""
 #. module: pos_sale_order
 #: model:res.groups,name:pos_sale_order.group_show_pos_order
 msgid "Group to show pos order (do not use)"
+msgstr ""
+
+#. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment_register__pos_warning_confirmed
+msgid ""
+"I read and understood the above warning and I confirm that I want to proceed"
+" with the payment anyway."
 msgstr ""
 
 #. module: pos_sale_order
@@ -503,6 +512,11 @@ msgid "Receipt Ref"
 msgstr ""
 
 #. module: pos_sale_order
+#: model:ir.model,name:pos_sale_order.model_account_payment_register
+msgid "Register Payment"
+msgstr ""
+
+#. module: pos_sale_order
 #: model:ir.actions.act_window,name:pos_sale_order.action_sale_order_pos
 #: model:ir.model,name:pos_sale_order.model_sale_order
 #: model:ir.model.fields,field_description:pos_sale_order.field_account_bank_statement_line__pos_sale_order_id
@@ -526,6 +540,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:pos_sale_order.field_pos_payment__session_id
 #: model:ir.model.fields,field_description:pos_sale_order.field_sale_order__session_id
 msgid "Session"
+msgstr ""
+
+#. module: pos_sale_order
+#: model:ir.model.fields,field_description:pos_sale_order.field_account_payment_register__should_display_pos_warning
+msgid "Should Display Pos Warning"
 msgstr ""
 
 #. module: pos_sale_order
