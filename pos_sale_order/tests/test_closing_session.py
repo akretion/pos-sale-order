@@ -588,13 +588,84 @@ class GeneralCase(CommonCase):
         self.assertEqual(so.invoice_ids.state, "posted")
         self.assertEqual(so.invoice_ids.payment_state, "paid")
         self.assertEqual(so.invoice_ids.move_type, "out_invoice")
-        so.action_reinvoice_pos_order()
+        self.assertTrue(so.pos_can_be_reinvoiced)
+        closing_invoice = so.invoice_ids
+        action = so.open_pos_reinvoice_wizard()
+        self.assertEqual(action["context"]["default_sale_order_id"], so.id)
+        wizard = (
+            self.env[action["res_model"]].with_context(action["context"]).create({})
+        )
+        self.assertEqual(wizard.sale_order_id, so)
+        wizard.partner_id = self.partner_4
+        action = wizard.action_reinvoice()
+        self.assertEqual(action["res_model"], "account.move")
         self.assertEqual(len(so.invoice_ids), 3)
         self.assertEqual(so.invoice_status, "invoiced")
         self.assertEqual(set(so.invoice_ids.mapped("state")), {"posted"})
-        self.assertEqual(so.invoice_ids[1].move_type, "out_refund")
-        self.assertEqual(so.invoice_ids[2].move_type, "out_invoice")
+        refund = so.invoice_ids - closing_invoice
+        refund = refund.filtered(lambda move: move.move_type == "out_refund")
+        invoice = (so.invoice_ids - closing_invoice) - refund
+        self.assertEqual(refund.move_type, "out_refund")
+        self.assertEqual(invoice.move_type, "out_invoice")
+        self.assertEqual(action["res_id"], invoice.id)
+        # The refund corrects the invoice of the unknown customer, the new
+        # invoice is booked on the customer chosen in the wizard
+        self.assertEqual(refund.partner_id, self.partner_anonymous)
+        self.assertEqual(invoice.partner_id, self.partner_4)
+        self.assertEqual(so.partner_invoice_id, self.partner_4)
+        # The payment of the Point of Sale is reallocated from the unknown
+        # customer to the new one, so both invoices are settled
+        reallocation = self.env["account.move"].search(
+            [
+                ("ref", "=", "PoS reinvoicing of %s" % so.name),
+                ("move_type", "=", "entry"),
+            ]
+        )
+        self.assertEqual(len(reallocation), 1)
+        self.assertEqual(
+            reallocation.journal_id,
+            so.payment_ids.payment_method_id.cash_journal_id,
+        )
+        self.assertEqual(
+            set(reallocation.line_ids.mapped("partner_id")),
+            set((refund | invoice).mapped("commercial_partner_id")),
+        )
+        self.assertTrue(
+            float_is_zero(
+                sum(reallocation.line_ids.mapped("debit")) - refund.amount_total,
+                precision_digits=2,
+            )
+        )
         self.assertEqual(set(so.invoice_ids.mapped("payment_state")), {"paid"})
+        self.assertTrue(all(reallocation.line_ids.mapped("reconciled")))
+        # The refund and the new invoice are posted in the sale journal while
+        # the closing invoice is posted in the journal of the PoS: the order no
+        # longer has all its invoices in the PoS journal, the action cannot be
+        # repeated.
+        self.assertFalse(so.pos_can_be_reinvoiced)
+
+    def test_reinvoicing_guard_on_the_unknown_customer(self):
+        # When the journal of the PoS is the sale journal, the journal of the
+        # invoices does not tell a closing invoice from a reinvoiced one: the
+        # order must also be booked on the unknown customer of the PoS.
+        self.config.journal_id = self.company_data["default_journal_sale"]
+        self._close_session()
+        anonymous_orders = self.sales.filtered(
+            lambda s: s.partner_id == self.partner_anonymous
+        )
+        identified_orders = self.sales.filtered(
+            lambda s: s.partner_id == self.partner_3
+        )
+        self.assertEqual(
+            set(anonymous_orders.invoice_ids.mapped("journal_id")),
+            set(self.config.journal_id),
+        )
+        self.assertEqual(
+            set(identified_orders.invoice_ids.mapped("journal_id")),
+            set(self.config.journal_id),
+        )
+        self.assertTrue(all(anonymous_orders.mapped("pos_can_be_reinvoiced")))
+        self.assertFalse(any(identified_orders.mapped("pos_can_be_reinvoiced")))
 
 
 @tagged("-at_install", "post_install")
