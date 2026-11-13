@@ -2,7 +2,6 @@ exclude: |
   (?x)
   # NOT INSTALLABLE ADDONS
   ^pos_partial_payment/|
-  ^pos_sale_order/|
   ^pos_sale_order_debug/|
   ^pos_sale_order_delivery/|
   ^pos_sale_order_load/|

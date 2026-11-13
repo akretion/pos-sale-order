@@ -99,7 +99,7 @@ class PosSession(models.Model):
 
     def _compute_order_count(self):
         orders_data = self.env["sale.order"]._read_group(
-            [("session_id", "in", self.ids)], ['session_id'], ['__count']
+            [("session_id", "in", self.ids)], ["session_id"], ["__count"]
         )
         sessions_data = {
             order_data["session_id"][0]: order_data["session_id_count"]

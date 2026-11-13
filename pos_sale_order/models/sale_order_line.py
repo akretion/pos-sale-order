@@ -40,6 +40,7 @@ class SaleOrderLine(models.Model):
         "sale.order.line",
         "Self",
     )
+    qty = fields.Float(related="product_uom_qty")
 
     def _prepare_tax_base_line_values(self):
         return [line._prepare_base_line_for_taxes_computation() for line in self]
@@ -53,15 +54,10 @@ class SaleOrderLine(models.Model):
     def _load_pos_data(self, data):
         return self.env["pos.order"].__class__._load_pos_data(self, data)
 
-
-#
-# class SaleOrderLine(models.Model):
-#     _inherit = "sale.order.line"
-#
-#     @api.depends("order_id.session_id")
-#     def _get_to_invoice_qty(self):
-#         for record in self:
-#             if record.order_id.session_id:
-#                 record.qty_to_invoice = record.product_uom_qty - record.qty_invoiced
-#             else:
-#                 super(SaleOrderLine, record)._get_to_invoice_qty()
+    @api.depends("order_id.session_id")
+    def _get_to_invoice_qty(self):
+        for record in self:
+            if record.order_id.session_id:
+                record.qty_to_invoice = record.product_uom_qty - record.qty_invoiced
+            else:
+                super(SaleOrderLine, record)._get_to_invoice_qty()

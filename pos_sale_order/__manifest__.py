@@ -12,6 +12,7 @@
     "license": "AGPL-3",
     "depends": [
         "pos_sale",
+        "sale_stock",
         # TODO FIXME
         # "account_reconcile_restrict_partner_mismatch",
         # "web_widget_numeric_step",

@@ -4,8 +4,6 @@
 
 from openupgradelib import openupgrade
 
-from odoo import SUPERUSER_ID, api
-
 
 def pre_init_hook(env):
     openupgrade.load_data(env, "pos_sale_order", "data/res_partner_data.xml")

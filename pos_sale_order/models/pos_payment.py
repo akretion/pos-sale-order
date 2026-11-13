@@ -13,7 +13,6 @@ class PosPayment(models.Model):
         "sale.order",
         string="Sale Order",
         ondelete="cascade",
-        required=True,
         readonly=True,
         index=True,
     )
