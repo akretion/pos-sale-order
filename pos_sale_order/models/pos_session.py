@@ -5,84 +5,10 @@
 from collections import defaultdict
 
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import UserError
 from odoo.tools import float_is_zero
 
-from odoo.addons.point_of_sale.models.pos_session import PosSession
-
-
-# TODO V18 we should add a hook in odoo native
-# Monkey patch native action_pos_session_closing_control
-# to allow draft order
-def action_pos_session_closing_control(self):
-    self._check_pos_session_balance()
-    for session in self:
-        # if any(order.state == 'draft' for order in session.order_ids):
-        #    raise UserError(_("You cannot close the POS when orders are still in draft"))
-        if session.state == "closed":
-            raise UserError(_("This session is already closed."))
-        session.write({"state": "closing_control", "stop_at": fields.Datetime.now()})
-        if not session.config_id.cash_control:
-            session.action_pos_session_close()
-
-
-PosSession.action_pos_session_closing_control = action_pos_session_closing_control
-
-
-# TODO V18 refactor native odoo method
-# in our case we can have session without sales and without statement
-# but only with some customer payment on existing sales
-# see the test : test_backoffice_payment_sale_order_session_without_order
-# in test_closing_session.py
-def _validate_session(self):
-    self.ensure_one()
-    sudo = self.env.user.has_group("point_of_sale.group_pos_user")
-    # START HACK
-    # if self.order_ids or self.statement_ids.line_ids:
-    if self.order_ids or self.statement_ids.line_ids or self.payment_ids:
-        # END OF HACK
-        self.cash_real_transaction = self.cash_register_total_entry_encoding
-        self.cash_real_expected = self.cash_register_balance_end
-        self.cash_real_difference = self.cash_register_difference
-        if self.state == "closed":
-            raise UserError(_("This session is already closed."))
-        self._check_if_no_draft_orders()
-        self._check_invoices_are_posted()
-        if self.update_stock_at_closing:
-            self._create_picking_at_end_of_session()
-        # Users without any accounting rights won't be able to create the journal
-        # entry. If this
-        # case, switch to sudo for creation and posting.
-        try:
-            self.with_company(self.company_id)._create_account_move()
-        except AccessError as e:
-            if sudo:
-                self.sudo().with_company(self.company_id)._create_account_move()
-            else:
-                raise e
-        if self.move_id.line_ids:
-            # Set the uninvoiced orders' state to 'done'
-            self.env["pos.order"].search(
-                [("session_id", "=", self.id), ("state", "=", "paid")]
-            ).write({"state": "done"})
-        else:
-            self.move_id.sudo().unlink()
-    else:
-        statement = self.cash_register_id
-        if not self.config_id.cash_control:
-            statement.write({"balance_end_real": statement.balance_end})
-        statement.button_post()
-        statement.button_validate()
-    self.write({"state": "closed"})
-    return {
-        "type": "ir.actions.client",
-        "name": "Point of Sale Menu",
-        "tag": "reload",
-        "params": {"menu_id": self.env.ref("point_of_sale.menu_point_root").id},
-    }
-
-
-PosSession._validate_session = _validate_session
+# TODO: Recheck old hacks
 
 
 class PosSession(models.Model):

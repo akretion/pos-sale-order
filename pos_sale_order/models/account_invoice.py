@@ -17,16 +17,13 @@ class AccountMove(models.Model):
     )
 
     @api.depends(
-        "statement_line_id.statement_id.pos_session_id",
+        "statement_line_id.pos_session_id",
         "invoice_line_ids.sale_line_ids.order_id.session_id",
     )
     def _compute_session_id(self):
         for record in self:
-            record.session_id = (
-                record.statement_line_id.statement_id.pos_session_id
-                or fields.first(
-                    record.invoice_line_ids.sale_line_ids.order_id.session_id
-                )
+            record.session_id = record.statement_line_id.pos_session_id or fields.first(
+                record.invoice_line_ids.sale_line_ids.order_id.session_id
             )
 
     def _reconcile_with_pos_payment(self):

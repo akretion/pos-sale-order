@@ -6,21 +6,22 @@ import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import float_is_zero
+from odoo.tools import float_compare, float_is_zero
 
 _logger = logging.getLogger(__name__)
 
 
 class SaleOrder(models.Model):
-    _inherit = "sale.order"
+    _name = "sale.order"
+    _inherit = ("sale.order", "pos.bus.mixin", "pos.load.mixin")
 
-    _sql_constraints = [
+    _sql_constraints = (
         (
             "pos_reference_uniq",
             "unique (pos_reference, session_id)",
             "The pos_reference must be uniq per session",
-        )
-    ]
+        ),
+    )
     last_order_preparation_change = fields.Char(
         string="Last preparation change",
         help="Last printed state of the order",
@@ -74,6 +75,11 @@ class SaleOrder(models.Model):
         string="PoS Order Number",
         compute="_compute_tracking_number",
     )
+    uuid = fields.Char(
+        string="Uuid",
+        readonly=True,
+        copy=False,
+    )
     to_invoice = fields.Boolean("To invoice")
     account_move = fields.Many2one(
         "account.move",
@@ -102,6 +108,17 @@ class SaleOrder(models.Model):
         "Is Invoiced",
         compute="_compute_is_invoiced",
     )
+    has_refundable_lines = fields.Boolean(
+        "Has Refundable Lines",
+        compute="_compute_has_refundable_lines",
+    )
+    email = fields.Char(
+        string="Email", compute="_compute_contact_details", readonly=False
+    )
+    mobile = fields.Char(
+        string="Mobile", compute="_compute_contact_details", readonly=False
+    )
+    crm_team_id = fields.Many2one(related="team_id")
 
     def _link_combo_items(self, combo_child_uuids_by_parent_uuid):
         return
@@ -119,24 +136,132 @@ class SaleOrder(models.Model):
     def _process_saved_order(self, draft):
         return self.id
 
-    def _ensure_access_token(self):
-        return True
-
     def read_pos_data(self, data, config_id):
         return self.env["pos.order"].__class__.read_pos_data(self, data, config_id)
 
+    @api.model
     def _load_pos_data_fields(self, config_id):
-        return self.env["pos.order"].__class__._load_pos_data_fields(self, config_id)
+        return [
+            "message_is_follower",
+            "message_follower_ids",
+            "message_partner_ids",
+            "message_ids",
+            "has_message",
+            "message_needaction",
+            "message_needaction_counter",
+            "message_has_error",
+            "message_has_error_counter",
+            "message_attachment_count",
+            "website_message_ids",
+            "message_has_sms_error",
+            "access_token",
+            "access_url",
+            "access_warning",
+            "name",
+            "last_order_preparation_change",
+            "date_order",
+            "user_id",
+            "amount_difference",
+            "amount_tax",
+            "amount_total",
+            "amount_paid",
+            "amount_return",
+            # "margin",
+            # "margin_percent",
+            # "is_total_cost_computed",
+            "lines",
+            "company_id",
+            "country_code",
+            "pricelist_id",
+            "partner_id",
+            "sequence_number",
+            "session_id",
+            "config_id",
+            "currency_id",
+            "currency_rate",
+            "state",
+            "account_move",
+            "picking_ids",
+            # "picking_count",
+            # "failed_pickings",
+            # "picking_type_id",
+            "procurement_group_id",
+            "floating_order_name",
+            # "general_note",
+            # "nb_print",
+            "pos_reference",
+            # "sale_journal",
+            "fiscal_position_id",
+            "payment_ids",
+            # "session_move_id",
+            "to_invoice",
+            # "shipping_date",
+            "is_invoiced",
+            # "is_tipped",
+            # "tip_amount",
+            # "refund_orders_count",
+            # "refunded_order_id",
+            "has_refundable_lines",
+            # "ticket_code",
+            "tracking_number",
+            "uuid",
+            # "email",
+            # "mobile",
+            # "is_edited",
+            # "has_deleted_line",
+            # "order_edit_tracking",
+            # "available_payment_method_ids",
+            "display_name",
+            # "online_payment_method_id",
+            # "next_online_payment_amount",
+        ] + super()._load_pos_data_fields(config_id)
 
+    @api.model
     def _load_pos_data_domain(self, data):
         return self.env["pos.order"].__class__._load_pos_data_domain(self, data)
 
-    def _load_pos_data(self, data):
-        return self.env["pos.order"].__class__._load_pos_data(self, data)
+    def get_preparation_change(self):
+        return self.env["pos.order"].__class__.get_preparation_change(self)
+
+    def _ensure_to_keep_last_preparation_change(self, vals):
+        return self.env["pos.order"].__class__._ensure_to_keep_last_preparation_change(
+            self, vals
+        )
+
+    def _add_mail_attachment(self, name, ticket, basic_ticket):
+        return self.env["pos.order"].__class__._add_mail_attachment(
+            self, name, ticket, basic_ticket
+        )
+
+    def _prepare_mail_values(self, email, ticket, basic_ticket):
+        return self.env["pos.order"].__class__._prepare_mail_values(
+            self, email, ticket, basic_ticket
+        )
+
+    def action_send_receipt(self, email, ticket_image, basic_image):
+        return self.env["pos.order"].__class__.action_send_receipt(
+            self, email, ticket_image, basic_image
+        )
+
+    def get_ticket_screen_order_data(self):
+        return self.env["pos.order"].__class__.get_ticket_screen_order_data(self)
+
+    @api.depends("partner_id")
+    def _compute_contact_details(self):
+        return self.env["pos.order"].__class__._compute_contact_details(self)
 
     @api.depends("sequence_number", "session_id")
     def _compute_tracking_number(self):
         return self.env["pos.order"].__class__._compute_tracking_number(self)
+
+    @api.depends("lines.refunded_qty", "lines.qty")
+    def _compute_has_refundable_lines(self):
+        digits = self.env["decimal.precision"].precision_get("Product Unit of Measure")
+        for order in self:
+            order.has_refundable_lines = any(
+                float_compare(line.qty, line.refunded_qty, digits) > 0
+                for line in order.order_line
+            )
 
     @api.depends("account_move")
     def _compute_is_invoiced(self):
@@ -215,59 +340,6 @@ class SaleOrder(models.Model):
     def _get_receipts(self):
         """Inherit to generate your own ticket"""
         return []
-
-    def _process_order(self, order, draft, existing_order):
-        sale_id = super()._process_order(order, draft, existing_order)
-        sale = self.browse(sale_id)
-        # native code will print the invoice when state is "paid"
-        # this state do not exist on sale order
-        if sale.to_invoice:
-            sale.action_pos_order_invoice()
-        else:
-            sale._confirm_pos_order(order)
-        return sale.id
-
-    def _confirm_pos_order(self, order):
-        return self.with_delay().action_job_confirm()
-
-    def action_job_confirm(self):
-        for record in self:
-            if record.state in ("draft", "sent"):
-                record.action_confirm()
-
-    def _prepare_return_amount_payment(self, pos_order, order, pos_session, draft):
-        cash_payment_method = pos_session.payment_method_ids.filtered("is_cash_count")[
-            :1
-        ]
-        if not cash_payment_method:
-            raise UserError(
-                _(
-                    "No cash statement found for this session. "
-                    "Unable to record returned cash."
-                )
-            )
-        return {
-            "name": _("return"),
-            "session_id": pos_session.id,
-            "pos_sale_order_id": order.id,
-            "amount": -pos_order["amount_return"],
-            "payment_date": fields.Datetime.now(),
-            "payment_method_id": cash_payment_method.id,
-            "is_change": True,
-        }
-
-    def _process_payment_lines(self, pos_order, order, pos_session, draft):
-        pos_order_without_return = pos_order.copy()
-        pos_order_without_return["amount_return"] = 0
-        super()._process_payment_lines(
-            pos_order_without_return, order, pos_session, draft
-        )
-        prec_acc = order.pricelist_id.currency_id.decimal_places
-        if not draft and not float_is_zero(pos_order["amount_return"], prec_acc):
-            vals = self._prepare_return_amount_payment(
-                pos_order, order, pos_session, draft
-            )
-            order.add_payment(vals)
 
     def _get_valid_session(self, order):
         return self.env["pos.order"]._get_valid_session(order)

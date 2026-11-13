@@ -41,11 +41,17 @@ class PosOrderLine(models.Model):
             fields = [field for field in self.env["sale.order.line"]._fields]
         return self.env["sale.order.line"].read(fields, load)
 
-    def search_read(
-        self, domain=None, fields=None, offset=0, limit=None, order=None, **read_kwargs
-    ):
-        if fields:
-            fields = [field for field in self.env["sale.order.line"]._fields]
-        return self.env["sale.order.line"].search_read(
-            domain, fields, offset, limit, order, **read_kwargs
+    def search_fetch(self, domain, field_names, offset=0, limit=None, order=None):
+        if field_names:
+            for field in field_names[:]:
+                if field not in self.env["sale.order.line"]._fields:
+                    _logger.warning(
+                        "The field %s is not present in sale.order.line, "
+                        "it will be removed from the field_names list "
+                        "for the search_fetch operation",
+                        field,
+                    )
+                    field_names.remove(field)
+        return self.env["sale.order.line"].search_fetch(
+            domain, field_names, offset, limit, order
         )
