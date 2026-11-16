@@ -12,20 +12,18 @@
                     <field name="pos_reference" />
                 </group>
             </xpath>
-            <field name="amount_total" position="after">
-                <field
-                    colspan="4"
-                    name="payment_ids"
-                    readonly="True"
-                    nolabel="1"
-                    invisible="not payment_ids"
-                >
-                    <list>
-                        <field name="payment_method_id" />
-                        <field name="amount" />
-                    </list>
-                </field>
-            </field>
+            <group name="note_group" position="after">
+                <group name="pos_payment">
+                    <group class="d-flex flex-row-reverse oe_subtotal_footer border-0">
+                        <field
+                            name="pos_payment_data"
+                            widget="pos_payment_data_field"
+                            nolabel="1"
+                            readonly="1"
+                        />
+                    </group>
+                </group>
+            </group>
         </field>
     </record>
 
@@ -41,7 +39,10 @@
                     class="row justify-content-center"
                     invisible="state in ('draft', 'sent', 'cancel')"
                 >
-                    <div class="col-3" invisible="delivery_state in ('no', 'done')">
+                    <div
+                        class="col-3"
+                        invisible="delivery_status in ('pending', 'full')"
+                    >
                         <div class="card text-white bg-danger mb-3 text-center">
                             <div class="card-header">Delivery</div>
                             <div class="card-body">
@@ -60,7 +61,7 @@
                         </div>
                     </div>
 
-                    <div class="col-3" invisible="delivery_state != 'done'">
+                    <div class="col-3" invisible="delivery_state != 'full'">
                         <div class="card text-white bg-success mb-3 text-center">
                             <div class="card-header">Delivery</div>
                             <div class="card-body">
@@ -123,7 +124,7 @@
                 <field name="partner_id" />
                 <field name="user_id" />
                 <field name="amount_total" />
-                <field name="delivery_state" />
+                <field name="delivery_status" />
                 <field name="state" />
             </list>
         </field>

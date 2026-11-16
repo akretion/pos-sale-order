@@ -2,9 +2,8 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo.exceptions import ValidationError
-
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class PosPayment(models.Model):
@@ -18,7 +17,7 @@ class PosPayment(models.Model):
         index=True,
     )
     payment_method_id = fields.Many2one(readonly=True)
-    pos_order_id = fields.Integer(compute="_compute_pos_order_id")
+    pos_order_id = fields.Many2one(compute="_compute_pos_order_id")
     session_id = fields.Many2one(related="pos_sale_order_id.session_id", readonly=True)
     partner_id = fields.Many2one(
         related="pos_sale_order_id.partner_invoice_id.commercial_partner_id"

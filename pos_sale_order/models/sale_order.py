@@ -86,6 +86,7 @@ class SaleOrder(models.Model):
         "Picking",
         compute="_compute_picking_id",
     )
+    pos_payment_data = fields.Json(compute="_compute_pos_payment_data")
 
     # Custom pos_sale_order fields
     unit_to_deliver = fields.Integer(
@@ -291,6 +292,23 @@ class SaleOrder(models.Model):
             record.unit_to_deliver = sum(lines.mapped("product_uom_qty")) - sum(
                 lines.mapped("qty_delivered")
             )
+
+    def _compute_pos_payment_data(self):
+        self.pos_payment_data = {}
+        for record in self.filtered(lambda so: so.payment_ids):
+            record.pos_payment_data = {
+                "payments": [
+                    {
+                        "id": payment.id,
+                        "method": payment.payment_method_id.name,
+                        "amount": payment.amount,
+                        "currency": payment.currency_id.id,
+                    }
+                    for payment in record.payment_ids
+                ],
+                "amount_paid": record.amount_paid,
+                "amount_difference": record.amount_difference,
+            }
 
     def open_pos_payment_wizard(self):
         self.ensure_one()
