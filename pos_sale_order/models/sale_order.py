@@ -103,17 +103,16 @@ class SaleOrder(models.Model):
         for order in self:
             order.is_invoiced = bool(order.account_move)
 
-    @api.depends("is_invoiced", "state")
+    @api.depends("partner_id", "state", "session_id.state", "invoice_ids.journal_id")
     def _compute_pos_can_be_reinvoiced(self):
         for order in self:
-            # We can reinvoice only if the order if session is closed and
-            # the order is not invoiced or it is invoiced only in the global
-            # pos invoice
+            config = order.session_id.config_id
             order.pos_can_be_reinvoiced = (
-                #
-                order.session_id.state == "closed"
+                order.state in ("sale", "done")
+                and order.session_id.state == "closed"
+                and order.partner_id == config.anonymous_partner_id
                 and set(order.invoice_ids.mapped("journal_id"))
-                == set(order.session_id.config_id.journal_id)
+                == set(config.journal_id)
             )
 
     @api.depends("amount_total", "payment_ids.amount", "state")
@@ -170,6 +169,17 @@ class SaleOrder(models.Model):
 
     def open_pos_delivery_wizard(self):
         return self.open_pos_wizard("pos.delivery.wizard")
+
+    def open_pos_reinvoice_wizard(self):
+        self.ensure_one()
+        return {
+            "name": _("Reinvoice"),
+            "type": "ir.actions.act_window",
+            "res_model": "pos.sale.order.reinvoice.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_sale_order_id": self.id},
+        }
 
     def open_pos_wizard(self, model_name):
         self.ensure_one()
@@ -394,40 +404,6 @@ class SaleOrder(models.Model):
                 refund.action_post()
 
         return rv
-
-    def action_reinvoice_pos_order(self):
-        self.ensure_one()
-        if not self.pos_can_be_reinvoiced:
-            raise UserError(
-                _(
-                    "Can’t generate invoice for this order since it has been "
-                    "already invoiced or its session is still open."
-                )
-            )
-        # We use a little hack here to force a refund creation
-        for line in self.order_line:
-            line.qty_to_invoice = -line.qty_invoiced
-        # Create the refund
-        refund = self._create_invoices(final=True)
-        refund.action_post()
-        # Now we can create the standalone invoice
-        invoice = self._create_invoices(final=True)
-        invoice.action_post()
-        # We need to reconcile these two invoices
-        (refund | invoice).line_ids.filtered(
-            lambda ml: ml.account_id.reconcile
-            or ml.account_id.internal_type == "liquidity"
-        ).reconcile()
-        # Then we display the new invoice
-        return {
-            "name": _("Created Invoice"),
-            "view_mode": "form",
-            "res_id": invoice.id,
-            "res_model": "account.move",
-            "view_id": False,
-            "type": "ir.actions.act_window",
-            "context": self.env.context,
-        }
 
     def add_payment(self, data):
         # skip useless 0 payment that will bloc closing the session
