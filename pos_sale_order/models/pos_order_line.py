@@ -4,6 +4,7 @@
 import logging
 
 from odoo import api, models
+from odoo.osv import expression
 
 _logger = logging.getLogger(__name__)
 
@@ -11,15 +12,9 @@ _logger = logging.getLogger(__name__)
 class PosOrderLine(models.Model):
     _inherit = "pos.order.line"
 
-    def _adapt_vals_to_sale_line(self, vals, mode):
-        for key in list(vals.keys()):
-            if key not in self.env["sale.order.line"]._fields:
-                _logger.warning(
-                    "The field %s is not present in sale.order.line, it will be removed from the vals dict for the %s operation",
-                    key,
-                    mode,
-                )
-                del vals[key]
+    def _adapt_vals_to_sale_line(self, vals, mode, from_=None):
+        if from_:
+            vals.pop("order_id")
         return vals
 
     @api.model_create_multi
@@ -37,21 +32,14 @@ class PosOrderLine(models.Model):
         return self.env["sale.order.line"].browse(ids)
 
     def read(self, fields=None, load="_classic_read"):
-        if fields:
-            fields = [field for field in self.env["sale.order.line"]._fields]
         return self.env["sale.order.line"].read(fields, load)
 
     def search_fetch(self, domain, field_names, offset=0, limit=None, order=None):
-        if field_names:
-            for field in field_names[:]:
-                if field not in self.env["sale.order.line"]._fields:
-                    _logger.warning(
-                        "The field %s is not present in sale.order.line, "
-                        "it will be removed from the field_names list "
-                        "for the search_fetch operation",
-                        field,
-                    )
-                    field_names.remove(field)
+        pos_domain = [("order_id.session_id", "!=", False)]
+        if domain:
+            pos_domain = expression.AND([pos_domain, domain])
+        else:
+            domain = pos_domain
         return self.env["sale.order.line"].search_fetch(
             domain, field_names, offset, limit, order
         )

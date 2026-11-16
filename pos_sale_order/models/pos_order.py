@@ -5,6 +5,7 @@ import logging
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.osv import expression
 from odoo.tools import float_is_zero
 
 _logger = logging.getLogger(__name__)
@@ -16,6 +17,7 @@ class PosOrder(models.Model):
     def _adapt_vals_to_sale(self, vals, mode):
         if mode == "create" and not vals.get("partner_id"):
             pos_session = self.env["pos.session"].browse(vals["session_id"])
+            # Always set a partner for pos sale orders
             vals["partner_id"] = pos_session.config_id.anonymous_partner_id.id
 
         def adapt(command, method):
@@ -23,7 +25,7 @@ class PosOrder(models.Model):
                 return [
                     command[0],
                     command[1],
-                    method(command[2], mode),
+                    method(command[2], mode, "pos.order"),
                 ]
             return command
 
@@ -38,14 +40,7 @@ class PosOrder(models.Model):
                 adapt(command, self.env["pos.payment"]._adapt_vals_to_payment)
                 for command in vals.pop("payment_ids")
             ]
-        for key in list(vals.keys()):
-            if key not in self.env["sale.order"]._fields:
-                _logger.warning(
-                    "The field %s is not present in sale.order, it will be removed from the vals dict for the %s operation",
-                    key,
-                    mode,
-                )
-                del vals[key]
+
         return vals
 
     @api.model_create_multi
@@ -62,21 +57,14 @@ class PosOrder(models.Model):
         return self.env["sale.order"].browse(ids)
 
     def read(self, fields=None, load="_classic_read"):
-        if fields:
-            fields = [field for field in self.env["sale.order"]._fields]
         return self.env["sale.order"].read(fields, load)
 
     def search_fetch(self, domain, field_names, offset=0, limit=None, order=None):
-        if field_names:
-            for field in field_names[:]:
-                if field not in self.env["sale.order"]._fields:
-                    _logger.warning(
-                        "The field %s is not present in sale.order, "
-                        "it will be removed from the field_names list "
-                        "for the search_fetch operation",
-                        field,
-                    )
-                    field_names.remove(field)
+        pos_domain = [("session_id", "!=", False)]
+        if domain:
+            pos_domain = expression.AND([pos_domain, domain])
+        else:
+            domain = pos_domain
         return self.env["sale.order"].search_fetch(
             domain, field_names, offset, limit, order
         )

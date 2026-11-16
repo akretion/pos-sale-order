@@ -22,6 +22,8 @@ class SaleOrder(models.Model):
             "The pos_reference must be uniq per session",
         ),
     )
+
+    # Pos order interesting fields
     last_order_preparation_change = fields.Char(
         string="Last preparation change",
         help="Last printed state of the order",
@@ -37,8 +39,6 @@ class SaleOrder(models.Model):
         string="Returned",
         readonly=True,
     )
-    lines = fields.One2many(related="order_line")
-
     session_id = fields.Many2one(
         "pos.session",
         string="Session",
@@ -46,12 +46,6 @@ class SaleOrder(models.Model):
         domain="[('state', '=', 'opened')]",
         copy=False,
         readonly=True,
-    )
-    config_id = fields.Many2one(
-        "pos.config",
-        related="session_id.config_id",
-        string="Point of Sale",
-        store=True,
     )
     payment_ids = fields.One2many(
         "pos.payment",
@@ -81,6 +75,7 @@ class SaleOrder(models.Model):
         copy=False,
     )
     to_invoice = fields.Boolean("To invoice")
+
     account_move = fields.Many2one(
         "account.move",
         "Invoice",
@@ -91,6 +86,8 @@ class SaleOrder(models.Model):
         "Picking",
         compute="_compute_picking_id",
     )
+
+    # Custom pos_sale_order fields
     unit_to_deliver = fields.Integer(
         compute="_compute_unit_to_deliver",
     )
@@ -108,17 +105,76 @@ class SaleOrder(models.Model):
         "Is Invoiced",
         compute="_compute_is_invoiced",
     )
-    has_refundable_lines = fields.Boolean(
-        "Has Refundable Lines",
-        compute="_compute_has_refundable_lines",
-    )
     email = fields.Char(
-        string="Email", compute="_compute_contact_details", readonly=False
+        string="Email",
+        compute="_compute_contact_details",
+        readonly=False,
     )
     mobile = fields.Char(
-        string="Mobile", compute="_compute_contact_details", readonly=False
+        string="Mobile",
+        compute="_compute_contact_details",
+        readonly=False,
     )
+
+    # Original Related fields
+    config_id = fields.Many2one(
+        "pos.config",
+        related="session_id.config_id",
+        string="Point of Sale",
+        store=True,
+    )
+    picking_type_id = fields.Many2one(
+        "stock.picking.type",
+        related="session_id.config_id.picking_type_id",
+        readonly=False,
+    )
+    sale_journal = fields.Many2one(
+        "account.journal",
+        related="session_id.config_id.journal_id",
+        readonly=True,
+    )
+    order_edit_tracking = fields.Boolean(
+        related="config_id.order_edit_tracking",
+        readonly=True,
+    )
+    available_payment_method_ids = fields.Many2many(
+        "pos.payment.method",
+        related="config_id.payment_method_ids",
+        readonly=True,
+    )
+    session_move_id = fields.Many2one(
+        "account.move",
+        related="session_id.move_id",
+        readonly=True,
+    )
+
+    # Mapped fields
+    lines = fields.One2many(related="order_line")
     crm_team_id = fields.Many2one(related="team_id")
+
+    # Discarded fields
+    pos_order_line_ids = fields.One2many("sale.order.line", store=False)
+    margin = fields.Monetary(store=False)
+    margin_percent = fields.Float(store=False, digits=(12, 4))
+    is_total_cost_computed = fields.Boolean(store=False)
+    picking_count = fields.Integer(store=False)
+    failed_pickings = fields.Boolean(store=False)
+    general_note = fields.Text(store=False)
+    nb_print = fields.Integer(store=False)
+    shipping_date = fields.Date(store=False)
+    is_tipped = fields.Boolean(store=False)
+    tip_amount = fields.Monetary(store=False)
+    refund_orders_count = fields.Integer(store=False)
+    refunded_order_id = fields.Many2one("sale.order", store=False)
+    ticket_code = fields.Char(store=False)
+    is_edited = fields.Boolean(store=False)
+    has_deleted_line = fields.Boolean(store=False)
+    # Pos online payment
+    online_payment_method_id = fields.Many2one("pos.payment.method", store=False)
+    next_online_payment_amount = fields.Float(store=False)
+    has_refundable_lines = fields.Boolean(store=False)
+
+    sale_order_count = fields.Integer(compute="_compute_sale_order_count")
 
     def _link_combo_items(self, combo_child_uuids_by_parent_uuid):
         return
@@ -141,84 +197,11 @@ class SaleOrder(models.Model):
 
     @api.model
     def _load_pos_data_fields(self, config_id):
-        return [
-            "message_is_follower",
-            "message_follower_ids",
-            "message_partner_ids",
-            "message_ids",
-            "has_message",
-            "message_needaction",
-            "message_needaction_counter",
-            "message_has_error",
-            "message_has_error_counter",
-            "message_attachment_count",
-            "website_message_ids",
-            "message_has_sms_error",
-            "access_token",
-            "access_url",
-            "access_warning",
-            "name",
-            "last_order_preparation_change",
-            "date_order",
-            "user_id",
-            "amount_difference",
-            "amount_tax",
-            "amount_total",
-            "amount_paid",
-            "amount_return",
-            # "margin",
-            # "margin_percent",
-            # "is_total_cost_computed",
-            "lines",
-            "company_id",
-            "country_code",
-            "pricelist_id",
-            "partner_id",
-            "sequence_number",
-            "session_id",
-            "config_id",
-            "currency_id",
-            "currency_rate",
-            "state",
-            "account_move",
-            "picking_ids",
-            # "picking_count",
-            # "failed_pickings",
-            # "picking_type_id",
-            "procurement_group_id",
-            "floating_order_name",
-            # "general_note",
-            # "nb_print",
-            "pos_reference",
-            # "sale_journal",
-            "fiscal_position_id",
-            "payment_ids",
-            # "session_move_id",
-            "to_invoice",
-            # "shipping_date",
-            "is_invoiced",
-            # "is_tipped",
-            # "tip_amount",
-            # "refund_orders_count",
-            # "refunded_order_id",
-            "has_refundable_lines",
-            # "ticket_code",
-            "tracking_number",
-            "uuid",
-            # "email",
-            # "mobile",
-            # "is_edited",
-            # "has_deleted_line",
-            # "order_edit_tracking",
-            # "available_payment_method_ids",
-            "display_name",
-            # "online_payment_method_id",
-            # "next_online_payment_amount",
-        ] + super()._load_pos_data_fields(config_id)
+        return self.env["pos.order"]._load_pos_data_fields(config_id)
 
     @api.model
     def _load_pos_data_domain(self, data):
-        return self.env["pos.order"].__class__._load_pos_data_domain(self, data)
+        return self.env["pos.order"]._load_pos_data_domain(data)
 
     def get_preparation_change(self):
         return self.env["pos.order"].__class__.get_preparation_change(self)
@@ -254,19 +237,10 @@ class SaleOrder(models.Model):
     def _compute_tracking_number(self):
         return self.env["pos.order"].__class__._compute_tracking_number(self)
 
-    @api.depends("lines.refunded_qty", "lines.qty")
-    def _compute_has_refundable_lines(self):
-        digits = self.env["decimal.precision"].precision_get("Product Unit of Measure")
-        for order in self:
-            order.has_refundable_lines = any(
-                float_compare(line.qty, line.refunded_qty, digits) > 0
-                for line in order.order_line
-            )
-
-    @api.depends("account_move")
+    @api.depends("invoice_status")
     def _compute_is_invoiced(self):
         for order in self:
-            order.is_invoiced = bool(order.account_move)
+            order.is_invoiced = order.invoice_status == "invoiced"
 
     @api.depends("amount_total", "payment_ids.amount", "state")
     def _compute_pos_payment(self):
@@ -297,7 +271,11 @@ class SaleOrder(models.Model):
 
     def _compute_picking_id(self):
         for record in self:
-            record.picking_id = record.picking_ids and record.picking_ids[0]
+            record.picking_id = fields.first(record.picking_ids)
+
+    def _compute_sale_order_count(self):
+        for record in self:
+            record.sale_order_count = 1
 
     def _get_lines_to_deliver(self):
         return self.order_line.filtered(lambda s: s.product_id.type != "service")
@@ -343,3 +321,13 @@ class SaleOrder(models.Model):
 
     def _get_valid_session(self, order):
         return self.env["pos.order"]._get_valid_session(order)
+
+    def action_view_sale_order(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Linked Sale Orders"),
+            "res_model": "sale.order",
+            "view_mode": "form",
+            "res_id": self.id,
+        }
