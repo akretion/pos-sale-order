@@ -35,6 +35,9 @@ class PosPayment(models.Model):
                 )
 
     def _adapt_vals_to_payment(self, vals, mode, from_=None):
+        # skip useless 0 payment that will block closing the session
+        if mode == "create" and "amount" in vals and not vals.get("amount"):
+            return
         if "pos_order_id" in vals:
             vals["pos_sale_order_id"] = vals.pop("pos_order_id")
         return vals

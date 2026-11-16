@@ -22,11 +22,10 @@ class PosOrder(models.Model):
 
         def adapt(command, method):
             if len(command) == 3 and isinstance(command[2], dict):
-                return [
-                    command[0],
-                    command[1],
-                    method(command[2], mode, "pos.order"),
-                ]
+                vals = method(command[2], mode, "pos.order")
+                if vals:
+                    return [command[0], command[1], vals]
+                return
             return command
 
         if "lines" in vals:
@@ -37,8 +36,12 @@ class PosOrder(models.Model):
 
         if "payment_ids" in vals:
             vals["payment_ids"] = [
-                adapt(command, self.env["pos.payment"]._adapt_vals_to_payment)
-                for command in vals.pop("payment_ids")
+                cmd
+                for cmd in [
+                    adapt(command, self.env["pos.payment"]._adapt_vals_to_payment)
+                    for command in vals.pop("payment_ids")
+                ]
+                if cmd
             ]
 
         return vals

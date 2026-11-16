@@ -5,6 +5,10 @@
 from odoo import api, fields, models
 
 
+def nosearch(*args, **kwargs):
+    return [("id", "=", 0)]
+
+
 class SaleOrderLine(models.Model):
     _name = "sale.order.line"
     _inherit = ("sale.order.line", "pos.load.mixin")
@@ -17,7 +21,7 @@ class SaleOrderLine(models.Model):
     session_id = fields.Many2one(related="order_id.session_id")
 
     # Mapped Fields
-    qty = fields.Float(related="product_uom_qty")
+    qty = fields.Float(related="product_uom_qty", readonly=False)
     tax_ids = fields.Many2many(related="tax_id")
     price_subtotal_incl = fields.Monetary(related="price_total")
     attribute_value_ids = fields.Many2many(
@@ -44,7 +48,11 @@ class SaleOrderLine(models.Model):
     down_payment_details = fields.Text(store=False)
     sale_order_line_id = fields.Many2one("sale.order.line", store=False)
     sale_order_origin_id = fields.Many2one("sale.order", store=False)
-    pos_order_line_ids = fields.One2many("sale.order.line", store=False)
+    pos_order_line_ids = fields.One2many(
+        "sale.order.line",
+        store=False,
+        search=nosearch,
+    )
     combo_parent_id = fields.Many2one("sale.order.line", store=False)
     combo_line_ids = fields.One2many("sale.order.line", store=False)
     is_edited = fields.Boolean(store=False)
@@ -54,7 +62,11 @@ class SaleOrderLine(models.Model):
     margin_percent = fields.Float(store=False, digits=(12, 4))
     tax_ids_after_fiscal_position = fields.Many2many("account.tax", store=False)
     notice = fields.Char(store=False)
-    refund_orderline_ids = fields.One2many("sale.order.line", store=False)
+    refund_orderline_ids = fields.One2many(
+        "sale.order.line",
+        store=False,
+        search=nosearch,
+    )
     refunded_orderline_id = fields.Many2one("sale.order.line", store=False)
     pack_lot_ids = fields.One2many("pos.pack.operation.lot", store=False)
     refunded_qty = fields.Float("Refunded Quantity", store=False)

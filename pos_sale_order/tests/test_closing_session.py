@@ -3,10 +3,9 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 
+from odoo.addons.queue_job.job import Job
 from odoo.exceptions import UserError
 from odoo.tests.common import tagged
-
-from odoo.addons.queue_job.job import Job
 
 from .common import CommonCase
 
@@ -54,7 +53,7 @@ class GeneralCase(CommonCase):
         self.assertEqual(set(invoices.mapped("payment_state")), {"paid"})
 
         move = self.env["account.move"].search(
-            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+            [("journal_id", "=", self.cash_pm1.cash_journal_id.id)]
         )
         # we expect 4 payment (one per invoice)
         self.assertEqual(len(move), 4)
@@ -71,10 +70,10 @@ class GeneralCase(CommonCase):
     def test_no_cash_payment(self):
         """Ensure that payment are generated even for no cash payment"""
         # use _write as write is forbidden with open session
-        self.cash_pm._write({"is_cash_count": False})
+        self.cash_pm1._write({"is_cash_count": False})
         self._close_session()
         moves = self.env["account.move"].search(
-            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+            [("journal_id", "=", self.cash_pm1.cash_journal_id.id)]
         )
         # we expect 4 payment (one per invoice)
         self.assertEqual(len(moves), 4)
@@ -97,7 +96,7 @@ class GeneralCase(CommonCase):
         sale = self._create_sale([data])
         self._close_session()
         move = self.env["account.move"].search(
-            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+            [("journal_id", "=", self.cash_pm1.cash_journal_id.id)]
         )
         self.assertEqual(len(move), 0)
         self.assertEqual(len(sale.invoice_ids), 1)
@@ -106,10 +105,10 @@ class GeneralCase(CommonCase):
     def test_split_transaction_payment(self):
         """Ensure that payment are generated even for no cash payment"""
         # use _write as write is forbidden with open session
-        self.cash_pm._write({"split_transactions": True})
+        self.cash_pm1._write({"split_transactions": True})
         self._close_session()
         moves = self.env["account.move"].search(
-            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+            [("journal_id", "=", self.cash_pm1.cash_journal_id.id)]
         )
         # we expect 6 payment (one per sale)
         self.assertEqual(len(moves), 6)
@@ -234,7 +233,7 @@ class GeneralCase(CommonCase):
         self.assertEqual(
             wizard.available_payment_method_ids, self.config.payment_method_ids
         )
-        wizard.payment_method_id = self.cash_pm
+        wizard.payment_method_id = self.cash_pm1
 
         wizard.pay()
         self.assertEqual(len(sale.payment_ids), 1)
@@ -242,7 +241,7 @@ class GeneralCase(CommonCase):
     def test_backoffice_payment_sale_order(self):
         # create an order without payment
         data = self._get_pos_data()
-        data["data"]["statement_ids"] = []
+        data["statement_ids"] = []
         sale = self._create_sale([data])
         self._close_session()
 
@@ -272,7 +271,7 @@ class GeneralCase(CommonCase):
     def test_backoffice_payment_sale_order_session_without_order(self):
         # create an order without payment
         data = self._get_pos_data()
-        data["data"]["statement_ids"] = []
+        data["statement_ids"] = []
         sale = self._create_sale([data])
         self._close_session()
 
@@ -312,7 +311,7 @@ class GeneralCase(CommonCase):
         self.assertEqual(
             wizard.available_payment_method_ids, self.config.payment_method_ids
         )
-        wizard.payment_method_id = self.cash_pm
+        wizard.payment_method_id = self.cash_pm1
 
         wizard.pay()
         self.assertEqual(len(sale.payment_ids), 1)
@@ -362,7 +361,7 @@ class GeneralCase(CommonCase):
 @tagged("-at_install", "post_install")
 class SpecialCase(CommonCase):
     def test_with_refund_sale_and_split_payment(self):
-        self.cash_pm.split_transactions = True
+        self.cash_pm1.split_transactions = True
         refund_lines = [
             (self.product0, -3.0),
             (self.product1, -1.0),
@@ -376,11 +375,11 @@ class SpecialCase(CommonCase):
         self._create_sale(datas)
         self._close_session()
         move = self.env["account.move"].search(
-            [("journal_id", "=", self.cash_pm.cash_journal_id.id)]
+            [("journal_id", "=", self.cash_pm1.cash_journal_id.id)]
         )
         # we expect 3 payments and all must be reconciled, and reconciled together
         lines = move.line_ids.filtered(
-            lambda s: s.account_id == self.cash_pm.receivable_account_id
+            lambda s: s.account_id == self.cash_pm1.receivable_account_id
         )
         self.assertEqual(len(lines), 3)
         for line in lines:

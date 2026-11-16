@@ -40,8 +40,8 @@ class TestCreateOrder(CommonCase):
     def test_create_sale_with_useless_payment(self):
         data = self._get_pos_data(
             payments=[
-                (self.cash_pm, 65),
-                (self.bank_pm, 0),
+                (self.cash_pm1, 65),
+                (self.bank_pm1, 0),
             ]
         )
         sale = self._create_sale([data])
@@ -76,6 +76,6 @@ class TestCreateOrder(CommonCase):
 
     def test_create_sale_with_discount(self):
         data = self._get_pos_data()
-        data["data"]["lines"][0][2]["discount"] = 20
+        data["lines"][0][2]["discount"] = 20
         sale = self._create_sale([data])
         self.assertEqual(sale.order_line[0].discount, 20)

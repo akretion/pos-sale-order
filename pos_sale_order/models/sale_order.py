@@ -151,7 +151,7 @@ class SaleOrder(models.Model):
 
     # Mapped fields
     lines = fields.One2many(related="order_line")
-    crm_team_id = fields.Many2one(related="team_id")
+    crm_team_id = fields.Many2one(related="team_id", readonly=False)
 
     # Discarded fields
     pos_order_line_ids = fields.One2many("sale.order.line", store=False)
@@ -181,11 +181,9 @@ class SaleOrder(models.Model):
         return
 
     def add_payment(self, data):
-        # skip useless 0 payment that will bloc closing the session
-        if not data.get("amount"):  # Needed in 18.0?
-            return
         data = self.env["pos.payment"]._adapt_vals_to_payment(data, "create")
-        return self.env["pos.order"].__class__.add_payment(self, data)
+        if data:
+            self.env["pos.order"].__class__.add_payment(self, data)
 
     def _compute_prices(self):
         return self.env["pos.order"].__class__._compute_prices(self)

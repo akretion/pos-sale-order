@@ -13,8 +13,7 @@
     "depends": [
         "pos_sale",
         "sale_stock",
-        # TODO FIXME
-        # "account_reconcile_restrict_partner_mismatch",
+        "account_reconcile_restrict_partner_mismatch",
         "sale_delivery_state",
         "queue_job",
     ],

@@ -15,10 +15,10 @@
         </field>
     </record>
 
-    <record id="point_of_sale.action_pos_pos_form" model="ir.actions.act_window">
+    <!-- <record id="point_of_sale.action_pos_pos_form" model="ir.actions.act_window">
         <field name="res_model">sale.order</field>
         <field name="context">{'search_default_pos': 1}</field>
-    </record>
+    </record> -->
 
     <record model="ir.ui.view" id="view_pos_config_tree">
         <field name="model">pos.config</field>

@@ -13,7 +13,7 @@ class PosOrderLine(models.Model):
     _inherit = "pos.order.line"
 
     def _adapt_vals_to_sale_line(self, vals, mode, from_=None):
-        if from_:
+        if from_ and "order_id" in vals:
             vals.pop("order_id")
         return vals
 

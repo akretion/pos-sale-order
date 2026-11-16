@@ -26,7 +26,7 @@ class PosDeliveryWizard(models.TransientModel):
                 "done",
                 "cancel",
             ):
-                for line in picking.move_lines:
+                for line in picking.move_ids:
                     if line.state != "done":
                         vals.append([0, 0, self._prepare_line(line)])
         return self.create({"line_ids": vals})
@@ -48,11 +48,11 @@ class PosDeliveryWizard(models.TransientModel):
                 for line in move.move_line_ids:
                     # Do not change anything if the move line has been created
                     # manually (forced) or if the qty done has already been set
-                    if not line.product_qty or line.qty_done:
+                    if line.quantity:
                         continue
-                    line.qty_done = line.product_qty
+                    line.quantity = move.quantity
             elif move.state == "confirmed":  # Ignore 'waiting' moves
-                move.quantity_done = move.product_uom_qty
+                move.quantity = move.product_uom_qty
 
     def _handle_button_validate_action(self, action):
         if action.get("res_model") == "stock.backorder.confirmation":
@@ -91,7 +91,7 @@ class PosDeliveryWizard(models.TransientModel):
 
     def confirm(self):
         for line in self.line_ids:
-            line.move_line_id.quantity_done = line.qty
+            line.move_line_id.quantity = line.qty
         self._validate_delivery()
         return True
 

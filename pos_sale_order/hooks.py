@@ -11,7 +11,6 @@ def pre_init_hook(env):
 
 
 def post_init_hook(env):
-    pass
-    # env.ref("point_of_sale.action_client_pos_menu").write(
-    #     {"params": {"menu_id": env.ref("pos_sale_order.menu_pos_sale_order_root").id}}
-    # )
+    env.ref("point_of_sale.action_client_pos_menu").write(
+        {"params": {"menu_id": env.ref("pos_sale_order.menu_pos_sale_order_root").id}}
+    )

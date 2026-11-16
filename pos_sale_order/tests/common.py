@@ -12,8 +12,12 @@ from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 class CommonCase(TestPoSCommon):
     @classmethod
     def _create_sale(cls, data):
-        res = cls.env["sale.order"].create_from_ui(data)
-        return cls.env["sale.order"].browse([order["id"] for order in res["orders"]])
+        return cls.env["pos.order"].browse(
+            [
+                order["id"]
+                for order in cls.env["pos.order"].sync_from_ui(data)["pos.order"]
+            ]
+        )
 
     @classmethod
     def create_random_uid(cls):
@@ -33,22 +37,21 @@ class CommonCase(TestPoSCommon):
             raise NotImplementedError
 
         if amount_return:
-            payments = [(cls.cash_pm, 65 + amount_return)]
+            payments = [(cls.cash_pm1, 65 + amount_return)]
         if lines is None:
             lines = cls.lines
         data = cls.create_ui_order_data(
             cls, lines, customer=partner, is_invoiced=to_invoice, payments=payments
         )
         if pos_session:
-            data["data"]["pos_session_id"] = pos_session.id
+            data["pos_session_id"] = pos_session.id
         if amount_return:
-            data["data"]["amount_return"] = amount_return
-        data["data"]["creation_date"] = datetime.now().isoformat()[0:23] + "Z"
+            data["amount_return"] = amount_return
         return data
 
     @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUpClass(cls):
+        super().setUpClass()
         ctx = {"test_partner_mismatch": True}
         cls.env = cls.env(context=ctx)
 
@@ -68,7 +71,7 @@ class CommonCase(TestPoSCommon):
         cash.receivable_account_id = cls.env["account.account"].search(
             [
                 ("name", "=", "Account Receivable"),
-                ("company_id", "=", cls.company.id),
+                ("company_ids", "=", cls.company.id),
             ]
         )
         cls.config = cls.basic_config.with_context(**ctx)
