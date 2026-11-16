@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <block id="pos_inventory_section" position="after">
+                <block title="Pos Sale Order" id="pos_sale_order_section">
+                    <setting
+                        title="Default Partner"
+                        string="Default Partner"
+                        help="This partner will be used for POS orders that are not linked to a specific customer."
+                        required="1"
+                    >
+                        <field
+                            name="pos_anonymous_partner_id"
+                            required="pos_config_id"
+                        />
+                    </setting>
+                    <setting
+                        title="Warehouse"
+                        string="Warehouse"
+                        help="This warehouse will be used for POS Sale Order."
+                        required="1"
+                    >
+                        <field name="pos_warehouse_id" required="pos_config_id" />
+                    </setting>
+                </block>
+            </block>
+            <field name="pos_picking_type_id" position="attributes">
+                <attribute name="required">False</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

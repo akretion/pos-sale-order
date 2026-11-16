@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <templates>
     <t t-name="pos_sale_order.PosPaymentDataField">
-        <div style="text-align: left">Payments:</div>
-        <table class="float-end ms-5" t-if="posPaymentData">
-            <t t-foreach="posPaymentData.payments" t-as="payment" t-key="payment.id">
-                <tr>
-                    <td>
-                        <label
-                            class="o_form_label o_tax_total_label"
-                            t-out="payment.method"
-                        />
-                    </td>
-                    <td class="o_list_monetary">
-                        <span
-                            t-att-name="payment.method"
-                            style="white-space: nowrap; font-weight: bold;"
-                            dir="ltr"
-                            t-out="formatMonetary(payment.amount, {currencyId: payment.currency})"
-                        />
-                    </td>
-                </tr>
-            </t>
-        </table>
+        <t t-if="posPaymentData">
+            <div style="text-align: left">Payments:</div>
+            <table class="float-end ms-5">
+                <t
+                    t-foreach="posPaymentData.payments"
+                    t-as="payment"
+                    t-key="payment.id"
+                >
+                    <tr>
+                        <td>
+                            <label
+                                class="o_form_label o_tax_total_label"
+                                t-out="payment.method"
+                            />
+                        </td>
+                        <td class="o_list_monetary">
+                            <span
+                                t-att-name="payment.method"
+                                style="white-space: nowrap; font-weight: bold;"
+                                dir="ltr"
+                                t-out="formatMonetary(payment.amount, {currencyId: payment.currency})"
+                            />
+                        </td>
+                    </tr>
+                </t>
+            </table>
+        </t>
     </t>
 </templates>

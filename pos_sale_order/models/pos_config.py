@@ -16,4 +16,6 @@ class PosConfig(models.Model):
     )
 
     def _get_default_partner(self):
-        return self.env.ref("pos_sale_order.res_partner_anonymous")
+        return self.env.ref(
+            "pos_sale_order.res_partner_anonymous", raise_if_not_found=False
+        )

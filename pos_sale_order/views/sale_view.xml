@@ -61,7 +61,7 @@
                         </div>
                     </div>
 
-                    <div class="col-3" invisible="delivery_state != 'full'">
+                    <div class="col-3" invisible="delivery_status != 'full'">
                         <div class="card text-white bg-success mb-3 text-center">
                             <div class="card-header">Delivery</div>
                             <div class="card-body">

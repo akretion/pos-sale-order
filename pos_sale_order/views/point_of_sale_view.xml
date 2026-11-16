@@ -20,25 +20,6 @@
         <field name="context">{'search_default_pos': 1}</field>
     </record>
 
-    <record id="pos_config_view_form" model="ir.ui.view">
-        <field name="model">pos.config</field>
-        <field name="inherit_id" ref="point_of_sale.pos_config_view_form" />
-        <field name="arch" type="xml">
-            <field name="picking_type_id" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </field>
-            <field name="picking_type_id" position="before">
-                <field name="warehouse_id" />
-            </field>
-            <field name="currency_id" position="after">
-                <field name="anonymous_partner_id" />
-            </field>
-            <field name="picking_type_id" position="attributes">
-                <attribute name="required">False</attribute>
-            </field>
-        </field>
-    </record>
-
     <record model="ir.ui.view" id="view_pos_config_tree">
         <field name="model">pos.config</field>
         <field name="inherit_id" ref="point_of_sale.view_pos_config_tree" />
@@ -78,9 +59,5 @@
                 <field name="warehouse_id" />
             </field>
         </field>
-    </record>
-
-    <record id="point_of_sale.pos_invoice_report" model="ir.actions.report">
-        <field name="model">sale.order</field>
     </record>
 </odoo>
