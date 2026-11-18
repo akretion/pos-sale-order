@@ -62,9 +62,12 @@ odoo.define("pos_sale_order.models", function (require) {
                     }
                     if (res.error) {
                         return Promise.reject({
-                            code: 200,
-                            message: "Error",
-                            debug: res.error,
+                            message: {
+                                code: 200,
+                                message: "Error",
+                                debug: res.error,
+                                ...(res.custom_error || {}),
+                            },
                         });
                     }
                     self.set("failed", false);
