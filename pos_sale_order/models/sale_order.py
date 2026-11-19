@@ -83,6 +83,9 @@ class SaleOrder(models.Model):
         default=0,
     )
     is_invoiced = fields.Boolean("Is Invoiced", compute="_compute_is_invoiced")
+    pos_can_be_reinvoiced = fields.Boolean(
+        "Can be reinvoiced", compute="_compute_pos_can_be_reinvoiced"
+    )
 
     @api.model
     def _payment_fields(self, order, ui_paymentline):
@@ -99,6 +102,18 @@ class SaleOrder(models.Model):
     def _compute_is_invoiced(self):
         for order in self:
             order.is_invoiced = bool(order.account_move)
+
+    @api.depends("partner_id", "state", "session_id.state", "invoice_ids.journal_id")
+    def _compute_pos_can_be_reinvoiced(self):
+        for order in self:
+            config = order.session_id.config_id
+            order.pos_can_be_reinvoiced = (
+                order.state in ("sale", "done")
+                and order.session_id.state == "closed"
+                and order.partner_id == config.anonymous_partner_id
+                and set(order.invoice_ids.mapped("journal_id"))
+                == set(config.journal_id)
+            )
 
     @api.depends("amount_total", "payment_ids.amount", "state")
     def _compute_pos_payment(self):
@@ -147,15 +162,28 @@ class SaleOrder(models.Model):
             )
 
     def open_pos_payment_wizard(self):
-        self.ensure_one()
-        wizard = self.env["pos.payment.wizard"].create_wizard(self)
-        action = wizard.get_formview_action()
-        action["target"] = "new"
-        return action
+        return self.open_pos_wizard("pos.payment.wizard")
+
+    def open_pos_cancel_order_wizard(self):
+        return self.open_pos_wizard("pos.sale.order.cancel.wizard")
 
     def open_pos_delivery_wizard(self):
+        return self.open_pos_wizard("pos.delivery.wizard")
+
+    def open_pos_reinvoice_wizard(self):
         self.ensure_one()
-        wizard = self.env["pos.delivery.wizard"].create_wizard(self)
+        return {
+            "name": _("Reinvoice"),
+            "type": "ir.actions.act_window",
+            "res_model": "pos.sale.order.reinvoice.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_sale_order_id": self.id},
+        }
+
+    def open_pos_wizard(self, model_name):
+        self.ensure_one()
+        wizard = self.env[model_name].create_wizard(self)
         action = wizard.get_formview_action()
         action["target"] = "new"
         return action
@@ -304,6 +332,82 @@ class SaleOrder(models.Model):
                 pos_order, order, pos_session, draft
             )
             order.add_payment(vals)
+
+    def _prepare_refund_payment(self, amount):
+        payment_method = self.env["pos.payment.method"].browse(
+            self._context.get("pos_cancel_payment_method_id")
+        )
+
+        # The refund payment should always happen in the current session
+
+        return {
+            "name": _("Refund"),
+            "session_id": self._context["current_pos_session_id"],
+            "pos_sale_order_id": self.id,
+            "amount": -amount,
+            "payment_date": fields.Datetime.now(),
+            "payment_method_id": payment_method.id,
+        }
+
+    def _process_pos_cancel_before(self):
+        self.ensure_one()
+        if self.session_id.state in ("opened", "closing_control"):
+            # If the session is still open, we need to create the invoice
+            # and then refund it.
+            if self.state == "draft":
+                self.action_confirm()
+
+            # If we have a draft invoice, we need to post it before refunding it
+            self.invoice_ids.filtered(
+                lambda invoice: invoice.state == "draft"
+            ).action_post()
+
+            # If there is still lines to invoice, invoice them
+            if self.invoice_status == "to invoice":
+                self._create_invoices(final=True)
+                # And confirm them
+                self.invoice_ids.filtered(
+                    lambda invoice: invoice.state == "draft"
+                ).action_post()
+
+    def _process_pos_cancel_after(self):
+        self.ensure_one()
+        # We need to refund any payment made, the payment method should
+        # have been set in the wizard
+        self.add_payment(self._prepare_refund_payment(self.amount_paid))
+
+        if self.session_id.state in ("opened", "closing_control"):
+            # If the session is still open, we need to refund the invoice
+            # cancel=True allows for reconciliation
+            self.invoice_ids._reverse_moves(cancel=True)
+
+        elif self.session_id.state == "closed":
+            # If the session is closed, we need to create a credit note
+            # in the current session, it will be reconciled at the
+            # session close.
+            # sale_order_qty_to_invoice_cancelled will take care of
+            # creating the credit note on reinvoicing
+            refund = self._create_invoices(final=True)
+            refund.action_post()
+
+    def action_cancel(self):
+        if self.payment_ids:
+            if len(self) != 1:
+                raise UserError(_("You can only cancel one POS order at a time."))
+            if not self._context.get("disable_pos_cancel_warning"):
+                return self.open_pos_cancel_order_wizard()
+
+            if not self._context.get("pos_cancel_payment_method_id"):
+                raise UserError(_("No payment method found for refunding this order."))
+        return super().action_cancel()
+
+    def _action_cancel(self):
+        if self.payment_ids:
+            self._process_pos_cancel_before()
+        res = super()._action_cancel()
+        if self.payment_ids:
+            self._process_pos_cancel_after()
+        return res
 
     def add_payment(self, data):
         # skip useless 0 payment that will bloc closing the session
