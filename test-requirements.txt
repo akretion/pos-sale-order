@@ -1,2 +1,3 @@
 odoo14-addon-pos_backend_partner @ git+https://github.com/oca/pos@refs/pull/575/head#subdirectory=setup/pos_backend_partner
 openupgradelib @ git+https://github.com/OCA/openupgradelib.git
+odoo14-addon-pos_detailed_cash_register @ git+https://github.com/akretion/pos@refs/pull/1/head#subdirectory=setup/pos_detailed_cash_register
