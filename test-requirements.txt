@@ -1,3 +1,4 @@
 odoo14-addon-pos_backend_partner @ git+https://github.com/oca/pos@refs/pull/575/head#subdirectory=setup/pos_backend_partner
 odoo14-addon-sale_invoice_policy @ git+https://github.com/oca/sale-workflow@refs/pull/1385/head#subdirectory=setup/sale_invoice_policy
 openupgradelib @ git+https://github.com/OCA/openupgradelib.git
+odoo14-addon-pos_detailed_cash_register @ git+https://github.com/akretion/pos@refs/pull/1/head#subdirectory=setup/pos_detailed_cash_register
