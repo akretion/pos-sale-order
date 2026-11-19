@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+  <record id="pos_sale_order_reinvoice_wizard_view_form" model="ir.ui.view">
+    <field name="name">pos.sale.order.reinvoice.wizard.form</field>
+    <field name="model">pos.sale.order.reinvoice.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Reinvoice">
+        <field name="currency_id" invisible="1" />
+        <field name="sale_order_id" invisible="1" />
+        <p>
+          The order is refunded and invoiced again to the customer of your choice.
+          The payment received by the Point of Sale is reallocated to him.
+        </p>
+        <group>
+          <field name="partner_id" required="1" />
+          <field name="amount_total" />
+        </group>
+        <footer>
+          <button
+                        string="Reinvoice"
+                        name="action_reinvoice"
+                        type="object"
+                        class="btn-primary"
+                    />
+          <button string="Cancel" class="btn-secondary" special="cancel" />
+        </footer>
+      </form>
+    </field>
+  </record>
+</odoo>
