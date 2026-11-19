@@ -21,6 +21,9 @@ class PosSaleOrderCancelWizard(models.TransientModel):
         return self.sale_order_id.with_context(
             {
                 "disable_pos_cancel_warning": True,
+                # TODO in this wizard we should warn if there is some delivery
+                "disable_cancel_warning": True,
                 "pos_cancel_payment_method_id": self.payment_method_id.id,
+                "current_pos_session_id": self._get_session().id,
             }
         ).action_cancel()

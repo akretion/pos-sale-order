@@ -342,68 +342,72 @@ class SaleOrder(models.Model):
 
         return {
             "name": _("Refund"),
-            "session_id": self.session_id.config_id.current_session_id.id,
+            "session_id": self._context["current_pos_session_id"],
             "pos_sale_order_id": self.id,
             "amount": -amount,
             "payment_date": fields.Datetime.now(),
             "payment_method_id": payment_method.id,
         }
 
-    def action_cancel(self):
-        pos_sale = self.filtered(lambda s: s.session_id)
-        if pos_sale:
-            if len(pos_sale) != 1:
-                raise UserError(_("You can only cancel one POS order at a time."))
-            if not self._context.get("disable_pos_cancel_warning"):
-                return pos_sale.open_pos_cancel_order_wizard()
+    def _process_pos_cancel_before(self):
+        self.ensure_one()
+        if self.session_id.state in ("opened", "closing_control"):
+            # If the session is still open, we need to create the invoice
+            # and then refund it.
+            if self.state == "draft":
+                self.action_confirm()
 
-            if not self._context.get("pos_cancel_payment_method_id"):
-                raise UserError(_("No payment method found for refunding this order."))
+            # If we have a draft invoice, we need to post it before refunding it
+            self.invoice_ids.filtered(
+                lambda invoice: invoice.state == "draft"
+            ).action_post()
 
-            if pos_sale.session_id.state in ("opened", "closing_control"):
-                # If the session is still open, we need to create the invoice
-                # and then refund it.
-                if pos_sale.state == "draft":
-                    pos_sale.action_confirm()
-
-                # If we have a draft invoice, we need to post it before refunding it
-                pos_sale.invoice_ids.filtered(
+            # If there is still lines to invoice, invoice them
+            if self.invoice_status == "to invoice":
+                self._create_invoices(final=True)
+                # And confirm them
+                self.invoice_ids.filtered(
                     lambda invoice: invoice.state == "draft"
                 ).action_post()
 
-                # If there is still lines to invoice, invoice them
-                if pos_sale.invoice_status == "to invoice":
-                    pos_sale._create_invoices(final=True)
-                    # And confirm them
-                    pos_sale.invoice_ids.filtered(
-                        lambda invoice: invoice.state == "draft"
-                    ).action_post()
+    def _process_pos_cancel_after(self):
+        self.ensure_one()
+        # We need to refund any payment made, the payment method should
+        # have been set in the wizard
+        self.add_payment(self._prepare_refund_payment(self.amount_paid))
 
-        rv = super().action_cancel()
+        if self.session_id.state in ("opened", "closing_control"):
+            # If the session is still open, we need to refund the invoice
+            # cancel=True allows for reconciliation
+            self.invoice_ids._reverse_moves(cancel=True)
 
-        if pos_sale and not isinstance(rv, dict):
-            # We need to refund any payment made, the payment method should
-            # have been set in the wizard
-            if pos_sale.payment_ids:
-                pos_sale.add_payment(
-                    pos_sale._prepare_refund_payment(pos_sale.amount_paid)
-                )
+        elif self.session_id.state == "closed":
+            # If the session is closed, we need to create a credit note
+            # in the current session, it will be reconciled at the
+            # session close.
+            # sale_order_qty_to_invoice_cancelled will take care of
+            # creating the credit note on reinvoicing
+            refund = self._create_invoices(final=True)
+            refund.action_post()
 
-            if pos_sale.session_id.state in ("opened", "closing_control"):
-                # If the session is still open, we need to refund the invoice
-                # cancel=True allows for reconciliation
-                pos_sale.invoice_ids._reverse_moves(cancel=True)
+    def action_cancel(self):
+        if self.payment_ids:
+            if len(self) != 1:
+                raise UserError(_("You can only cancel one POS order at a time."))
+            if not self._context.get("disable_pos_cancel_warning"):
+                return self.open_pos_cancel_order_wizard()
 
-            elif pos_sale.session_id.state == "closed":
-                # If the session is closed, we need to create a credit note
-                # in the current session, it will be reconciled at the
-                # session close.
-                # sale_order_qty_to_invoice_cancelled will take care of
-                # creating the credit note on reinvoicing
-                refund = pos_sale._create_invoices(final=True)
-                refund.action_post()
+            if not self._context.get("pos_cancel_payment_method_id"):
+                raise UserError(_("No payment method found for refunding this order."))
+        return super().action_cancel()
 
-        return rv
+    def _action_cancel(self):
+        if self.payment_ids:
+            self._process_pos_cancel_before()
+        res = super()._action_cancel()
+        if self.payment_ids:
+            self._process_pos_cancel_after()
+        return res
 
     def add_payment(self, data):
         # skip useless 0 payment that will bloc closing the session
