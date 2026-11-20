@@ -14,6 +14,7 @@ odoo.define("pos_sale_order_delivery.models", function (require) {
             var res = order_initialize_original.call(this, attributes, options);
             this.set("commitment_date", null);
             this.set("warehouse", null);
+            this.set("delivery_when", "now");
             return res;
         },
         export_as_JSON: function () {
